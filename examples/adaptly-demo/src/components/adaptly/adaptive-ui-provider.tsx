@@ -214,16 +214,33 @@ export function AdaptiveUIProvider({
     <AdaptiveUIContext.Provider value={value}>
       {children}
       {config?.loadingOverlay?.enabled !== false && (
-        <LoadingOverlay
-          isVisible={isLLMProcessing}
-          message={
-            config?.loadingOverlay?.message || "AI is generating your layout..."
-          }
-          subMessage={
-            config?.loadingOverlay?.subMessage ||
-            "Creating components and arranging them for you"
-          }
-        />
+        <>
+          {config?.loadingOverlay?.customLoader ? (
+            <config.loadingOverlay.customLoader
+              isVisible={isLLMProcessing}
+              message={
+                config?.loadingOverlay?.message ||
+                "AI is generating your layout..."
+              }
+              subMessage={
+                config?.loadingOverlay?.subMessage ||
+                "Creating components and arranging them for you"
+              }
+            />
+          ) : (
+            <LoadingOverlay
+              isVisible={isLLMProcessing}
+              message={
+                config?.loadingOverlay?.message ||
+                "AI is generating your layout..."
+              }
+              subMessage={
+                config?.loadingOverlay?.subMessage ||
+                "Creating components and arranging them for you"
+              }
+            />
+          )}
+        </>
       )}
     </AdaptiveUIContext.Provider>
   );

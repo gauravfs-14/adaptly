@@ -21,7 +21,56 @@ import {
   ShoppingCart,
   Activity,
   Sparkles,
+  Loader2,
 } from "lucide-react";
+
+// Custom loader component example
+// Developers can provide their own loader component that matches the CustomLoaderProps interface
+const CustomLoader = ({ isVisible, message, subMessage }: any) => {
+  if (!isVisible) return null;
+
+  return (
+    <div className="fixed inset-0 bg-gradient-to-br from-blue-50 to-indigo-100 backdrop-blur-sm z-50 flex items-center justify-center">
+      <div className="bg-white rounded-2xl shadow-2xl p-8 max-w-sm mx-4 text-center border">
+        <div className="flex flex-col items-center space-y-4">
+          {/* Custom animated loader */}
+          <div className="relative">
+            <div className="w-16 h-16 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin"></div>
+            <Loader2 className="h-8 w-8 text-blue-600 animate-pulse absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2" />
+          </div>
+
+          {/* Custom message */}
+          <div className="space-y-2">
+            <h3 className="text-xl font-bold text-gray-900">{message}</h3>
+            <p className="text-sm text-gray-600">{subMessage}</p>
+          </div>
+
+          {/* Custom progress bar */}
+          <div className="w-full bg-gray-200 rounded-full h-1">
+            <div
+              className="bg-gradient-to-r from-blue-500 to-indigo-600 h-1 rounded-full animate-pulse"
+              style={{ width: "75%" }}
+            />
+          </div>
+
+          {/* Custom processing indicator */}
+          <div className="flex items-center space-x-2 text-sm text-gray-500">
+            <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce"></div>
+            <div
+              className="w-2 h-2 bg-blue-500 rounded-full animate-bounce"
+              style={{ animationDelay: "0.1s" }}
+            ></div>
+            <div
+              className="w-2 h-2 bg-blue-500 rounded-full animate-bounce"
+              style={{ animationDelay: "0.2s" }}
+            ></div>
+            <span className="ml-2">Processing with AI...</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
 
 // Sample data
 const notificationsData = [
@@ -191,6 +240,7 @@ export default function Dashboard() {
                       Sparkles,
                     }}
                     defaultLayout={defaultLayout}
+                    customLoader={CustomLoader}
                     className="h-full"
                   />
                 </div>

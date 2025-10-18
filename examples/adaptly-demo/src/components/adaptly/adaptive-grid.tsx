@@ -15,8 +15,8 @@ export interface IconRegistry {
   [key: string]: React.ComponentType<any>;
 }
 
-// Framework-style adaptive grid component
-export function AdaptiveGrid({
+// Internal grid component - developers don't use this directly
+export function AdaptiveGridCore({
   adaptation,
   componentRegistry,
   iconRegistry,
@@ -95,8 +95,22 @@ export function AdaptiveGrid({
   );
 }
 
-// Framework-style adaptive grid wrapper with context
-export function AdaptiveGridWrapper({
+/**
+ * AdaptiveLayout - The main component developers use to render adaptive UIs
+ *
+ * This component automatically connects to the Adaptly context and renders
+ * your components in an adaptive grid/flex layout based on AI-generated layouts.
+ *
+ * Usage:
+ * ```tsx
+ * <AdaptiveLayout
+ *   componentRegistry={myComponents}
+ *   iconRegistry={myIcons}
+ *   className="my-layout"
+ * />
+ * ```
+ */
+export function AdaptiveLayout({
   componentRegistry,
   iconRegistry,
   className = "",
@@ -158,7 +172,7 @@ export function AdaptiveGridWrapper({
   };
 
   return (
-    <AdaptiveGrid
+    <AdaptiveGridCore
       adaptation={adaptation}
       componentRegistry={finalComponentRegistry}
       iconRegistry={iconRegistry}

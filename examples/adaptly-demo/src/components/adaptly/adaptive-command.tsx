@@ -1,20 +1,7 @@
 "use client";
 
 import * as React from "react";
-import {
-  BarChart3,
-  Plus,
-  Trash2,
-  Palette,
-  Grid,
-  Layout,
-  RotateCcw,
-  Sparkles,
-  Wand2,
-  Table,
-  Users,
-  Settings,
-} from "lucide-react";
+import { Plus, Grid, Layout, RotateCcw, Sparkles, Wand2 } from "lucide-react";
 
 import {
   CommandDialog,

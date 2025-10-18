@@ -183,6 +183,7 @@ export interface AdaptlyConfig {
     enabled?: boolean;
     message?: string;
     subMessage?: string;
+    customLoader?: CustomLoaderComponent;
   };
   logging?: {
     enabled?: boolean;
@@ -233,3 +234,12 @@ export interface LayoutConfig {
     };
   };
 }
+
+// Custom loader component interface
+export interface CustomLoaderProps {
+  isVisible: boolean;
+  message?: string;
+  subMessage?: string;
+}
+
+export type CustomLoaderComponent = React.ComponentType<CustomLoaderProps>;

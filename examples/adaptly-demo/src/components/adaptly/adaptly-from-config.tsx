@@ -1,14 +1,13 @@
 import React, { useEffect, useState } from "react";
 import { AdaptiveUIProvider } from "./adaptive-ui-provider";
-import { AdaptiveGridWrapper } from "./adaptive-grid";
+import { AdaptiveLayout } from "./adaptive-grid";
 import { AdaptiveCommandWrapper } from "./adaptive-command";
 import { adaptlyLogger } from "./logger";
 import {
   AdaptlyConfig,
   AdaptlyJsonConfig,
-  ComponentMetadata,
-  PropDefinition,
   UIAdaptation,
+  CustomLoaderComponent,
 } from "./types";
 
 /**
@@ -66,6 +65,8 @@ export function AdaptlyFromConfig({
   aiSuggestions,
   showAISuggestions = true,
   showUtilityCommands = true,
+  // Custom loader option
+  customLoader,
 }: {
   apiKey: string;
   components: Record<string, React.ComponentType<any>>;
@@ -83,6 +84,8 @@ export function AdaptlyFromConfig({
   }>;
   showAISuggestions?: boolean;
   showUtilityCommands?: boolean;
+  // Custom loader option
+  customLoader?: CustomLoaderComponent;
 }) {
   const [adaptlyJsonConfig, setAdaptlyJsonConfig] =
     useState<AdaptlyJsonConfig | null>(null);
@@ -129,6 +132,7 @@ export function AdaptlyFromConfig({
       enabled: true,
       message: "AI is generating your layout...",
       subMessage: "Creating components and arranging them for you",
+      customLoader,
     },
     logging: { enabled: true, level: "info" },
   };
@@ -136,10 +140,7 @@ export function AdaptlyFromConfig({
   return (
     <AdaptiveUIProvider config={adaptlyConfig}>
       <div className={`adaptly-container ${className}`} style={style}>
-        <AdaptiveGridWrapper
-          componentRegistry={components}
-          iconRegistry={icons}
-        />
+        <AdaptiveLayout componentRegistry={components} iconRegistry={icons} />
         <AdaptiveCommandWrapper
           aiSuggestions={aiSuggestions}
           showAISuggestions={showAISuggestions}
