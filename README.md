@@ -1,12 +1,12 @@
 # 🧠 Adaptly — The AI-Adaptive UI Library for Next.js
 
 **Adaptly** brings intelligence to modern web dashboards.
-It’s a TypeScript-first library that lets your UI *understand what users mean*, not just what they click.
+It's a TypeScript-first library that lets your UI *understand what users mean*, not just what they click.
 With a single `Cmd + K`, users can describe their goal or need in plain English, and Adaptly uses an **LLM-driven planner** to dynamically recompose your Next.js interface using your existing React components.
 
-> “I can’t see blue.”
-> “Show me billing and analytics.”
-> “Focus this dashboard on user retention.”
+> "I can't see blue."
+> "Show me billing and analytics."
+> "Focus this dashboard on user retention."
 
 Adaptly turns those statements into live UI transformations — changing colors, scaling text, and rearranging relevant components instantly.
 
@@ -17,8 +17,8 @@ Adaptly turns those statements into live UI transformations — changing colors,
 | Category                   | Feature                              | Description                                                                                                                                 |
 | -------------------------- | ------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------- |
 | **AI-Driven Planning**     | Natural-language → structured layout | Sends user goals and your component registry to an LLM that returns a JSON layout plan with selected components and accessibility settings. |
-| **Command Bar**            | Cmd + K interface                    | Built using shadcn’s Command & Dialog components for smooth in-app natural-language input.                                                  |
-| **Adaptive Layout Engine** | Dynamic Tailwind grid                | Re-renders the UI based on the LLM’s plan: which components to show, in what order, with what styling.                                      |
+| **Command Bar**            | Cmd + K interface                    | Built using shadcn's Command & Dialog components for smooth in-app natural-language input.                                                  |
+| **Adaptive Layout Engine** | Dynamic Tailwind grid                | Re-renders the UI based on the LLM's plan: which components to show, in what order, with what styling.                                      |
 | **Accessibility Layer**    | Color & text adaptation              | Applies color substitution (e.g., avoid blue hues) and font scaling through CSS variables and Tailwind utilities.                           |
 | **Developer Registry**     | JSON-based component context         | You declare what your app can show — Adaptly uses that context to decide how to respond to user intent.                                     |
 | **Next.js Integration**    | App Router native                    | Ships React Provider, API route, and hooks that plug directly into a Next.js project with minimal setup.                                    |
@@ -47,7 +47,7 @@ Adaptly turns those statements into live UI transformations — changing colors,
    Reads the layout plan and renders your registered React components in a responsive Tailwind grid.
 
 4. **Planner API (LLM-only)**
-   A Next.js route that calls an LLM (OpenAI, Anthropic, or Ollama Cloud) to parse user intent and return a JSON layout plan.
+   A Next.js route that calls Google's Gemini API to parse user intent and return a JSON layout plan.
 
 5. **Adapters**
    Runtime utilities that modify Tailwind classes or CSS variables for color blindness and font scaling.
@@ -92,7 +92,7 @@ Each app using Adaptly defines a registry file describing components and their s
 `app/api/adaptly/plan/route.ts`
 
 ```ts
-import OpenAI from "openai";
+import { GoogleGenerativeAI } from "@google/generative-ai";
 import { NextResponse } from "next/server";
 import { z } from "zod";
 
@@ -106,7 +106,7 @@ const schema = z.object({
   }))
 });
 
-const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
 
 export async function POST(req: Request) {
   const { goal, registry } = await req.json();
@@ -120,14 +120,12 @@ export async function POST(req: Request) {
   Registry: ${JSON.stringify(registry.components)}
   `;
 
-  const res = await openai.chat.completions.create({
-    model: "gpt-4o-mini",
-    temperature: 0.3,
-    response_format: { type: "json_object" },
-    messages: [{ role: "user", content: prompt }]
-  });
+  const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+  const result = await model.generateContent(prompt);
+  const response = await result.response;
+  const text = response.text();
 
-  const plan = schema.parse(JSON.parse(res.choices[0].message.content));
+  const plan = schema.parse(JSON.parse(text));
   return NextResponse.json(plan);
 }
 ```
@@ -160,7 +158,7 @@ export default function Dashboard() {
 **User Flow**
 
 1. Press **Cmd + K**
-2. Type: “Show me billing and analytics. I can’t see blue.”
+2. Type: "Show me billing and analytics. I can't see blue."
 3. The planner calls the LLM → returns structured JSON.
 4. `AdaptiveGrid` re-renders those components with adjusted color palette.
 
@@ -173,7 +171,7 @@ export default function Dashboard() {
 | Framework         | Next.js 15 (App Router)       |
 | Language          | TypeScript                    |
 | Styling           | Tailwind CSS + shadcn UI      |
-| AI Engine         | OpenAI (GPT-4o / GPT-4o-mini) |
+| AI Engine         | Google Gemini (gemini-2.5-flash) |
 | Schema Validation | zod                           |
 | State Management  | React Context                 |
 | Packaging         | tsup                          |
@@ -196,7 +194,7 @@ export default function Dashboard() {
 * **Visual editing** with drag-and-drop grid adjustments
 * **Role-aware planning** (different layouts per user type)
 * **Automatic prompt caching** to reduce token cost
-* **Multi-LLM support** with adapters for Anthropic and Mistral APIs
+* **Multi-LLM support** with adapters for OpenAI, Anthropic, and Mistral APIs
 
 ---
 
@@ -205,4 +203,4 @@ export default function Dashboard() {
 **Adaptly** is the first UI framework that makes your front-end *intent-driven*.
 Instead of navigating menus or switching dashboards, users just *tell* the interface what they want — and the LLM rewrites the layout in real time.
 
-It’s not a chat assistant overlay. It’s an AI that lives *inside* your app’s design system.
+It's not a chat assistant overlay. It's an AI that lives *inside* your app's design system.
