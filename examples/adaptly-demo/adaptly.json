@@ -1,0 +1,256 @@
+{
+  "version": "1.0.0",
+  "description": "Adaptly configuration for AI-powered UI generation",
+  "components": {
+    "MetricCard": {
+      "name": "Metric Card",
+      "description": "Display key performance indicators with values, trends, and progress bars",
+      "category": "metrics",
+      "size": "medium",
+      "props": {
+        "title": {
+          "type": "string",
+          "description": "Metric title or label",
+          "required": true,
+          "examples": ["Total Revenue", "Active Users", "Conversion Rate"]
+        },
+        "value": {
+          "type": "string",
+          "description": "Current metric value",
+          "required": true,
+          "examples": ["$45,231", "1,234", "12.5%"]
+        },
+        "change": {
+          "type": "string",
+          "description": "Change percentage or amount",
+          "required": false,
+          "examples": ["+20.1%", "-5.2%", "+$2,340"]
+        },
+        "changeType": {
+          "type": "string",
+          "description": "Type of change (positive, negative, neutral)",
+          "required": false,
+          "options": ["positive", "negative", "neutral"],
+          "examples": ["positive", "negative", "neutral"]
+        },
+        "progress": {
+          "type": "number",
+          "description": "Progress percentage (0-100)",
+          "required": false,
+          "defaultValue": 0,
+          "examples": [75, 85, 60]
+        },
+        "icon": {
+          "type": "string",
+          "description": "Icon name for the metric",
+          "required": false,
+          "examples": ["DollarSign", "Users", "TrendingUp", "Activity"]
+        },
+        "description": {
+          "type": "string",
+          "description": "Additional context or description",
+          "required": false,
+          "examples": ["from last month", "vs previous quarter", "this year"]
+        }
+      }
+    },
+    "SalesChart": {
+      "name": "Sales Chart",
+      "description": "Visualize sales data with interactive charts and graphs",
+      "category": "visualization",
+      "size": "large",
+      "props": {
+        "title": {
+          "type": "string",
+          "description": "Chart title",
+          "required": true,
+          "examples": ["Sales Overview", "Revenue Trends", "Monthly Performance"]
+        },
+        "description": {
+          "type": "string",
+          "description": "Chart description or subtitle",
+          "required": false,
+          "examples": ["Monthly sales performance", "Revenue trends over time"]
+        },
+        "data": {
+          "type": "array",
+          "description": "Chart data points",
+          "required": true,
+          "dataSource": "api",
+          "examples": [
+            [{"month": "Jan", "sales": 12000}, {"month": "Feb", "sales": 15000}],
+            [{"quarter": "Q1", "revenue": 45000}, {"quarter": "Q2", "revenue": 52000}]
+          ]
+        },
+        "height": {
+          "type": "number",
+          "description": "Chart height in pixels",
+          "required": false,
+          "defaultValue": 300,
+          "examples": [300, 400, 500]
+        },
+        "type": {
+          "type": "string",
+          "description": "Chart type",
+          "required": false,
+          "options": ["line", "bar", "pie", "area"],
+          "examples": ["line", "bar", "pie"]
+        }
+      }
+    },
+    "DataTable": {
+      "name": "Data Table",
+      "description": "Display tabular data with filtering, sorting, and pagination",
+      "category": "data",
+      "size": "large",
+      "props": {
+        "title": {
+          "type": "string",
+          "description": "Table title",
+          "required": true,
+          "examples": ["Recent Orders", "User List", "Product Inventory"]
+        },
+        "data": {
+          "type": "array",
+          "description": "Table data rows",
+          "required": true,
+          "dataSource": "api",
+          "examples": [
+            [{"id": 1, "name": "John", "email": "john@example.com"}],
+            [{"order": "12345", "customer": "Jane", "amount": "$150"}]
+          ]
+        },
+        "columns": {
+          "type": "array",
+          "description": "Column definitions",
+          "required": true,
+          "examples": [
+            ["Name", "Email", "Role"],
+            ["Order ID", "Customer", "Amount", "Status"]
+          ]
+        },
+        "filters": {
+          "type": "object",
+          "description": "Active filters for the table",
+          "required": false,
+          "dataSource": "filtered",
+          "examples": [
+            {"status": "active", "role": "admin"},
+            {"dateRange": "last30days", "category": "electronics"}
+          ]
+        },
+        "sortBy": {
+          "type": "string",
+          "description": "Column to sort by",
+          "required": false,
+          "examples": ["name", "date", "amount", "status"]
+        },
+        "sortOrder": {
+          "type": "string",
+          "description": "Sort order (ascending or descending)",
+          "required": false,
+          "options": ["asc", "desc"],
+          "examples": ["asc", "desc"]
+        }
+      }
+    },
+    "TeamMembers": {
+      "name": "Team Members",
+      "description": "Display team member cards with roles, avatars, and contact information",
+      "category": "team",
+      "size": "medium",
+      "props": {
+        "title": {
+          "type": "string",
+          "description": "Section title",
+          "required": true,
+          "examples": ["Team Members", "Our Team", "Staff Directory"]
+        },
+        "members": {
+          "type": "array",
+          "description": "Array of team member objects",
+          "required": true,
+          "examples": [
+            [{"name": "John Doe", "role": "Product Manager", "email": "john@company.com"}],
+            [{"name": "Jane Smith", "role": "Designer", "department": "Design"}]
+          ]
+        },
+        "showAvatars": {
+          "type": "boolean",
+          "description": "Whether to show member avatars",
+          "required": false,
+          "defaultValue": true,
+          "examples": [true, false]
+        },
+        "maxDisplay": {
+          "type": "number",
+          "description": "Maximum number of members to display",
+          "required": false,
+          "defaultValue": 5,
+          "examples": [5, 10, 20]
+        }
+      }
+    },
+    "EmptyCard": {
+      "name": "Empty Card",
+      "description": "Placeholder card for empty states or when no specific component matches the user's request",
+      "category": "utility",
+      "size": "medium",
+      "props": {
+        "title": {
+          "type": "string",
+          "description": "Card title",
+          "required": true,
+          "examples": ["Choose what to create", "Describe your vision", "No content available"]
+        },
+        "description": {
+          "type": "string",
+          "description": "Card description",
+          "required": true,
+          "examples": [
+            "Describe what you'd like to see",
+            "Tell me what UI you want to create",
+            "This area is empty - add some content"
+          ]
+        },
+        "icon": {
+          "type": "string",
+          "description": "Icon name",
+          "required": false,
+          "examples": ["Plus", "Wand2", "Sparkles", "HelpCircle"]
+        },
+        "action": {
+          "type": "string",
+          "description": "Action button text",
+          "required": false,
+          "examples": ["Get Started", "Create Now", "Add Content", "Learn More"]
+        }
+      }
+    }
+  },
+  "dataSources": {
+    "api": {
+      "description": "Data fetched from API endpoints",
+      "examples": ["/api/users", "/api/orders", "/api/metrics"]
+    },
+    "filtered": {
+      "description": "Data with applied filters",
+      "examples": ["Active users only", "Last 30 days", "High priority items"]
+    },
+    "computed": {
+      "description": "Data computed from other sources",
+      "examples": ["Total sum", "Average value", "Trend analysis"]
+    }
+  },
+  "layout": {
+    "grid": {
+      "columns": 6,
+      "spacing": 6,
+      "responsive": {
+        "mobile": { "columns": 2 },
+        "tablet": { "columns": 4 },
+        "desktop": { "columns": 6 }
+      }
+    }
+  }
+}
