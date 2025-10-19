@@ -12,6 +12,8 @@ import { UIComponent, UIAdaptation, AdaptlyConfig } from "./types";
 // Export types for external use
 export type { UIComponent, UIAdaptation };
 import { CoreLLMService } from "./llm-service";
+import { EnhancedLLMService } from "./enhanced-llm-service";
+import { StorageService } from "./storage-service";
 import { LoadingOverlay } from "./loading-overlay";
 import { adaptlyLogger } from "./logger";
 
@@ -27,6 +29,13 @@ interface AdaptiveUIContextType {
   isLLMProcessing: boolean;
   lastLLMResponse?: string;
   config?: AdaptlyConfig;
+  // Storage methods
+  saveToStorage: () => boolean;
+  loadFromStorage: () => UIAdaptation | null;
+  clearStorage: () => boolean;
+  hasStoredData: () => boolean;
+  // LLM provider info
+  currentLLMProvider?: string;
 }
 
 const AdaptiveUIContext = createContext<AdaptiveUIContextType | undefined>(
@@ -55,15 +64,45 @@ export function AdaptiveUIProvider({
   );
   const [isLLMProcessing, setIsLLMProcessing] = useState(false);
   const [lastLLMResponse, setLastLLMResponse] = useState<string | undefined>();
-  const [llmService, setLlmService] = useState<CoreLLMService | null>(null);
+  const [llmService, setLlmService] = useState<
+    CoreLLMService | EnhancedLLMService | null
+  >(null);
+  const [storageService, setStorageService] = useState<StorageService | null>(
+    null
+  );
 
   // Initialize LLM service if enabled
   useEffect(() => {
     if (config?.enableLLM && config?.llm) {
-      const service = new CoreLLMService(config!.llm);
-      setLlmService(service);
+      // Use enhanced LLM service for new providers, fallback to core for google
+      if (config.llm.provider === "google") {
+        const service = new CoreLLMService(config.llm);
+        setLlmService(service);
+      } else {
+        const service = new EnhancedLLMService(config.llm);
+        setLlmService(service);
+      }
     }
   }, [config?.enableLLM, config?.llm, config]);
+
+  // Initialize storage service if enabled
+  useEffect(() => {
+    if (config?.storage?.enabled) {
+      const storage = new StorageService({
+        enabled: config.storage.enabled,
+        key: config.storage.key || "adaptly-ui",
+        version: config.storage.version || "1.0.0",
+      });
+      setStorageService(storage);
+
+      // Try to load saved adaptation on initialization
+      const savedAdaptation = storage.loadAdaptation();
+      if (savedAdaptation) {
+        setAdaptation(savedAdaptation);
+        adaptlyLogger.info("Loaded saved UI adaptation from storage");
+      }
+    }
+  }, [config?.storage]);
 
   // Configure logger
   useEffect(() => {
@@ -72,9 +111,19 @@ export function AdaptiveUIProvider({
     }
   }, [config?.logging, config]);
 
-  const updateAdaptation = useCallback((updates: Partial<UIAdaptation>) => {
-    setAdaptation((prev) => ({ ...prev, ...updates }));
-  }, []);
+  const updateAdaptation = useCallback(
+    (updates: Partial<UIAdaptation>) => {
+      setAdaptation((prev) => {
+        const newAdaptation = { ...prev, ...updates };
+        // Auto-save to storage if enabled
+        if (storageService && config?.storage?.enabled) {
+          storageService.saveAdaptation(newAdaptation);
+        }
+        return newAdaptation;
+      });
+    },
+    [storageService, config?.storage?.enabled]
+  );
 
   const addComponent = useCallback((component: UIComponent) => {
     setAdaptation((prev) => ({
@@ -237,7 +286,54 @@ export function AdaptiveUIProvider({
       : defaultAdaptation;
     setAdaptation(resetLayout);
     setLastLLMResponse(undefined);
-  }, [config?.defaultLayout]);
+    // Clear storage when resetting
+    if (storageService) {
+      storageService.clearStorage();
+    }
+  }, [config?.defaultLayout, storageService]);
+
+  // Storage methods
+  const saveToStorage = useCallback(() => {
+    if (storageService) {
+      return storageService.saveAdaptation(adaptation);
+    }
+    return false;
+  }, [storageService, adaptation]);
+
+  const loadFromStorage = useCallback(() => {
+    if (storageService) {
+      const savedAdaptation = storageService.loadAdaptation();
+      if (savedAdaptation) {
+        setAdaptation(savedAdaptation);
+      }
+      return savedAdaptation;
+    }
+    return null;
+  }, [storageService]);
+
+  const clearStorage = useCallback(() => {
+    if (storageService) {
+      return storageService.clearStorage();
+    }
+    return false;
+  }, [storageService]);
+
+  const hasStoredData = useCallback(() => {
+    if (storageService) {
+      return storageService.hasStoredAdaptation();
+    }
+    return false;
+  }, [storageService]);
+
+  // Get current LLM provider
+  const getCurrentLLMProvider = useCallback(() => {
+    if (llmService instanceof EnhancedLLMService) {
+      return llmService.getProvider();
+    } else if (llmService instanceof CoreLLMService) {
+      return "google";
+    }
+    return undefined;
+  }, [llmService]);
 
   const value: AdaptiveUIContextType = {
     adaptation,
@@ -251,6 +347,13 @@ export function AdaptiveUIProvider({
     isLLMProcessing,
     lastLLMResponse,
     config,
+    // Storage methods
+    saveToStorage,
+    loadFromStorage,
+    clearStorage,
+    hasStoredData,
+    // LLM provider info
+    currentLLMProvider: getCurrentLLMProvider(),
   };
 
   return (

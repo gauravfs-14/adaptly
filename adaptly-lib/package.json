@@ -4,7 +4,14 @@
   "description": "AI-powered adaptive UI framework for React applications",
   "license": "MIT",
   "author": "Gaurab Chhetri",
-  "keywords": ["react", "ui", "adaptive", "ai", "dashboard", "components"],
+  "keywords": [
+    "react",
+    "ui",
+    "adaptive",
+    "ai",
+    "dashboard",
+    "components"
+  ],
   "repository": {
     "type": "git",
     "url": "https://github.com/gauravfs-14/adaptly.git"
@@ -30,7 +37,9 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {
+    "@ai-sdk/anthropic": "^2.0.33",
     "@ai-sdk/google": "^2.0.23",
+    "@ai-sdk/openai": "^2.0.52",
     "@radix-ui/react-dialog": "^1.1.15",
     "@rollup/plugin-commonjs": "^28.0.8",
     "@rollup/plugin-node-resolve": "^16.0.3",

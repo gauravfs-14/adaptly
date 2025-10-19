@@ -95,7 +95,10 @@ export interface ComponentSuggestion {
   suggestedPosition: { x: number; y: number; w: number; h: number };
 }
 
+export type LLMProvider = "google" | "openai" | "anthropic";
+
 export interface LLMConfig {
+  provider: LLMProvider;
   apiKey: string;
   model: string;
   maxTokens?: number;
@@ -180,6 +183,11 @@ export interface AdaptlyConfig {
   defaultLayout?: Partial<UIAdaptation>;
   enableLLM?: boolean;
   adaptlyJson: AdaptlyJsonConfig; // REQUIRED - adaptly.json configuration
+  storage?: {
+    enabled?: boolean;
+    key?: string;
+    version?: string;
+  };
   loadingOverlay?: {
     enabled?: boolean;
     message?: string;
