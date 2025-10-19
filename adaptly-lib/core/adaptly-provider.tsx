@@ -73,6 +73,8 @@ export function AdaptlyProvider({
   storageVersion = "1.0.0",
   // REQUIRED: adaptly.json configuration
   adaptlyConfig,
+  // Children support
+  children,
 }: {
   apiKey: string;
   components: Record<string, React.ComponentType<any>>;
@@ -99,6 +101,8 @@ export function AdaptlyProvider({
   storageVersion?: string;
   // REQUIRED: adaptly.json configuration
   adaptlyConfig: AdaptlyJsonConfig;
+  // Children support
+  children?: React.ReactNode;
 }) {
   // Validate the provided configuration
   const validatedConfig = validateAdaptlyConfig(adaptlyConfig);
@@ -138,6 +142,7 @@ export function AdaptlyProvider({
           showAISuggestions={showAISuggestions}
           showUtilityCommands={showUtilityCommands}
         />
+        {children}
       </div>
     </AdaptiveUIProvider>
   );
