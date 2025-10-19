@@ -200,6 +200,22 @@ export default function Dashboard() {
 
 ---
 
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## 🤝 Contributing
+
+We welcome contributions! Please see our [Contributing Guidelines](CONTRIBUTING.md) for details.
+
+## 📋 Code of Conduct
+
+This project follows a [Code of Conduct](CODE_OF_CONDUCT.md) to ensure a welcoming environment for all contributors.
+
+## 🔒 Security
+
+Please report security vulnerabilities responsibly. See our [Security Policy](SECURITY.md) for details.
+
 ## 💬 Summary
 
 **Adaptly** is the first UI framework that makes your front-end *intent-driven*.
