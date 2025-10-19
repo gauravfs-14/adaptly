@@ -2,103 +2,36 @@
 layout: default
 title: Adaptly Documentation
 description: AI-Adaptive UI Library for React & Next.js
-hero: true
+nav_order: 1
 ---
 
-<div class="hero">
-  <div class="hero-content">
-    <h1 class="hero-title">
-      <i class="fas fa-magic"></i>
-      Adaptly Documentation
-    </h1>
-    <p class="hero-description">
-      Build intelligent, adaptive user interfaces with AI-powered component generation and natural language commands.
-    </p>
-    <div class="hero-actions">
-      <a href="/adaptly/quick-start" class="btn btn-primary">
-        <i class="fas fa-rocket"></i>
-        Get Started
-      </a>
-      <a href="https://github.com/gauravfs-14/adaptly" class="btn btn-secondary" target="_blank">
-        <i class="fab fa-github"></i>
-        View on GitHub
-      </a>
-    </div>
-  </div>
-</div>
+Build intelligent, adaptive user interfaces with AI-powered component generation and natural language commands.
 
-<div class="features-grid">
-  <div class="feature-card">
-    <div class="feature-icon">
-      <i class="fas fa-brain"></i>
-    </div>
-    <h3>AI-Powered</h3>
-    <p>Natural language to UI layout conversion using advanced LLMs</p>
-  </div>
-  
-  <div class="feature-card">
-    <div class="feature-icon">
-      <i class="fas fa-puzzle-piece"></i>
-    </div>
-    <h3>Component Registry</h3>
-    <p>Define your components in JSON for AI understanding</p>
-  </div>
-  
-  <div class="feature-card">
-    <div class="feature-icon">
-      <i class="fas fa-keyboard"></i>
-    </div>
-    <h3>Command Interface</h3>
-    <p>Built-in ⌘K command bar with AI suggestions</p>
-  </div>
-  
-  <div class="feature-card">
-    <div class="feature-icon">
-      <i class="fas fa-save"></i>
-    </div>
-    <h3>Persistent Storage</h3>
-    <p>Automatic state management with version control</p>
-  </div>
-</div>
+## 🚀 Quick Start
 
-# Welcome to Adaptly
+Get up and running in 5 minutes with a complete working demo:
 
-Welcome to the comprehensive documentation for Adaptly, the AI-powered adaptive UI framework for React and Next.js applications.
+```bash
+# 1. Create a new Next.js project
+npx create-next-app@latest my-adaptly-demo --typescript --tailwind --eslint
+cd my-adaptly-demo
 
-## 📚 Documentation Overview
+# 2. Install Adaptly
+npm install adaptly
 
-This documentation is designed to help you understand, implement, and master Adaptly's AI-driven adaptive UI capabilities. Whether you're a beginner or an experienced developer, you'll find detailed guides and examples to get you started.
+# 3. Set up shadcn/ui (optional but recommended)
+npx shadcn@latest init
+npx shadcn@latest add card button
 
-## 🚀 Quick Navigation
+# 4. Set up your API key
+echo "NEXT_PUBLIC_GOOGLE_GENERATIVE_AI_API_KEY=your_api_key_here" > .env.local
 
-### Getting Started
+# 5. Follow the complete tutorial
+```
 
-- **[Quick Start Guide](./quick-start.md)** - Install Adaptly and build your first adaptive UI in minutes
-- **[Component Registry](./component-registry.md)** - Configure your components for AI understanding
+**[📖 Complete Quick Start Guide →](quick-start.html)**
 
-### Core Features
-
-- **[LLM Providers](./llm-providers.md)** - Configure multiple AI providers
-- **[Storage Service](./storage-service.md)** - Persistent UI state management
-- **[Advanced Features](./advanced-features.md)** - Custom loaders, advanced configurations
-
-### API Reference
-
-- **[Core Components](./api/core-components.md)** - AdaptlyProvider, hooks, and utilities
-- **[Hooks](./api/hooks.md)** - useAdaptiveUI and other React hooks
-- **[Services](./api/services.md)** - Storage, LLM, and registry services
-- **[Types](./api/types.md)** - TypeScript interfaces and types
-
-### Support
-
-- **[Troubleshooting Guide](./troubleshooting.md)** - Common issues and solutions
-- **[Demo Application](../examples/adaptly-demo/)** - Full-featured example application
-
-## 🎯 What is Adaptly?
-
-Adaptly is a TypeScript-first library that brings AI intelligence to your React applications. It allows users to describe what they want in plain English, and the AI dynamically recomposes your UI using your existing components.
-
-### Key Features
+## ✨ Key Features
 
 - **🤖 AI-Powered UI Generation**: Natural language to UI layout conversion
 - **🔄 Multi-LLM Support**: Google Gemini, OpenAI GPT, Anthropic Claude
@@ -129,49 +62,9 @@ Your App
 5. **StorageService**: Manages persistent UI state
 6. **EnhancedLLMService**: Multi-provider AI integration
 
-## 🚀 Quick Start
+## 🎯 What is Adaptly?
 
-Get up and running in 5 minutes with a complete working demo:
-
-```bash
-# 1. Create a new Next.js project
-npx create-next-app@latest my-adaptly-demo --typescript --tailwind --eslint
-cd my-adaptly-demo
-
-# 2. Install Adaptly
-npm install adaptly
-
-# 3. Set up shadcn/ui (optional but recommended)
-npx shadcn@latest init
-npx shadcn@latest add card button
-
-# 4. Set up your API key
-echo "NEXT_PUBLIC_GOOGLE_GENERATIVE_AI_API_KEY=your_api_key_here" > .env.local
-
-# 5. Follow the complete tutorial
-```
-
-**📖 For a complete step-by-step tutorial that results in a working demo, see our [Quick Start Guide](./quick-start.md)**
-
-### Basic Usage
-
-```tsx
-import { AdaptlyProvider } from 'adaptly';
-import adaptlyConfig from './adaptly.json';
-
-function App() {
-  return (
-    <AdaptlyProvider
-      apiKey="your-api-key"
-      provider="google"
-      model="gemini-2.0-flash-exp"
-      components={{ MetricCard, SalesChart, DataTable }}
-      adaptlyConfig={adaptlyConfig}
-      enableStorage={true}
-    />
-  );
-}
-```
+Adaptly is a TypeScript-first library that brings AI intelligence to your React applications. It allows users to describe what they want in plain English, and the AI dynamically recomposes your UI using your existing components.
 
 ## 📖 How It Works
 
@@ -184,11 +77,11 @@ function App() {
 
 ## 🎨 Component Registry
 
-The heart of Adaptly is the component registry defined in `adaptly.json`. This file tells the AI about your components. For detailed configuration, see the [Component Registry Guide](./component-registry.md).
+The heart of Adaptly is the component registry defined in `adaptly.json`. This file tells the AI about your components. For detailed configuration, see the [Component Registry Guide](component-registry.html).
 
 ## 🔧 LLM Integration
 
-Adaptly supports multiple AI providers with model selection. For detailed setup instructions, see the [LLM Providers Guide](./llm-providers.md).
+Adaptly supports multiple AI providers with model selection. For detailed setup instructions, see the [LLM Providers Guide](llm-providers.html).
 
 - **Google Gemini**: `gemini-2.0-flash-exp`, `gemini-1.5-pro`
 - **OpenAI GPT**: `gpt-4o`, `gpt-4-turbo`, `gpt-3.5-turbo`
@@ -196,7 +89,7 @@ Adaptly supports multiple AI providers with model selection. For detailed setup 
 
 ## 💾 Storage & Persistence
 
-Adaptly automatically saves and restores your UI state. For detailed configuration, see the [Storage Service Guide](./storage-service.md).
+Adaptly automatically saves and restores your UI state. For detailed configuration, see the [Storage Service Guide](storage-service.html).
 
 - **localStorage Integration**: Automatic state persistence
 - **Version Control**: Handles configuration changes gracefully
@@ -227,4 +120,4 @@ This project is licensed under the MIT License - see the [LICENSE](../LICENSE) f
 
 ---
 
-Ready to get started? Check out the [Quick Start Guide](./quick-start.md) to install Adaptly and build your first adaptive UI!
+Ready to get started? Check out the [Quick Start Guide](quick-start.html) to install Adaptly and build your first adaptive UI!

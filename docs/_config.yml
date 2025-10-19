@@ -1,33 +1,56 @@
-theme: jekyll-theme-minimal
+remote_theme: just-the-docs/just-the-docs
+plugins:
+  - jekyll-feed
+  - jekyll-sitemap
+  - jekyll-seo-tag
+  - jekyll-remote-theme
+
 title: Adaptly Documentation
 description: AI-Adaptive UI Library for React & Next.js
 
-# Navigation
-navigation:
+# Just the Docs theme configuration
+search_enabled: true
+search_tokenizer_separator: /[\s/]+/
+search_placeholder: "Search docs..."
+search_button_label: "Search"
+
+# Navigation structure
+nav:
   - title: Getting Started
-    url: /adaptly/
+    url: /
   - title: Quick Start
-    url: /adaptly/quick-start
+    url: quick-start.html
   - title: Component Registry
-    url: /adaptly/component-registry
+    url: component-registry.html
   - title: LLM Providers
-    url: /adaptly/llm-providers
+    url: llm-providers.html
   - title: Storage Service
-    url: /adaptly/storage-service
+    url: storage-service.html
   - title: Advanced Features
-    url: /adaptly/advanced-features
+    url: advanced-features.html
   - title: API Reference
     children:
       - title: Core Components
-        url: /adaptly/api/core-components
+        url: api/core-components.html
       - title: Hooks
-        url: /adaptly/api/hooks
+        url: api/hooks.html
       - title: Services
-        url: /adaptly/api/services
+        url: api/services.html
       - title: Types
-        url: /adaptly/api/types
+        url: api/types.html
   - title: Troubleshooting
-    url: /adaptly/troubleshooting
+    url: troubleshooting.html
+
+# Header links
+header_links:
+  - title: "GitHub"
+    url: "https://github.com/gauravfs-14/adaptly"
+
+# Footer
+footer_content: "Built with ❤️ by the Adaptly Team"
+
+# Color scheme
+color_scheme: light
 
 # Markdown processing
 markdown: kramdown
@@ -41,7 +64,6 @@ kramdown:
       line_numbers: false
     block:
       line_numbers: false
-  # Disable Liquid processing in code blocks
   parse_block_html: true
   parse_span_html: true
 
@@ -53,12 +75,6 @@ defaults:
     values:
       render_with_liquid: false
 
-# Plugins
-plugins:
-  - jekyll-feed
-  - jekyll-sitemap
-  - jekyll-seo-tag
-
 # SEO
 author: Adaptly Team
 twitter:
@@ -69,17 +85,6 @@ twitter:
 social:
   github: gauravfs-14/adaptly
   twitter: adaptly_ui
-
-# Footer
-footer:
-  message: "Built with ❤️ by the Adaptly Team"
-  copyright: "© 2025 Adaptly. All rights reserved."
-
-# Search
-search: true
-
-# Analytics (add your tracking ID)
-# google_analytics: UA-XXXXXXXXX-X
 
 # Exclude files from processing
 exclude:

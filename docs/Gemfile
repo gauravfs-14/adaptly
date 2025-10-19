@@ -1,7 +1,7 @@
 source "https://rubygems.org"
 
 # Jekyll theme
-gem "jekyll-theme-minimal"
+gem "just-the-docs"
 
 # Jekyll plugins
 group :jekyll_plugins do
