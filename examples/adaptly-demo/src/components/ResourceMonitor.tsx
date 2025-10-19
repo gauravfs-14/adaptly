@@ -145,29 +145,8 @@ export function ResourceMonitor({
   showStatus = true,
   className = "",
 }: ResourceMonitorProps) {
-  // Handle case where metrics might be passed as a JSON string
-  const parsedMetrics =
-    typeof metrics === "string" ? JSON.parse(metrics) : metrics;
-
-  // Create icon mapping to restore React components from string names
-  const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
-    Cpu,
-    HardDrive,
-    MemoryStick,
-    Wifi,
-    Server,
-  };
-
-  // Process metrics to ensure icons are proper React components
-  const safeMetrics = Array.isArray(parsedMetrics)
-    ? parsedMetrics.map((metric) => ({
-        ...metric,
-        icon:
-          typeof metric.icon === "string"
-            ? iconMap[metric.icon] || Server
-            : metric.icon || Server,
-      }))
-    : defaultMetrics;
+  // LLM should only filter, not pass data - always use default data
+  const safeMetrics = defaultMetrics;
 
   const criticalCount = safeMetrics.filter(
     (m) => m.status === "critical"

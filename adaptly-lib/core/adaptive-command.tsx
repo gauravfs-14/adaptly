@@ -222,7 +222,6 @@ export function AdaptiveCommand({
       <CommandList>
         <CommandEmpty>
           <div className="p-4 text-center">
-            <Sparkles className="h-8 w-8 mx-auto mb-2 text-gray-400" />
             <p className="text-sm text-gray-600 mb-2">
               {config?.emptyMessage ||
                 "Try describing what UI you want to create..."}
@@ -235,7 +234,6 @@ export function AdaptiveCommand({
 
         {handler?.isLLMProcessing && (
           <div className="p-4 text-center text-sm text-muted-foreground">
-            <Sparkles className="h-4 w-4 animate-spin mx-auto mb-2" />
             AI is processing your request...
           </div>
         )}

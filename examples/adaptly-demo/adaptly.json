@@ -69,9 +69,8 @@
       "space": { "min": [2, 2], "max": [6, 4], "preferred": [3, 2] }
     },
     "ActivityFeed": {
-      "description": "Display recent user activities, system events, and real-time updates in a timeline format",
+      "description": "Display recent user activities, system events, and real-time updates in a timeline format. Uses predefined sample data - LLM can only filter and configure display options.",
       "props": {
-        "activities": { "type": "array", "required": false },
         "title": { "type": "string", "required": false },
         "description": { "type": "string", "required": false },
         "maxItems": { "type": "number", "required": false },
@@ -81,9 +80,8 @@
       "space": { "min": [3, 3], "max": [6, 6], "preferred": [4, 4] }
     },
     "NotificationCenter": {
-      "description": "Centralized notification management with filtering, status tracking, and priority handling",
+      "description": "Centralized notification management with filtering, status tracking, and priority handling. Uses predefined sample data - LLM can only filter and configure display options.",
       "props": {
-        "notifications": { "type": "array", "required": false },
         "title": { "type": "string", "required": false },
         "description": { "type": "string", "required": false },
         "maxItems": { "type": "number", "required": false },
@@ -93,9 +91,8 @@
       "space": { "min": [3, 4], "max": [6, 8], "preferred": [4, 5] }
     },
     "WeatherWidget": {
-      "description": "Display current weather conditions with detailed metrics and forecasts",
+      "description": "Display current weather conditions with detailed metrics and forecasts. Uses predefined sample data - LLM can only filter and configure display options.",
       "props": {
-        "weather": { "type": "object", "required": false },
         "title": { "type": "string", "required": false },
         "description": { "type": "string", "required": false },
         "showDetails": { "type": "boolean", "required": false }
@@ -121,9 +118,8 @@
       "space": { "min": [2, 2], "max": [6, 4], "preferred": [4, 3] }
     },
     "ResourceMonitor": {
-      "description": "System resource utilization monitoring with status indicators and performance metrics",
+      "description": "System resource utilization monitoring with status indicators and performance metrics. Uses predefined sample data - LLM can only filter and configure display options.",
       "props": {
-        "metrics": { "type": "array", "required": false },
         "title": { "type": "string", "required": false },
         "description": { "type": "string", "required": false },
         "showTrends": { "type": "boolean", "required": false },

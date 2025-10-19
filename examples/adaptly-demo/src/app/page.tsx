@@ -3,21 +3,14 @@
 import { useState, useEffect } from "react";
 import { Toaster } from "@/components/ui/sonner";
 import { SidebarProvider } from "@/components/ui/sidebar";
-import {
-  ResizableHandle,
-  ResizablePanel,
-  ResizablePanelGroup,
-} from "@/components/ui/resizable";
-import { Alert, AlertDescription } from "@/components/ui/alert";
 import { DashboardHeader, DashboardSidebar } from "@/components";
-import { AdaptlyProvider, useAdaptiveUI } from "adaptly";
+import { AdaptlyProvider, useAdaptiveUI, LoadingOverlay } from "adaptly";
 import adaptlyConfig from "../../adaptly.json";
 import { MetricCard } from "@/components/MetricCard";
 import { SalesChart } from "@/components/SalesChart";
 import { TeamMembers } from "@/components/TeamMembers";
 import { OrdersTable } from "@/components/OrdersTable";
 import { EmptyCard } from "@/components/EmptyCard";
-import { EnhancedLoader } from "@/components/EnhancedLoader";
 import { ActivityFeed } from "@/components/ActivityFeed";
 import { NotificationCenter } from "@/components/NotificationCenter";
 import { WeatherWidget } from "@/components/WeatherWidget";
@@ -38,8 +31,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-// Enhanced loader component with full-page overlay and cool animations
-const CustomLoader = EnhancedLoader;
+// Using framework's improved built-in loader
 
 // Content that goes inside the AdaptlyProvider
 function AdaptiveContent() {
@@ -90,6 +82,15 @@ export default function Dashboard() {
     return "google";
   });
 
+  // Model selection with persistence
+  const [selectedModel, setSelectedModel] = useState<string>(() => {
+    if (typeof window !== "undefined") {
+      const saved = localStorage.getItem("adaptly-demo-model");
+      return saved || "gemini-2.0-flash-exp";
+    }
+    return "gemini-2.0-flash-exp";
+  });
+
   const apiKey = (() => {
     switch (selectedProvider) {
       case "google":
@@ -105,18 +106,42 @@ export default function Dashboard() {
 
   const hasApiKey = apiKey.length > 0;
 
-  const model = (() => {
-    switch (selectedProvider) {
-      case "google":
-        return "gemini-2.0-flash-exp";
-      case "openai":
-        return "gpt-4";
-      case "anthropic":
-        return "claude-3-5-sonnet-20241022";
-      default:
-        return "gemini-2.0-flash-exp";
+  // Available models for each provider
+  const modelOptions = {
+    google: [
+      "gemini-2.0-flash-exp",
+      "gemini-2.0-flash",
+      "gemini-1.5-pro",
+      "gemini-1.5-flash",
+      "gemini-1.0-pro",
+    ],
+    openai: ["gpt-4o", "gpt-4o-mini", "gpt-4-turbo", "gpt-4", "gpt-3.5-turbo"],
+    anthropic: [
+      "claude-3-5-sonnet-20241022",
+      "claude-3-5-haiku-20241022",
+      "claude-3-opus-20240229",
+      "claude-3-sonnet-20240229",
+    ],
+  };
+
+  // Update model when provider changes
+  useEffect(() => {
+    const providerModels = modelOptions[selectedProvider];
+    if (providerModels && !providerModels.includes(selectedModel)) {
+      const defaultModel = providerModels[0];
+      setSelectedModel(defaultModel);
+      if (typeof window !== "undefined") {
+        localStorage.setItem("adaptly-demo-model", defaultModel);
+      }
     }
-  })();
+  }, [selectedProvider, selectedModel]);
+
+  // Save model selection
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      localStorage.setItem("adaptly-demo-model", selectedModel);
+    }
+  }, [selectedModel]);
 
   // Default layout with some initial components
   const defaultLayout = {
@@ -205,7 +230,6 @@ export default function Dashboard() {
       <div className="flex h-screen w-full">
         {/* Sidebar */}
         <DashboardSidebar onSectionClick={handleSectionClick} />
-
         {/* Main Content */}
         <div className="flex-1 flex flex-col">
           {/* Header */}
@@ -230,7 +254,7 @@ export default function Dashboard() {
                       ) => setSelectedProvider(value)}
                     >
                       <SelectTrigger className="w-40">
-                        <SelectValue placeholder="Select LLM" />
+                        <SelectValue placeholder="Select Provider" />
                       </SelectTrigger>
                       <SelectContent>
                         <SelectItem value="google">Google Gemini</SelectItem>
@@ -240,18 +264,29 @@ export default function Dashboard() {
                         </SelectItem>
                       </SelectContent>
                     </Select>
+                    <Select
+                      value={selectedModel}
+                      onValueChange={setSelectedModel}
+                    >
+                      <SelectTrigger className="w-48">
+                        <SelectValue placeholder="Select Model" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {modelOptions[selectedProvider].map((model) => (
+                          <SelectItem key={model} value={model}>
+                            {model}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                   </div>
                 </div>
                 <p className="text-muted-foreground">
                   Press{" "}
                   <kbd className="bg-muted px-2 py-1 rounded text-sm">⌘K</kbd>{" "}
                   to describe how you want the UI to look. Using{" "}
-                  {selectedProvider === "google"
-                    ? "Gemini 2.0 Flash"
-                    : selectedProvider === "openai"
-                    ? "GPT-4"
-                    : "Claude 3.5 Sonnet"}{" "}
-                  with persistent storage.
+                  <span className="font-medium">{selectedModel}</span> with
+                  persistent storage.
                 </p>
                 {!hasApiKey && (
                   <div className="mt-2 p-3 bg-yellow-50 dark:bg-yellow-950 border border-yellow-200 dark:border-yellow-800 rounded-lg">
@@ -273,7 +308,7 @@ export default function Dashboard() {
               <AdaptlyProvider
                 apiKey={apiKey}
                 provider={selectedProvider}
-                model={model}
+                model={selectedModel}
                 components={{
                   MetricCard,
                   SalesChart,
@@ -294,7 +329,6 @@ export default function Dashboard() {
                   Sparkles,
                 }}
                 defaultLayout={defaultLayout}
-                customLoader={CustomLoader}
                 adaptlyConfig={adaptlyConfig}
                 enableStorage={true}
                 storageKey="adaptly-demo-ui"
