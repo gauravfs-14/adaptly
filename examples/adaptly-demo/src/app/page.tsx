@@ -29,8 +29,15 @@ import {
   ShoppingCart,
   Activity,
   Sparkles,
-  Loader2,
+  Settings,
 } from "lucide-react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 // Enhanced loader component with full-page overlay and cool animations
 const CustomLoader = EnhancedLoader;
@@ -66,11 +73,36 @@ export default function Dashboard() {
   const [sliderValue, setSliderValue] = useState([50]);
   const [isLoading, setIsLoading] = useState(false);
 
-  // Simple Adaptly configuration
-  const apiKey =
-    process.env.NEXT_PUBLIC_GOOGLE_GENERATIVE_AI_API_KEY ||
-    process.env.NEXT_PUBLIC_GEMINI_API_KEY ||
-    "";
+  // LLM Configuration - Test different providers
+  const [selectedProvider, setSelectedProvider] = useState<
+    "google" | "openai" | "anthropic"
+  >("google");
+
+  const apiKey = (() => {
+    switch (selectedProvider) {
+      case "google":
+        return process.env.NEXT_PUBLIC_GOOGLE_GENERATIVE_AI_API_KEY || "";
+      case "openai":
+        return process.env.NEXT_PUBLIC_OPENAI_API_KEY || "";
+      case "anthropic":
+        return process.env.NEXT_PUBLIC_ANTHROPIC_API_KEY || "";
+      default:
+        return "";
+    }
+  })();
+
+  const model = (() => {
+    switch (selectedProvider) {
+      case "google":
+        return "gemini-2.0-flash-exp";
+      case "openai":
+        return "gpt-4";
+      case "anthropic":
+        return "claude-3-5-sonnet-20241022";
+      default:
+        return "gemini-2.0-flash-exp";
+    }
+  })();
 
   // Default layout with some initial components
   const defaultLayout = {
@@ -170,21 +202,51 @@ export default function Dashboard() {
               <ResizablePanel defaultSize={70} minSize={50}>
                 <div className="space-y-6 overflow-auto h-full">
                   <div className="mb-4">
-                    <h2 className="text-2xl font-bold mb-2">
-                      Adaptive Dashboard
-                    </h2>
+                    <div className="flex items-center justify-between mb-2">
+                      <h2 className="text-2xl font-bold">Adaptive Dashboard</h2>
+                      <div className="flex items-center gap-2">
+                        <Settings className="h-4 w-4" />
+                        <Select
+                          value={selectedProvider}
+                          onValueChange={(
+                            value: "google" | "openai" | "anthropic"
+                          ) => setSelectedProvider(value)}
+                        >
+                          <SelectTrigger className="w-40">
+                            <SelectValue placeholder="Select LLM" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="google">
+                              Google Gemini
+                            </SelectItem>
+                            <SelectItem value="openai">OpenAI GPT-4</SelectItem>
+                            <SelectItem value="anthropic">
+                              Anthropic Claude
+                            </SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </div>
                     <p className="text-muted-foreground">
                       Press{" "}
                       <kbd className="bg-muted px-2 py-1 rounded text-sm">
                         ⌘K
                       </kbd>{" "}
-                      to describe how you want the UI to look
+                      to describe how you want the UI to look. Using{" "}
+                      {selectedProvider === "google"
+                        ? "Gemini 2.0 Flash"
+                        : selectedProvider === "openai"
+                        ? "GPT-4"
+                        : "Claude 3.5 Sonnet"}{" "}
+                      with persistent storage.
                     </p>
                   </div>
 
                   {/* AdaptlyProvider - NPM package approach with explicit config */}
                   <AdaptlyProvider
                     apiKey={apiKey}
+                    provider={selectedProvider}
+                    model={model}
                     components={{
                       MetricCard,
                       SalesChart,
@@ -207,6 +269,9 @@ export default function Dashboard() {
                     defaultLayout={defaultLayout}
                     customLoader={CustomLoader}
                     adaptlyConfig={adaptlyConfig} // REQUIRED - explicit config
+                    enableStorage={true}
+                    storageKey="adaptly-demo-ui"
+                    storageVersion="2.0.0"
                     className="h-full"
                   />
                 </div>
@@ -248,9 +313,22 @@ export default function Dashboard() {
                       <li>• "Reset to default" - Start over</li>
                     </ul>
                     <div className="mt-3 p-2 bg-blue-50 dark:bg-blue-950 rounded text-xs">
-                      <strong>Powered by Gemini 2.0 Flash</strong> - The AI
-                      understands natural language and will suggest the best
-                      components for your needs.
+                      <strong>
+                        Powered by{" "}
+                        {selectedProvider === "google"
+                          ? "Gemini 2.0 Flash"
+                          : selectedProvider === "openai"
+                          ? "GPT-4"
+                          : "Claude 3.5 Sonnet"}
+                      </strong>{" "}
+                      - The AI understands natural language and will suggest the
+                      best components for your needs. Your UI state is
+                      automatically saved and restored.
+                    </div>
+                    <div className="mt-2 p-2 bg-green-50 dark:bg-green-950 rounded text-xs">
+                      <strong>✨ New Features:</strong> Switch between LLM
+                      providers and enjoy persistent storage that saves your UI
+                      state across page refreshes!
                     </div>
                   </div>
                 </div>
