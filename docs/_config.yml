@@ -24,13 +24,13 @@ kramdown:
   parse_block_html: true
   parse_span_html: true
 
-# Enable Liquid processing for theme functionality
+# Disable Liquid processing to avoid conflicts with JavaScript code
 defaults:
   - scope:
       path: ""
       type: "pages"
     values:
-      layout: "default"
+      render_with_liquid: false
 
 # SEO
 author: Adaptly Team
