@@ -57,6 +57,7 @@ export function AdaptlyProvider({
   components,
   icons,
   model = "gemini-2.0-flash-exp",
+  provider = "google",
   defaultLayout,
   className = "",
   style = {},
@@ -66,13 +67,20 @@ export function AdaptlyProvider({
   showUtilityCommands = true,
   // Custom loader option
   customLoader,
+  // Storage options
+  enableStorage = true,
+  storageKey = "adaptly-ui",
+  storageVersion = "1.0.0",
   // REQUIRED: adaptly.json configuration
   adaptlyConfig,
+  // Children support
+  children,
 }: {
   apiKey: string;
   components: Record<string, React.ComponentType<any>>;
   icons?: Record<string, React.ComponentType<any>>;
   model?: string;
+  provider?: "google" | "openai" | "anthropic";
   defaultLayout?: Partial<UIAdaptation>;
   className?: string;
   style?: React.CSSProperties;
@@ -87,8 +95,14 @@ export function AdaptlyProvider({
   showUtilityCommands?: boolean;
   // Custom loader option
   customLoader?: CustomLoaderComponent;
+  // Storage options
+  enableStorage?: boolean;
+  storageKey?: string;
+  storageVersion?: string;
   // REQUIRED: adaptly.json configuration
   adaptlyConfig: AdaptlyJsonConfig;
+  // Children support
+  children?: React.ReactNode;
 }) {
   // Validate the provided configuration
   const validatedConfig = validateAdaptlyConfig(adaptlyConfig);
@@ -96,9 +110,20 @@ export function AdaptlyProvider({
   // Create the adaptly configuration
   const adaptlyConfigObj: AdaptlyConfig = {
     enableLLM: true,
-    llm: { apiKey, model, maxTokens: 1000, temperature: 0.7 },
+    llm: {
+      provider,
+      apiKey,
+      model,
+      maxTokens: 1000,
+      temperature: 0.7,
+    },
     defaultLayout,
     adaptlyJson: validatedConfig, // REQUIRED - no fallback
+    storage: {
+      enabled: enableStorage,
+      key: storageKey,
+      version: storageVersion,
+    },
     loadingOverlay: {
       enabled: true,
       message: "AI is generating your layout...",
@@ -117,6 +142,7 @@ export function AdaptlyProvider({
           showAISuggestions={showAISuggestions}
           showUtilityCommands={showUtilityCommands}
         />
+        {children}
       </div>
     </AdaptiveUIProvider>
   );
@@ -134,8 +160,12 @@ export function AdaptlyProvider({
  *   return (
  *     <AdaptlyProvider
  *       apiKey="your-api-key"
+ *       provider="openai" // or "anthropic" or "google"
+ *       model="gpt-4" // or "claude-3-sonnet" or "gemini-2.0-flash-exp"
  *       components={{ MyComponent, AnotherComponent }}
  *       adaptlyConfig={adaptlyConfig} // REQUIRED
+ *       enableStorage={true} // Enable persistent storage
+ *       storageKey="my-app-ui" // Custom storage key
  *       className="h-full"
  *     />
  *   );

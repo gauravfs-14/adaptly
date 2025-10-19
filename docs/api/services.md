@@ -1,735 +1,818 @@
 # Services API Reference
 
-This document provides comprehensive API reference for Adaptly's core services: `CoreLLMService`, `RegistryService`, and `adaptlyLogger`.
+This document provides comprehensive API reference for Adaptly's service layer and internal services.
 
-## 🤖 CoreLLMService
+## 🤖 EnhancedLLMService
 
-The service responsible for AI model communication and response processing.
-
-### Class Definition
-
-```typescript
-class CoreLLMService {
-  constructor(config: LLMConfig);
-  
-  async processUserRequest(
-    input: string,
-    currentLayout: UIAdaptation,
-    availableSpace: SpaceInfo,
-    availableComponents: string[],
-    config: AdaptlyJsonConfig
-  ): Promise<LLMResponse>;
-}
-```
+Service for managing AI interactions with multiple LLM providers.
 
 ### Constructor
 
-```typescript
-interface LLMConfig {
-  apiKey: string;
-  model: string;
-  maxTokens?: number;
-  temperature?: number;
+```tsx
+class EnhancedLLMService {
+  constructor(config: LLMConfig)
 }
+```
+
+**Parameters:**
+
+- `config`: LLM configuration object
+
+**Example:**
+
+```tsx
+import { EnhancedLLMService } from 'adaptly';
+
+const llmService = new EnhancedLLMService({
+  provider: "google",
+  apiKey: "your-api-key",
+  model: "gemini-2.0-flash-exp",
+  maxTokens: 1000,
+  temperature: 0.7
+});
 ```
 
 ### Methods
 
 #### processUserRequest
 
-```typescript
+Processes user input with AI and returns layout suggestions.
+
+```tsx
 async processUserRequest(
-  input: string,
-  currentLayout: UIAdaptation,
-  availableSpace: SpaceInfo,
-  availableComponents: string[],
-  config: AdaptlyJsonConfig
-): Promise<LLMResponse>
+  userInput: string,
+  currentAdaptation: UIAdaptation,
+  availableSpace: { width: number; height: number },
+  availableComponents?: string[],
+  adaptlyConfig?: unknown
+): Promise<{
+  success: boolean;
+  newAdaptation?: Partial<UIAdaptation>;
+  reasoning?: string;
+  error?: string;
+}>
 ```
 
 **Parameters:**
 
-- `input`: User's natural language input
-- `currentLayout`: Current UI layout state
+- `userInput`: Natural language input from user
+- `currentAdaptation`: Current UI state
 - `availableSpace`: Available space for components
-- `availableComponents`: List of available component names
-- `config`: Component registry configuration
+- `availableComponents`: List of available component types
+- `adaptlyConfig`: Component registry configuration
 
 **Returns:**
 
-```typescript
-interface LLMResponse {
-  success: boolean;
-  newAdaptation?: UIAdaptation;
-  reasoning?: string;
-  error?: string;
-}
-```
+- `success`: Whether the request was successful
+- `newAdaptation`: AI-generated UI layout
+- `reasoning`: AI's reasoning for the layout
+- `error`: Error message if failed
 
-### Usage Examples
+**Example:**
 
-#### Basic Usage
-
-```typescript
-import { CoreLLMService } from 'adaptly';
-
-const llmService = new CoreLLMService({
-  apiKey: 'your-gemini-api-key',
-  model: 'gemini-2.0-flash',
-  maxTokens: 1000,
-  temperature: 0.7
-});
-
-const response = await llmService.processUserRequest(
-  'Add a revenue chart',
-  currentLayout,
+```tsx
+const result = await llmService.processUserRequest(
+  "Add a revenue metric card",
+  currentAdaptation,
   { width: 6, height: 4 },
-  ['MetricCard', 'SalesChart', 'DataTable'],
+  ["MetricCard", "SalesChart", "DataTable"],
   adaptlyConfig
 );
 
-if (response.success && response.newAdaptation) {
-  // Update layout with AI suggestions
-  updateLayout(response.newAdaptation);
+if (result.success && result.newAdaptation) {
+  console.log('AI generated layout:', result.newAdaptation);
+  console.log('AI reasoning:', result.reasoning);
 }
 ```
 
-#### Advanced Usage
+#### getProvider
 
-```typescript
-class CustomLLMService extends CoreLLMService {
-  async processUserRequest(
-    input: string,
-    currentLayout: UIAdaptation,
-    availableSpace: SpaceInfo,
-    availableComponents: string[],
-    config: AdaptlyJsonConfig
-  ): Promise<LLMResponse> {
-    // Add custom preprocessing
-    const processedInput = this.preprocessInput(input);
-    
-    // Call parent method
-    const response = await super.processUserRequest(
-      processedInput,
-      currentLayout,
-      availableSpace,
-      availableComponents,
-      config
-    );
-    
-    // Add custom postprocessing
-    return this.postprocessResponse(response);
-  }
-  
-  private preprocessInput(input: string): string {
-    // Custom input preprocessing logic
-    return input.toLowerCase().trim();
-  }
-  
-  private postprocessResponse(response: LLMResponse): LLMResponse {
-    // Custom response postprocessing logic
-    return response;
-  }
-}
+Returns the current LLM provider.
+
+```tsx
+getProvider(): string
 ```
 
-## 📚 RegistryService
+**Returns:**
 
-The service responsible for managing component registry and metadata.
+- Provider name (e.g., "google", "openai", "anthropic")
 
-### Class Definition
+**Example:**
 
-```typescript
-class RegistryService {
-  constructor(config: RegistryConfig);
-  
-  getAllComponents(): ComponentMetadata[];
-  getComponent(id: string): ComponentMetadata | undefined;
-  getComponentsByCategory(category: string): ComponentMetadata[];
-  getComponentsByTags(tags: string[]): ComponentMetadata[];
-  getComponentsForPosition(
-    availableWidth: number,
-    availableHeight: number,
-    screenSize?: 'mobile' | 'tablet' | 'desktop'
-  ): ComponentMetadata[];
-  getRecommendedComponents(
-    useCase: string,
-    availableSpace: { width: number; height: number },
-    screenSize?: 'mobile' | 'tablet' | 'desktop'
-  ): ComponentMetadata[];
-  getSuggestions(
-    userInput: string,
-    availableSpace: { width: number; height: number },
-    screenSize?: 'mobile' | 'tablet' | 'desktop'
-  ): ComponentSuggestion[];
-  getCategories(): Record<string, unknown>;
-  getComponentCountByCategory(): Record<string, number>;
-  searchComponents(query: string): ComponentMetadata[];
-  validateRegistry(): boolean;
-  getErrors(): string[];
-}
+```tsx
+const provider = llmService.getProvider();
+console.log('Current provider:', provider);
 ```
+
+## 🧠 CoreLLMService
+
+Legacy service for Google Gemini integration.
 
 ### Constructor
 
-```typescript
-interface RegistryConfig {
-  components: ComponentMetadata[];
-  categories: Record<string, unknown>;
-  enableCaching?: boolean;
-  maxCacheSize?: number;
+```tsx
+class CoreLLMService {
+  constructor(config: LLMConfig)
 }
+```
+
+**Parameters:**
+
+- `config`: LLM configuration object
+
+**Example:**
+
+```tsx
+import { CoreLLMService } from 'adaptly';
+
+const llmService = new CoreLLMService({
+  provider: "google",
+  apiKey: "your-api-key",
+  model: "gemini-2.0-flash-exp",
+  maxTokens: 1000,
+  temperature: 0.7
+});
+```
+
+### Methods
+
+#### processUserRequest
+
+Processes user input with Google Gemini.
+
+```tsx
+async processUserRequest(
+  userInput: string,
+  currentAdaptation: UIAdaptation,
+  availableSpace: { width: number; height: number },
+  availableComponents?: string[],
+  adaptlyConfig?: unknown
+): Promise<{
+  success: boolean;
+  newAdaptation?: Partial<UIAdaptation>;
+  reasoning?: string;
+  error?: string;
+}>
+```
+
+**Parameters:**
+
+- `userInput`: Natural language input from user
+- `currentAdaptation`: Current UI state
+- `availableSpace`: Available space for components
+- `availableComponents`: List of available component types
+- `adaptlyConfig`: Component registry configuration
+
+**Returns:**
+
+- `success`: Whether the request was successful
+- `newAdaptation`: AI-generated UI layout
+- `reasoning`: AI's reasoning for the layout
+- `error`: Error message if failed
+
+## 💾 StorageService
+
+Service for managing persistent UI state storage.
+
+### Constructor
+
+```tsx
+class StorageService {
+  constructor(config: StorageConfig)
+}
+```
+
+**Parameters:**
+
+- `config`: Storage configuration object
+
+**Example:**
+
+```tsx
+import { StorageService } from 'adaptly';
+
+const storageService = new StorageService({
+  enabled: true,
+  key: "my-app-ui",
+  version: "1.0.0"
+});
+```
+
+### Methods
+
+#### saveAdaptation
+
+Saves UI adaptation to localStorage.
+
+```tsx
+saveAdaptation(adaptation: UIAdaptation): boolean
+```
+
+**Parameters:**
+
+- `adaptation`: UI adaptation to save
+
+**Returns:**
+
+- `boolean`: Whether save was successful
+
+**Example:**
+
+```tsx
+const success = storageService.saveAdaptation(adaptation);
+if (success) {
+  console.log('UI state saved successfully');
+} else {
+  console.error('Failed to save UI state');
+}
+```
+
+#### loadAdaptation
+
+Loads UI adaptation from localStorage.
+
+```tsx
+loadAdaptation(): UIAdaptation | null
+```
+
+**Returns:**
+
+- `UIAdaptation | null`: Loaded adaptation or null if not found
+
+**Example:**
+
+```tsx
+const savedAdaptation = storageService.loadAdaptation();
+if (savedAdaptation) {
+  console.log('Loaded adaptation:', savedAdaptation);
+} else {
+  console.log('No saved adaptation found');
+}
+```
+
+#### clearStorage
+
+Clears stored adaptation from localStorage.
+
+```tsx
+clearStorage(): boolean
+```
+
+**Returns:**
+
+- `boolean`: Whether clear was successful
+
+**Example:**
+
+```tsx
+const success = storageService.clearStorage();
+if (success) {
+  console.log('Storage cleared successfully');
+} else {
+  console.error('Failed to clear storage');
+}
+```
+
+#### hasStoredAdaptation
+
+Checks if there's a stored adaptation available.
+
+```tsx
+hasStoredAdaptation(): boolean
+```
+
+**Returns:**
+
+- `boolean`: Whether stored data exists
+
+**Example:**
+
+```tsx
+const hasData = storageService.hasStoredAdaptation();
+console.log('Has stored data:', hasData);
+```
+
+#### getStorageInfo
+
+Gets storage information (timestamp, version, etc.).
+
+```tsx
+getStorageInfo(): { timestamp?: number; version?: string } | null
+```
+
+**Returns:**
+
+- Storage information object or null
+
+**Example:**
+
+```tsx
+const info = storageService.getStorageInfo();
+if (info) {
+  console.log('Storage timestamp:', new Date(info.timestamp!));
+  console.log('Storage version:', info.version);
+}
+```
+
+## 📋 RegistryService
+
+Service for managing component metadata and registry.
+
+### Constructor
+
+```tsx
+class RegistryService {
+  constructor(config: RegistryConfig)
+}
+```
+
+**Parameters:**
+
+- `config`: Registry configuration object
+
+**Example:**
+
+```tsx
+import { RegistryService } from 'adaptly';
+
+const registryService = new RegistryService({
+  components: componentMetadata,
+  categories: {},
+  enableCaching: true,
+  maxCacheSize: 100
+});
 ```
 
 ### Methods
 
 #### getAllComponents
 
-```typescript
+Gets all registered components.
+
+```tsx
 getAllComponents(): ComponentMetadata[]
 ```
 
-Returns all registered components.
+**Returns:**
+
+- Array of component metadata
+
+**Example:**
+
+```tsx
+const components = registryService.getAllComponents();
+console.log('Total components:', components.length);
+```
 
 #### getComponent
 
-```typescript
+Gets a specific component by ID.
+
+```tsx
 getComponent(id: string): ComponentMetadata | undefined
 ```
 
-Returns a specific component by ID.
+**Parameters:**
+
+- `id`: Component ID
+
+**Returns:**
+
+- Component metadata or undefined
+
+**Example:**
+
+```tsx
+const component = registryService.getComponent('MetricCard');
+if (component) {
+  console.log('Component found:', component.name);
+}
+```
 
 #### getComponentsByCategory
 
-```typescript
+Gets components by category.
+
+```tsx
 getComponentsByCategory(category: string): ComponentMetadata[]
 ```
 
-Returns components filtered by category.
+**Parameters:**
+
+- `category`: Component category
+
+**Returns:**
+
+- Array of components in category
+
+**Example:**
+
+```tsx
+const metrics = registryService.getComponentsByCategory('metrics');
+console.log('Metric components:', metrics.length);
+```
 
 #### getComponentsByTags
 
-```typescript
+Gets components by tags.
+
+```tsx
 getComponentsByTags(tags: string[]): ComponentMetadata[]
 ```
 
-Returns components filtered by tags.
+**Parameters:**
+
+- `tags`: Array of tags to search for
+
+**Returns:**
+
+- Array of matching components
+
+**Example:**
+
+```tsx
+const charts = registryService.getComponentsByTags(['chart', 'visualization']);
+console.log('Chart components:', charts.length);
+```
 
 #### getComponentsForPosition
 
-```typescript
+Gets components suitable for a specific position.
+
+```tsx
 getComponentsForPosition(
   availableWidth: number,
   availableHeight: number,
-  screenSize?: 'mobile' | 'tablet' | 'desktop'
+  screenSize?: "mobile" | "tablet" | "desktop"
 ): ComponentMetadata[]
 ```
 
-Returns components that fit in the specified space.
+**Parameters:**
+
+- `availableWidth`: Available width in grid units
+- `availableHeight`: Available height in grid units
+- `screenSize`: Screen size for responsive components
+
+**Returns:**
+
+- Array of suitable components
+
+**Example:**
+
+```tsx
+const suitableComponents = registryService.getComponentsForPosition(2, 1, 'desktop');
+console.log('Suitable components:', suitableComponents.length);
+```
 
 #### getRecommendedComponents
 
-```typescript
+Gets recommended components for a use case.
+
+```tsx
 getRecommendedComponents(
   useCase: string,
   availableSpace: { width: number; height: number },
-  screenSize?: 'mobile' | 'tablet' | 'desktop'
+  screenSize?: "mobile" | "tablet" | "desktop"
 ): ComponentMetadata[]
 ```
 
-Returns components recommended for a specific use case.
+**Parameters:**
+
+- `useCase`: Use case description
+- `availableSpace`: Available space
+- `screenSize`: Screen size
+
+**Returns:**
+
+- Array of recommended components
+
+**Example:**
+
+```tsx
+const recommendations = registryService.getRecommendedComponents(
+  'revenue tracking',
+  { width: 3, height: 2 },
+  'desktop'
+);
+console.log('Recommended components:', recommendations.length);
+```
 
 #### getSuggestions
 
-```typescript
+Gets AI suggestions for user input.
+
+```tsx
 getSuggestions(
   userInput: string,
   availableSpace: { width: number; height: number },
-  screenSize?: 'mobile' | 'tablet' | 'desktop'
+  screenSize?: "mobile" | "tablet" | "desktop"
 ): ComponentSuggestion[]
 ```
 
-Returns AI-powered component suggestions based on user input.
+**Parameters:**
 
-#### validateRegistry
+- `userInput`: User's natural language input
+- `availableSpace`: Available space
+- `screenSize`: Screen size
 
-```typescript
-validateRegistry(): boolean
+**Returns:**
+
+- Array of component suggestions
+
+**Example:**
+
+```tsx
+const suggestions = registryService.getSuggestions(
+  'Add a revenue chart',
+  { width: 4, height: 3 },
+  'desktop'
+);
+console.log('AI suggestions:', suggestions.length);
 ```
 
-Validates the registry configuration and returns true if valid.
+#### getCategories
 
-#### getErrors
+Gets all component categories.
 
-```typescript
-getErrors(): string[]
+```tsx
+getCategories(): Record<string, unknown>
 ```
 
-Returns validation errors if the registry is invalid.
+**Returns:**
 
-### Usage Examples
+- Object with category information
 
-#### Basic Usage
+**Example:**
 
-```typescript
-import { RegistryService } from 'adaptly';
+```tsx
+const categories = registryService.getCategories();
+console.log('Available categories:', Object.keys(categories));
+```
 
+#### getComponentCountByCategory
+
+Gets component count by category.
+
+```tsx
+getComponentCountByCategory(): Record<string, number>
+```
+
+**Returns:**
+
+- Object with category counts
+
+**Example:**
+
+```tsx
+const counts = registryService.getComponentCountByCategory();
+console.log('Component counts:', counts);
+```
+
+#### searchComponents
+
+Searches components by query.
+
+```tsx
+searchComponents(query: string): ComponentMetadata[]
+```
+
+**Parameters:**
+
+- `query`: Search query
+
+**Returns:**
+
+- Array of matching components
+
+**Example:**
+
+```tsx
+const results = registryService.searchComponents('metric');
+console.log('Search results:', results.length);
+```
+
+## 📝 AdaptlyLogger
+
+Service for logging and debugging.
+
+### Methods
+
+#### info
+
+Logs info message.
+
+```tsx
+info(message: string, ...args: unknown[]): void
+```
+
+**Parameters:**
+
+- `message`: Log message
+- `args`: Additional arguments
+
+**Example:**
+
+```tsx
+import { adaptlyLogger } from 'adaptly';
+
+adaptlyLogger.info('Component added successfully', component);
+```
+
+#### debug
+
+Logs debug message.
+
+```tsx
+debug(message: string, ...args: unknown[]): void
+```
+
+**Parameters:**
+
+- `message`: Log message
+- `args`: Additional arguments
+
+**Example:**
+
+```tsx
+adaptlyLogger.debug('Processing user input', userInput);
+```
+
+#### warn
+
+Logs warning message.
+
+```tsx
+warn(message: string, ...args: unknown[]): void
+```
+
+**Parameters:**
+
+- `message`: Log message
+- `args`: Additional arguments
+
+**Example:**
+
+```tsx
+adaptlyLogger.warn('Component validation failed', component);
+```
+
+#### error
+
+Logs error message.
+
+```tsx
+error(message: string, ...args: unknown[]): void
+```
+
+**Parameters:**
+
+- `message`: Log message
+- `args`: Additional arguments
+
+**Example:**
+
+```tsx
+adaptlyLogger.error('LLM processing failed', error);
+```
+
+#### setConfig
+
+Sets logger configuration.
+
+```tsx
+setConfig(config: { enabled: boolean; level: string }): void
+```
+
+**Parameters:**
+
+- `config`: Logger configuration
+
+**Example:**
+
+```tsx
+adaptlyLogger.setConfig({
+  enabled: true,
+  level: 'debug'
+});
+```
+
+## 🚀 Usage Examples
+
+### Complete Service Setup
+
+```tsx
+import { 
+  EnhancedLLMService, 
+  StorageService, 
+  RegistryService,
+  adaptlyLogger 
+} from 'adaptly';
+
+// LLM Service
+const llmService = new EnhancedLLMService({
+  provider: "google",
+  apiKey: "your-api-key",
+  model: "gemini-2.0-flash-exp",
+  maxTokens: 1000,
+  temperature: 0.7
+});
+
+// Storage Service
+const storageService = new StorageService({
+  enabled: true,
+  key: "my-app-ui",
+  version: "1.0.0"
+});
+
+// Registry Service
 const registryService = new RegistryService({
   components: componentMetadata,
-  categories: categoryConfig,
+  categories: {},
   enableCaching: true,
   maxCacheSize: 100
 });
 
-// Get all components
-const allComponents = registryService.getAllComponents();
-
-// Get specific component
-const metricCard = registryService.getComponent('MetricCard');
-
-// Get components by category
-const chartComponents = registryService.getComponentsByCategory('charts');
-
-// Get components for specific space
-const fittingComponents = registryService.getComponentsForPosition(4, 3, 'desktop');
-```
-
-#### Advanced Usage
-
-```typescript
-class CustomRegistryService extends RegistryService {
-  constructor(config: RegistryConfig) {
-    super(config);
-    this.setupCustomFilters();
-  }
-  
-  private setupCustomFilters() {
-    // Add custom filtering logic
-  }
-  
-  getComponentsByUserRole(userRole: string): ComponentMetadata[] {
-    return this.getAllComponents().filter(component => {
-      // Custom role-based filtering
-      return this.isComponentAllowedForRole(component, userRole);
-    });
-  }
-  
-  private isComponentAllowedForRole(component: ComponentMetadata, role: string): boolean {
-    // Custom permission logic
-    return true; // Implement your logic
-  }
-}
-```
-
-#### Component Suggestions
-
-```typescript
-// Get AI-powered suggestions
-const suggestions = registryService.getSuggestions(
-  'I need to show sales data',
-  { width: 6, height: 4 },
-  'desktop'
-);
-
-suggestions.forEach(suggestion => {
-  console.log(`Component: ${suggestion.component.name}`);
-  console.log(`Confidence: ${suggestion.confidence}`);
-  console.log(`Reasoning: ${suggestion.reasoning}`);
-});
-```
-
-#### Registry Validation
-
-```typescript
-// Validate registry
-const isValid = registryService.validateRegistry();
-
-if (!isValid) {
-  const errors = registryService.getErrors();
-  console.error('Registry validation failed:', errors);
-}
-```
-
-## 📝 adaptlyLogger
-
-The centralized logging service for debugging and monitoring.
-
-### Class Definition
-
-```typescript
-class adaptlyLogger {
-  static setConfig(config: LoggingConfig): void;
-  static debug(message: string, ...args: unknown[]): void;
-  static info(message: string, ...args: unknown[]): void;
-  static warn(message: string, ...args: unknown[]): void;
-  static error(message: string, ...args: unknown[]): void;
-}
-```
-
-### Configuration
-
-```typescript
-interface LoggingConfig {
-  enabled?: boolean;
-  level?: 'debug' | 'info' | 'warn' | 'error';
-}
-```
-
-### Methods
-
-#### setConfig
-
-```typescript
-static setConfig(config: LoggingConfig): void
-```
-
-Configures the logger with the specified settings.
-
-#### debug
-
-```typescript
-static debug(message: string, ...args: unknown[]): void
-```
-
-Logs debug-level messages.
-
-#### info
-
-```typescript
-static info(message: string, ...args: unknown[]): void
-```
-
-Logs info-level messages.
-
-#### warn
-
-```typescript
-static warn(message: string, ...args: unknown[]): void
-```
-
-Logs warning-level messages.
-
-#### error
-
-```typescript
-static error(message: string, ...args: unknown[]): void
-```
-
-Logs error-level messages.
-
-### Usage Examples
-
-#### Basic Usage
-
-```typescript
-import { adaptlyLogger } from 'adaptly';
-
-// Configure logger
+// Logger
 adaptlyLogger.setConfig({
   enabled: true,
   level: 'debug'
 });
-
-// Log messages
-adaptlyLogger.debug('Debug message', { data: 'value' });
-adaptlyLogger.info('Info message', { count: 5 });
-adaptlyLogger.warn('Warning message', { issue: 'minor' });
-adaptlyLogger.error('Error message', { error: new Error('Something went wrong') });
 ```
 
-#### Advanced Usage
+### Service Integration
 
-```typescript
-class CustomLogger {
-  private static instance: CustomLogger;
-  
-  static getInstance(): CustomLogger {
-    if (!CustomLogger.instance) {
-      CustomLogger.instance = new CustomLogger();
-    }
-    return CustomLogger.instance;
-  }
-  
-  private constructor() {
-    // Setup custom logging
-  }
-  
-  log(level: string, message: string, data?: unknown) {
-    // Custom logging logic
-    console.log(`[${level.toUpperCase()}] ${message}`, data);
+```tsx
+// Process user request with all services
+const processUserRequest = async (userInput: string) => {
+  try {
+    // Get current adaptation
+    const currentAdaptation = storageService.loadAdaptation() || defaultAdaptation;
     
-    // Send to external service
-    this.sendToExternalService(level, message, data);
-  }
-  
-  private sendToExternalService(level: string, message: string, data?: unknown) {
-    // Send to external logging service
-  }
-}
-
-// Use custom logger
-const logger = CustomLogger.getInstance();
-logger.log('info', 'Custom log message', { custom: 'data' });
-```
-
-#### Performance Monitoring
-
-```typescript
-class PerformanceLogger {
-  private static timers: Map<string, number> = new Map();
-  
-  static startTimer(name: string): void {
-    this.timers.set(name, Date.now());
-  }
-  
-  static endTimer(name: string): void {
-    const startTime = this.timers.get(name);
-    if (startTime) {
-      const duration = Date.now() - startTime;
-      adaptlyLogger.info(`Timer ${name} completed in ${duration}ms`);
-      this.timers.delete(name);
-    }
-  }
-}
-
-// Use performance logger
-PerformanceLogger.startTimer('llm-processing');
-await llmService.processUserRequest(input, layout, space, components, config);
-PerformanceLogger.endTimer('llm-processing');
-```
-
-## 🔧 Service Integration
-
-### Using Services Together
-
-```typescript
-import { CoreLLMService, RegistryService, adaptlyLogger } from 'adaptly';
-
-class AdaptlyServiceManager {
-  private llmService: CoreLLMService;
-  private registryService: RegistryService;
-  
-  constructor(config: {
-    llm: LLMConfig;
-    registry: RegistryConfig;
-    logging: LoggingConfig;
-  }) {
-    // Initialize services
-    this.llmService = new CoreLLMService(config.llm);
-    this.registryService = new RegistryService(config.registry);
+    // Get available components
+    const availableComponents = registryService.getAllComponents();
+    const componentNames = availableComponents.map(c => c.name);
     
-    // Configure logging
-    adaptlyLogger.setConfig(config.logging);
-  }
-  
-  async processUserRequest(
-    input: string,
-    currentLayout: UIAdaptation,
-    availableSpace: SpaceInfo
-  ): Promise<LLMResponse> {
-    adaptlyLogger.debug('Processing user request', { input, currentLayout });
-    
-    try {
-      // Get available components
-      const availableComponents = this.registryService.getAllComponents()
-        .map(component => component.id);
-      
-      // Get component suggestions
-      const suggestions = this.registryService.getSuggestions(
-        input,
-        availableSpace
-      );
-      
-      adaptlyLogger.info('Component suggestions', { suggestions });
-      
-      // Process with LLM
-      const response = await this.llmService.processUserRequest(
-        input,
-        currentLayout,
-        availableSpace,
-        availableComponents,
-        this.registryService.getConfig()
-      );
-      
-      adaptlyLogger.info('LLM response received', { response });
-      
-      return response;
-    } catch (error) {
-      adaptlyLogger.error('Error processing user request', { error });
-      throw error;
-    }
-  }
-}
-```
-
-### Service Lifecycle Management
-
-```typescript
-class ServiceLifecycleManager {
-  private services: Map<string, unknown> = new Map();
-  
-  registerService(name: string, service: unknown): void {
-    this.services.set(name, service);
-    adaptlyLogger.info(`Service registered: ${name}`);
-  }
-  
-  getService<T>(name: string): T | undefined {
-    return this.services.get(name) as T;
-  }
-  
-  unregisterService(name: string): void {
-    this.services.delete(name);
-    adaptlyLogger.info(`Service unregistered: ${name}`);
-  }
-  
-  shutdown(): void {
-    this.services.clear();
-    adaptlyLogger.info('All services shutdown');
-  }
-}
-```
-
-## 🧪 Testing Services
-
-### Testing CoreLLMService
-
-```typescript
-import { CoreLLMService } from 'adaptly';
-
-describe('CoreLLMService', () => {
-  let llmService: CoreLLMService;
-  
-  beforeEach(() => {
-    llmService = new CoreLLMService({
-      apiKey: 'test-key',
-      model: 'test-model'
-    });
-  });
-  
-  test('processUserRequest returns valid response', async () => {
-    const response = await llmService.processUserRequest(
-      'Add a metric',
-      mockLayout,
+    // Process with LLM
+    const result = await llmService.processUserRequest(
+      userInput,
+      currentAdaptation,
       { width: 6, height: 4 },
-      ['MetricCard'],
-      mockConfig
+      componentNames,
+      adaptlyConfig
     );
     
-    expect(response.success).toBe(true);
-    expect(response.newAdaptation).toBeDefined();
-  });
-});
+    if (result.success && result.newAdaptation) {
+      // Save new adaptation
+      storageService.saveAdaptation(result.newAdaptation);
+      
+      // Log success
+      adaptlyLogger.info('User request processed successfully', result.reasoning);
+      
+      return result;
+    } else {
+      adaptlyLogger.error('LLM processing failed', result.error);
+      return null;
+    }
+  } catch (error) {
+    adaptlyLogger.error('Service integration error', error);
+    return null;
+  }
+};
 ```
 
-### Testing RegistryService
+### Error Handling
 
-```typescript
-import { RegistryService } from 'adaptly';
+```tsx
+// Handle service errors
+const handleServiceError = (error: Error, service: string) => {
+  adaptlyLogger.error(`${service} error:`, error);
+  
+  // Handle specific errors
+  if (error.message.includes('API key')) {
+    console.error('API key issue - check your configuration');
+  } else if (error.message.includes('rate limit')) {
+    console.error('Rate limit exceeded - wait before retrying');
+  } else {
+    console.error('Unknown service error');
+  }
+};
 
-describe('RegistryService', () => {
-  let registryService: RegistryService;
-  
-  beforeEach(() => {
-    registryService = new RegistryService({
-      components: mockComponents,
-      categories: mockCategories
-    });
-  });
-  
-  test('getAllComponents returns all components', () => {
-    const components = registryService.getAllComponents();
-    expect(components).toHaveLength(mockComponents.length);
-  });
-  
-  test('getComponent returns specific component', () => {
-    const component = registryService.getComponent('MetricCard');
-    expect(component).toBeDefined();
-    expect(component?.name).toBe('MetricCard');
-  });
-});
+// Use with try-catch
+try {
+  const result = await llmService.processUserRequest(...);
+} catch (error) {
+  handleServiceError(error, 'LLM Service');
+}
 ```
 
-### Testing adaptlyLogger
+## 📚 Related Documentation
 
-```typescript
-import { adaptlyLogger } from 'adaptly';
-
-describe('adaptlyLogger', () => {
-  beforeEach(() => {
-    adaptlyLogger.setConfig({
-      enabled: true,
-      level: 'debug'
-    });
-  });
-  
-  test('logs messages at correct level', () => {
-    const consoleSpy = jest.spyOn(console, 'log');
-    
-    adaptlyLogger.debug('Debug message');
-    adaptlyLogger.info('Info message');
-    adaptlyLogger.warn('Warning message');
-    adaptlyLogger.error('Error message');
-    
-    expect(consoleSpy).toHaveBeenCalledTimes(4);
-  });
-});
-```
-
-## 🆘 Troubleshooting
-
-### Common Issues
-
-**LLM Service not responding:**
-
-- Check API key is correct
-- Verify network connectivity
-- Ensure model is supported
-- Check rate limits
-
-**Registry Service errors:**
-
-- Validate component metadata
-- Check required fields
-- Verify prop types
-- Ensure unique component IDs
-
-**Logger not working:**
-
-- Check configuration
-- Verify log level
-- Ensure logger is enabled
-- Check console output
-
-### Debug Tools
-
-```typescript
-// Enable debug logging
-adaptlyLogger.setConfig({
-  enabled: true,
-  level: 'debug'
-});
-
-// Log service state
-adaptlyLogger.debug('LLM Service state', { 
-  apiKey: llmService.apiKey,
-  model: llmService.model 
-});
-
-adaptlyLogger.debug('Registry Service state', {
-  componentCount: registryService.getAllComponents().length,
-  categories: registryService.getCategories()
-});
-```
-
-## 📚 Next Steps
-
-Now that you understand the services API:
-
-1. **Read the [Core Components API](./core-components.md)** - Learn about the main components
-2. **Check out the [Hooks API](./hooks.md)** - Understand the available hooks
-3. **Explore [Types Reference](./types.md)** - See all TypeScript definitions
-4. **Try the [Basic Dashboard Tutorial](../tutorials/basic-dashboard.md)** - Build a complete dashboard
+- **[Core Components API](./core-components.md)** - Component documentation
+- **[Hooks API](./hooks.md)** - Hook documentation
+- **[Types API](./types.md)** - Type definitions
+- **[Component Registry Guide](../component-registry.md)** - Component configuration
+- **[Storage Service Guide](../storage-service.md)** - Storage configuration
 
 ---
 
-**Ready to dive deeper?** Check out the [Types Reference](./types.md) to see all TypeScript definitions!
+Ready to learn about advanced features? Check out the [Advanced Features Guide](../advanced-features.md)!

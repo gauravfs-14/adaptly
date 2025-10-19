@@ -6,7 +6,6 @@ export { TeamMembers } from "./TeamMembers";
 export { DashboardHeader } from "./DashboardHeader";
 export { DashboardSidebar } from "./DashboardSidebar";
 export { EmptyCard } from "./EmptyCard";
-export { EnhancedLoader } from "./EnhancedLoader";
 export { ActivityFeed } from "./ActivityFeed";
 export { NotificationCenter } from "./NotificationCenter";
 export { WeatherWidget } from "./WeatherWidget";

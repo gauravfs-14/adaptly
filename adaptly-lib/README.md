@@ -7,13 +7,20 @@ The core TypeScript library that powers Adaptly's AI-driven adaptive UI framewor
 - **Version**: 0.0.1
 - **License**: MIT
 - **TypeScript**: Full support with type definitions
-- **Dependencies**: React 19.2.0, AI SDK 5.0.76, @ai-sdk/google 2.0.23, @radix-ui/react-dialog 1.1.15, cmdk 1.1.1, lucide-react 0.546.0
+- **Dependencies**: React 19.2.0, AI SDK 5.0.76, @ai-sdk/google 2.0.23, @ai-sdk/openai 2.0.52, @ai-sdk/anthropic 2.0.33, @radix-ui/react-dialog 1.1.15, cmdk 1.1.1, lucide-react 0.546.0
+- **Peer Dependencies**: React 18+ or 19+, React-DOM 19.2.0
 
 ## 🚀 Installation
 
 ```bash
+# Install Adaptly
 npm install adaptly
+
+# Install peer dependencies (if not already installed)
+npm install react react-dom
 ```
+
+**Note**: All AI SDKs and UI dependencies are bundled automatically. You only need React and React-DOM as peer dependencies.
 
 ## 🧩 Core Components
 
@@ -23,35 +30,45 @@ The main provider component that wraps your application and provides AI-powered 
 
 ```tsx
 import { AdaptlyProvider } from 'adaptly';
+import adaptlyConfig from './adaptly.json';
 
 <AdaptlyProvider
-  apiKey="your-gemini-api-key"
+  apiKey="your-api-key"
+  provider="google" // or "openai" or "anthropic"
+  model="gemini-2.0-flash-exp" // or "gpt-4o" or "claude-3-5-sonnet-20241022"
   components={{ MetricCard, SalesChart, DataTable }}
-  adaptlyConfig={adaptlyConfig}
->
-  {/* Your app content */}
-</AdaptlyProvider>
+  icons={{ DollarSign, Users, Activity }} // Optional icon registry
+  adaptlyConfig={adaptlyConfig} // REQUIRED
+  enableStorage={true}
+  storageKey="my-app-ui"
+  storageVersion="2.0.0"
+  defaultLayout={{
+    components: [],
+    layout: "grid",
+    spacing: 6,
+    columns: 6
+  }}
+  aiSuggestions={[
+    { value: "Add metrics", label: "📊 Add metrics", description: "Add key performance indicators" }
+  ]}
+  showAISuggestions={true}
+  showUtilityCommands={true}
+  customLoader={MyCustomLoader} // Optional custom loading component
+/>
 ```
 
-### AdaptiveLayout
+### Built-in Features
 
-Renders your components in a dynamic, AI-driven layout.
+The AdaptlyProvider includes all necessary components:
 
-```tsx
-import { AdaptiveLayout } from 'adaptly';
-
-<AdaptiveLayout />
-```
-
-### AdaptiveCommand
-
-Provides the `⌘K` command interface for natural language input.
-
-```tsx
-import { AdaptiveCommand } from 'adaptly';
-
-<AdaptiveCommand />
-```
+- **AdaptiveLayout**: Renders components dynamically based on AI suggestions
+- **AdaptiveCommand**: Built-in `⌘K` command interface with AI suggestions
+- **LoadingOverlay**: Built-in loading indicator with dark overlay and animations
+- **Storage Management**: Automatic state persistence with version control
+- **Multi-LLM Support**: Google Gemini, OpenAI GPT, Anthropic Claude with model selection
+- **Component Registry**: JSON-based component configuration (adaptly.json)
+- **Icon Registry**: Optional icon management for components
+- **Custom Loader**: Support for custom loading components
 
 ## 🔧 Core Hooks
 
@@ -68,24 +85,60 @@ function MyComponent() {
     updateAdaptation,
     addComponent,
     removeComponent,
+    updateComponent,
     parseUserInput,
     parseUserInputWithLLM,
     resetToDefault,
-    isLLMProcessing
+    isLLMProcessing,
+    lastLLMResponse,
+    currentLLMProvider,
+    saveToStorage,
+    loadFromStorage,
+    clearStorage,
+    hasStoredData
   } = useAdaptiveUI();
 
   // Use the adaptive UI functionality
+  return (
+    <div>
+      <p>Current LLM Provider: {currentLLMProvider}</p>
+      <p>Components: {adaptation.components.length}</p>
+      {isLLMProcessing && <p>AI is processing...</p>}
+    </div>
+  );
 }
+```
+
+### Additional Exports
+
+```tsx
+import { 
+  AdaptiveLayout,
+  AdaptiveCommand,
+  AdaptiveCommandWrapper,
+  LoadingOverlay,
+  RegistryService,
+  CoreLLMService,
+  EnhancedLLMService,
+  StorageService,
+  adaptlyLogger
+} from 'adaptly';
 ```
 
 ## 🎯 Key Features
 
-- **AI-Powered Layout Generation**: Uses Gemini 2.0 Flash for intelligent component selection
-- **Dynamic Grid System**: Responsive layouts that adapt to user needs
-- **Natural Language Interface**: `⌘K` command bar for user input
-- **Component Registry**: Flexible component registration and management
+- **Multi-LLM Support**: Google Gemini, OpenAI GPT, Anthropic Claude with model selection
+- **Built-in Command Interface**: `⌘K` command bar with AI suggestions and utility commands
+- **Built-in Loading Overlay**: Dark overlay with animations during AI processing
+- **Persistent Storage**: Automatic state management with localStorage and version control
+- **Component Registry**: JSON-based component configuration (adaptly.json)
+- **Icon Registry**: Optional icon management for components
+- **Data Filtering Only**: LLM can only filter existing data, not pass new data
+- **Self-contained**: All features included in a single provider component
 - **TypeScript Support**: Full type safety and IntelliSense
-- **Customizable**: Extensive configuration options for different use cases
+- **Peer Dependencies**: Only React and React-DOM required
+- **Custom Loaders**: Support for custom loading components
+- **Advanced Services**: EnhancedLLMService, StorageService, RegistryService
 
 ## 📚 API Reference
 
@@ -93,13 +146,21 @@ function MyComponent() {
 
 ```typescript
 interface AdaptlyConfig {
-  llm?: LLMConfig;
-  registry?: RegistryConfig;
-  defaultLayout?: Partial<UIAdaptation>;
   enableLLM?: boolean;
+  llm?: LLMConfig;
+  defaultLayout?: Partial<UIAdaptation>;
   adaptlyJson: AdaptlyJsonConfig;
+  storage?: StorageConfig;
   loadingOverlay?: LoadingOverlayConfig;
   logging?: LoggingConfig;
+}
+
+interface LLMConfig {
+  provider: "google" | "openai" | "anthropic";
+  apiKey: string;
+  model: string;
+  maxTokens?: number;
+  temperature?: number;
 }
 
 interface UIComponent {
@@ -120,18 +181,30 @@ interface UIAdaptation {
 
 ### Services
 
-- **CoreLLMService**: Handles AI model interactions
-- **RegistryService**: Manages component registry
-- **adaptlyLogger**: Centralized logging system
+- **EnhancedLLMService**: Handles multi-provider AI model interactions with advanced features
+- **CoreLLMService**: Basic LLM service for Google Gemini
+- **StorageService**: Manages persistent storage with version control
+- **RegistryService**: Manages component registry and metadata
+- **AdaptlyLogger**: Centralized logging system with configurable levels
 
 ## 🔗 Related Packages
 
-- **adaptly-demo**: Example Next.js application
-- **adaptly-cli**: Command-line tools for project setup
+- **adaptly-demo**: Example Next.js application with full dashboard implementation
+- **adaptly-cli**: Command-line tools for project setup (planned)
+- **adaptly-examples**: Additional example applications and use cases
 
 ## 📖 Documentation
 
 For complete documentation, visit the [main repository](https://github.com/gauravfs-14/adaptly) or check the `/docs` folder for detailed guides.
+
+### Quick Links
+
+- **[Installation Guide](../docs/installation.md)** - Setup and configuration
+- **[Component Registry](../docs/component-registry.md)** - adaptly.json configuration
+- **[LLM Providers](../docs/llm-providers.md)** - Multi-provider setup
+- **[Storage Service](../docs/storage-service.md)** - Persistent storage guide
+- **[API Reference](../docs/api/)** - Complete API documentation
+- **[Examples](../examples/)** - Working examples and demos
 
 ## 🤝 Contributing
 

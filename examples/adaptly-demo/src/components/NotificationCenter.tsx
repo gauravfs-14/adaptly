@@ -141,8 +141,10 @@ export function NotificationCenter({
   onClearAll,
   className = "",
 }: NotificationCenterProps) {
-  const unreadCount = notifications.filter((n) => !n.read).length;
-  const displayNotifications = notifications.slice(0, maxItems);
+  // LLM should only filter, not pass data - always use default data
+  const safeNotifications = defaultNotifications;
+  const unreadCount = safeNotifications.filter((n) => !n.read).length;
+  const displayNotifications = safeNotifications.slice(0, maxItems);
 
   return (
     <Card className={`h-full flex flex-col ${className}`}>

@@ -148,8 +148,8 @@ export function ActivityFeed({
   showAvatars = true,
   className = "",
 }: ActivityFeedProps) {
-  // Generate sample data if none provided
-  const activityData = activities.length > 0 ? activities : defaultActivities;
+  // LLM should only filter, not pass data - always use default data
+  const activityData = defaultActivities;
   const displayActivities = activityData.slice(0, maxItems);
 
   return (
@@ -212,18 +212,18 @@ export function ActivityFeed({
                   {/* User and Timestamp */}
                   <div className="flex items-center justify-between mt-2">
                     <div className="flex items-center space-x-2">
-                      {showAvatars && activity.user && (
+                      {showAvatars && activity.user && activity.user.name && (
                         <Avatar className="h-6 w-6">
                           <AvatarImage src={activity.user.avatar} />
                           <AvatarFallback className="text-xs">
                             {activity.user.name
                               .split(" ")
-                              .map((n) => n[0])
+                              .map((n: string) => n[0])
                               .join("")}
                           </AvatarFallback>
                         </Avatar>
                       )}
-                      {activity.user && (
+                      {activity.user && activity.user.name && (
                         <span className="text-xs text-muted-foreground">
                           {activity.user.name}
                         </span>

@@ -1,14 +1,14 @@
 # Types API Reference
 
-This document provides comprehensive TypeScript definitions for all Adaptly types, interfaces, and enums.
+This document provides comprehensive type definitions for Adaptly's TypeScript interfaces and types.
 
-## 🏗️ Core Types
+## 🎯 Core Types
 
 ### UIComponent
 
-Represents a single component in the adaptive layout.
+Represents a single component in the adaptive UI.
 
-```typescript
+```tsx
 interface UIComponent {
   id: string;
   type: string;
@@ -21,19 +21,36 @@ interface UIComponent {
 **Properties:**
 
 - `id`: Unique identifier for the component
-- `type`: Component type name (must match registry)
+- `type`: Component type (must match registry)
 - `props`: Component properties and data
 - `position`: Grid position and dimensions
-- `visible`: Whether the component is visible
+- `visible`: Whether component is visible
+
+**Example:**
+
+```tsx
+const component: UIComponent = {
+  id: 'metric-1',
+  type: 'MetricCard',
+  props: {
+    title: 'Revenue',
+    value: '$45,231',
+    change: '+20.1%',
+    changeType: 'positive'
+  },
+  position: { x: 0, y: 0, w: 2, h: 1 },
+  visible: true
+};
+```
 
 ### UIAdaptation
 
-Represents the complete layout state.
+Represents the complete UI state and layout configuration.
 
-```typescript
+```tsx
 interface UIAdaptation {
   components: UIComponent[];
-  layout: 'grid' | 'flex' | 'absolute';
+  layout: "grid" | "flex" | "absolute";
   spacing: number;
   columns: number;
 }
@@ -41,18 +58,333 @@ interface UIAdaptation {
 
 **Properties:**
 
-- `components`: Array of all components in the layout
-- `layout`: Layout type for positioning
+- `components`: Array of UI components
+- `layout`: Layout system type
 - `spacing`: Spacing between components
 - `columns`: Number of grid columns
 
-## 🧩 Component Registry Types
+**Example:**
+
+```tsx
+const adaptation: UIAdaptation = {
+  components: [
+    {
+      id: 'metric-1',
+      type: 'MetricCard',
+      props: { title: 'Revenue', value: '$45,231' },
+      position: { x: 0, y: 0, w: 2, h: 1 },
+      visible: true
+    }
+  ],
+  layout: 'grid',
+  spacing: 6,
+  columns: 6
+};
+```
+
+## 🔧 Configuration Types
+
+### AdaptlyConfig
+
+Main configuration interface for AdaptlyProvider.
+
+```tsx
+interface AdaptlyConfig {
+  llm?: LLMConfig;
+  registry?: RegistryConfig;
+  defaultLayout?: Partial<UIAdaptation>;
+  enableLLM?: boolean;
+  adaptlyJson: AdaptlyJsonConfig;
+  storage?: {
+    enabled?: boolean;
+    key?: string;
+    version?: string;
+  };
+  loadingOverlay?: {
+    enabled?: boolean;
+    message?: string;
+    subMessage?: string;
+    customLoader?: CustomLoaderComponent;
+  };
+  logging?: {
+    enabled?: boolean;
+    level?: "debug" | "info" | "warn" | "error";
+  };
+}
+```
+
+### AdaptlyJsonConfig
+
+Configuration for the component registry.
+
+```tsx
+interface AdaptlyJsonConfig {
+  version: string;
+  components: Record<string, ComponentJsonConfig>;
+}
+```
+
+**Example:**
+
+```tsx
+const adaptlyConfig: AdaptlyJsonConfig = {
+  version: "1.0.0",
+  components: {
+    MetricCard: {
+      description: "Display key performance indicators",
+      props: {
+        title: { type: "string", required: true },
+        value: { type: "string", required: true }
+      },
+      useCases: ["revenue tracking", "user metrics"],
+      space: { min: [2, 1], max: [3, 2], preferred: [2, 1] }
+    }
+  }
+};
+```
+
+### ComponentJsonConfig
+
+Configuration for a single component in the registry.
+
+```tsx
+interface ComponentJsonConfig {
+  description: string;
+  props: Record<string, PropJsonConfig>;
+  useCases: string[];
+  space: {
+    min: number[];
+    max: number[];
+    preferred: number[];
+  };
+}
+```
+
+### PropJsonConfig
+
+Configuration for a component property.
+
+```tsx
+interface PropJsonConfig {
+  type: string;
+  required: boolean;
+  allowed?: (string | number)[];
+}
+```
+
+## 🤖 LLM Types
+
+### LLMConfig
+
+Configuration for LLM providers.
+
+```tsx
+interface LLMConfig {
+  provider: LLMProvider;
+  apiKey: string;
+  model: string;
+  maxTokens?: number;
+  temperature?: number;
+}
+```
+
+### LLMProvider
+
+Supported LLM providers.
+
+```tsx
+type LLMProvider = "google" | "openai" | "anthropic";
+```
+
+**Example:**
+
+```tsx
+const llmConfig: LLMConfig = {
+  provider: "google",
+  apiKey: "your-api-key",
+  model: "gemini-2.0-flash-exp",
+  maxTokens: 1000,
+  temperature: 0.7
+};
+```
+
+## 🎨 Component Registry Types
+
+### ComponentRegistry
+
+Registry for React components.
+
+```tsx
+interface ComponentRegistry {
+  [key: string]: React.ComponentType<unknown>;
+}
+```
+
+**Example:**
+
+```tsx
+const componentRegistry: ComponentRegistry = {
+  MetricCard,
+  SalesChart,
+  DataTable
+};
+```
+
+### IconRegistry
+
+Registry for icon components.
+
+```tsx
+interface IconRegistry {
+  [key: string]: React.ComponentType<unknown>;
+}
+```
+
+**Example:**
+
+```tsx
+const iconRegistry: IconRegistry = {
+  DollarSign,
+  Users,
+  BarChart3
+};
+```
+
+## ⌨️ Command Types
+
+### Command
+
+Command interface for the command bar.
+
+```tsx
+interface Command {
+  id: string;
+  label: string;
+  description: string;
+  icon: React.ComponentType<{ className?: string }>;
+  action: string;
+  category: "layout" | "component" | "theme" | "utility";
+}
+```
+
+**Example:**
+
+```tsx
+const command: Command = {
+  id: "reset",
+  label: "Reset",
+  description: "Reset to default layout",
+  icon: RotateCcw,
+  action: "reset",
+  category: "utility"
+};
+```
+
+### CommandConfig
+
+Configuration for the command interface.
+
+```tsx
+interface CommandConfig {
+  keyPress?: string;
+  commands?: Command[];
+  enableLLM?: boolean;
+  placeholder?: string;
+  emptyMessage?: string;
+}
+```
+
+### CommandHandler
+
+Handler interface for command processing.
+
+```tsx
+interface CommandHandler {
+  parseUserInput: (input: string) => void;
+  parseUserInputWithLLM?: (input: string) => Promise<void>;
+  resetToDefault: () => void;
+  isLLMProcessing?: boolean;
+  lastLLMResponse?: string;
+}
+```
+
+## 🔄 Context Types
+
+### AdaptiveUIContextType
+
+Context type for the adaptive UI provider.
+
+```tsx
+interface AdaptiveUIContextType {
+  // UI state
+  adaptation: UIAdaptation;
+  updateAdaptation: (adaptation: Partial<UIAdaptation>) => void;
+  addComponent: (component: UIComponent) => void;
+  removeComponent: (id: string) => void;
+  updateComponent: (id: string, updates: Partial<UIComponent>) => void;
+  
+  // AI processing
+  parseUserInput: (input: string) => void;
+  parseUserInputWithLLM: (input: string) => Promise<void>;
+  resetToDefault: () => void;
+  isLLMProcessing: boolean;
+  lastLLMResponse?: string;
+  
+  // Configuration
+  config?: AdaptlyConfig;
+  
+  // Storage methods
+  saveToStorage: () => boolean;
+  loadFromStorage: () => UIAdaptation | null;
+  clearStorage: () => boolean;
+  hasStoredData: () => boolean;
+  
+  // LLM provider info
+  currentLLMProvider?: string;
+}
+```
+
+## 🎨 Component Types
+
+### CustomLoaderComponent
+
+Custom loader component interface.
+
+```tsx
+interface CustomLoaderProps {
+  isVisible: boolean;
+  message?: string;
+  subMessage?: string;
+}
+
+type CustomLoaderComponent = React.ComponentType<CustomLoaderProps>;
+```
+
+**Example:**
+
+```tsx
+const MyCustomLoader: CustomLoaderComponent = ({ isVisible, message, subMessage }) => {
+  if (!isVisible) return null;
+
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+      <div className="bg-white p-6 rounded-lg shadow-lg text-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mx-auto mb-4"></div>
+        <h3 className="text-lg font-semibold mb-2">{message}</h3>
+        <p className="text-gray-600">{subMessage}</p>
+      </div>
+    </div>
+  );
+};
+```
+
+## 🏗️ Advanced Types
 
 ### ComponentMetadata
 
-Metadata for a registered component.
+Metadata for component registry.
 
-```typescript
+```tsx
 interface ComponentMetadata {
   id: string;
   name: string;
@@ -82,18 +414,18 @@ interface ComponentMetadata {
     definitions: PropDefinition[];
   };
   examples: ComponentExample[];
-  priority: 'high' | 'medium' | 'low';
+  priority: "high" | "medium" | "low";
 }
 ```
 
 ### PropDefinition
 
-Definition for a component property.
+Property definition for components.
 
-```typescript
+```tsx
 interface PropDefinition {
   name: string;
-  type: 'string' | 'number' | 'boolean' | 'array' | 'object' | 'function';
+  type: "string" | "number" | "boolean" | "array" | "object" | "function";
   description: string;
   required: boolean;
   defaultValue?: unknown;
@@ -106,7 +438,7 @@ interface PropDefinition {
   };
   examples?: unknown[];
   dataSource?: {
-    type: 'static' | 'api' | 'filtered' | 'computed';
+    type: "static" | "api" | "filtered" | "computed";
     endpoint?: string;
     filters?: string[];
     transformations?: string[];
@@ -116,9 +448,9 @@ interface PropDefinition {
 
 ### ComponentExample
 
-Example usage of a component.
+Example configuration for components.
 
-```typescript
+```tsx
 interface ComponentExample {
   name: string;
   description: string;
@@ -132,7 +464,7 @@ interface ComponentExample {
 
 AI-generated component suggestion.
 
-```typescript
+```tsx
 interface ComponentSuggestion {
   component: ComponentMetadata;
   confidence: number;
@@ -142,42 +474,25 @@ interface ComponentSuggestion {
 }
 ```
 
-## 🔧 Configuration Types
+## 🔧 Service Types
 
-### AdaptlyConfig
+### StorageConfig
 
-Main configuration interface.
+Configuration for storage service.
 
-```typescript
-interface AdaptlyConfig {
-  llm?: LLMConfig;
-  registry?: RegistryConfig;
-  defaultLayout?: Partial<UIAdaptation>;
-  enableLLM?: boolean;
-  adaptlyJson: AdaptlyJsonConfig;
-  loadingOverlay?: LoadingOverlayConfig;
-  logging?: LoggingConfig;
-}
-```
-
-### LLMConfig
-
-Configuration for the LLM service.
-
-```typescript
-interface LLMConfig {
-  apiKey: string;
-  model: string;
-  maxTokens?: number;
-  temperature?: number;
+```tsx
+interface StorageConfig {
+  enabled: boolean;
+  key: string;
+  version: string;
 }
 ```
 
 ### RegistryConfig
 
-Configuration for the registry service.
+Configuration for component registry.
 
-```typescript
+```tsx
 interface RegistryConfig {
   components: ComponentMetadata[];
   categories: Record<string, unknown>;
@@ -186,170 +501,44 @@ interface RegistryConfig {
 }
 ```
 
-### LoadingOverlayConfig
+### RegistryInterface
 
-Configuration for the loading overlay.
+Interface for component registry service.
 
-```typescript
-interface LoadingOverlayConfig {
-  enabled?: boolean;
-  message?: string;
-  subMessage?: string;
-  customLoader?: CustomLoaderComponent;
+```tsx
+interface RegistryInterface {
+  getAllComponents(): ComponentMetadata[];
+  getComponent(id: string): ComponentMetadata | undefined;
+  getComponentsByCategory(category: string): ComponentMetadata[];
+  getComponentsByTags(tags: string[]): ComponentMetadata[];
+  getComponentsForPosition(
+    availableWidth: number,
+    availableHeight: number,
+    screenSize?: "mobile" | "tablet" | "desktop"
+  ): ComponentMetadata[];
+  getRecommendedComponents(
+    useCase: string,
+    availableSpace: { width: number; height: number },
+    screenSize?: "mobile" | "tablet" | "desktop"
+  ): ComponentMetadata[];
+  getSuggestions(
+    userInput: string,
+    availableSpace: { width: number; height: number },
+    screenSize?: "mobile" | "tablet" | "desktop"
+  ): ComponentSuggestion[];
+  getCategories(): Record<string, unknown>;
+  getComponentCountByCategory(): Record<string, number>;
+  searchComponents(query: string): ComponentMetadata[];
 }
 ```
 
-### LoggingConfig
-
-Configuration for the logging system.
-
-```typescript
-interface LoggingConfig {
-  enabled?: boolean;
-  level?: 'debug' | 'info' | 'warn' | 'error';
-}
-```
-
-## 📝 Adaptly.json Types
-
-### AdaptlyJsonConfig
-
-Configuration from adaptly.json file.
-
-```typescript
-interface AdaptlyJsonConfig {
-  version: string;
-  components: Record<string, ComponentJsonConfig>;
-}
-```
-
-### ComponentJsonConfig
-
-Component configuration from adaptly.json.
-
-```typescript
-interface ComponentJsonConfig {
-  description: string;
-  props: Record<string, PropJsonConfig>;
-  useCases: string[];
-  space: {
-    min: number[]; // [width, height]
-    max: number[]; // [width, height]
-    preferred: number[]; // [width, height]
-  };
-}
-```
-
-### PropJsonConfig
-
-Property configuration from adaptly.json.
-
-```typescript
-interface PropJsonConfig {
-  type: string;
-  required: boolean;
-  allowed?: (string | number)[];
-}
-```
-
-## 🎨 Component Types
-
-### ComponentRegistry
-
-Registry of available components.
-
-```typescript
-interface ComponentRegistry {
-  [key: string]: React.ComponentType<unknown>;
-}
-```
-
-### IconRegistry
-
-Registry of available icons.
-
-```typescript
-interface IconRegistry {
-  [key: string]: React.ComponentType<unknown>;
-}
-```
-
-## ⌨️ Command Types
-
-### Command
-
-Individual command definition.
-
-```typescript
-interface Command {
-  id: string;
-  label: string;
-  description: string;
-  icon: React.ComponentType<{ className?: string }>;
-  action: string;
-  category: 'layout' | 'component' | 'theme' | 'utility';
-}
-```
-
-### CommandConfig
-
-Configuration for the command interface.
-
-```typescript
-interface CommandConfig {
-  keyPress?: string;
-  commands?: Command[];
-  enableLLM?: boolean;
-  placeholder?: string;
-  emptyMessage?: string;
-}
-```
-
-### CommandHandler
-
-Handler for command execution.
-
-```typescript
-interface CommandHandler {
-  parseUserInput: (input: string) => void;
-  parseUserInputWithLLM?: (input: string) => Promise<void>;
-  resetToDefault: () => void;
-  isLLMProcessing?: boolean;
-  lastLLMResponse?: string;
-}
-```
-
-## 🔄 Service Types
-
-### LLMResponse
-
-Response from the LLM service.
-
-```typescript
-interface LLMResponse {
-  success: boolean;
-  newAdaptation?: UIAdaptation;
-  reasoning?: string;
-  error?: string;
-}
-```
-
-### SpaceInfo
-
-Information about available space.
-
-```typescript
-interface SpaceInfo {
-  width: number;
-  height: number;
-}
-```
+## 🎯 Utility Types
 
 ### GridRequirements
 
-Grid requirements for components.
+Grid space requirements for components.
 
-```typescript
+```tsx
 interface GridRequirements {
   minWidth: number;
   maxWidth: number;
@@ -361,74 +550,11 @@ interface GridRequirements {
 }
 ```
 
-## 🎯 Hook Types
-
-### AdaptiveUIContextType
-
-Context type for the adaptive UI hook.
-
-```typescript
-interface AdaptiveUIContextType {
-  adaptation: UIAdaptation;
-  updateAdaptation: (adaptation: Partial<UIAdaptation>) => void;
-  addComponent: (component: UIComponent) => void;
-  removeComponent: (id: string) => void;
-  updateComponent: (id: string, updates: Partial<UIComponent>) => void;
-  parseUserInput: (input: string) => void;
-  parseUserInputWithLLM: (input: string) => Promise<void>;
-  resetToDefault: () => void;
-  isLLMProcessing: boolean;
-  lastLLMResponse?: string;
-  config?: AdaptlyConfig;
-}
-```
-
-### AdaptiveCommandReturn
-
-Return type for the adaptive command hook.
-
-```typescript
-interface AdaptiveCommandReturn {
-  open: boolean;
-  setOpen: (open: boolean) => void;
-  input: string;
-  setInput: (input: string) => void;
-  handleSelect: (value: string) => Promise<void>;
-  handleKeyDown: (e: React.KeyboardEvent) => void;
-  getCommands: () => Command[];
-  getFilteredCommands: () => Command[];
-}
-```
-
-## 🎨 Custom Loader Types
-
-### CustomLoaderProps
-
-Props for custom loader components.
-
-```typescript
-interface CustomLoaderProps {
-  isVisible: boolean;
-  message?: string;
-  subMessage?: string;
-}
-```
-
-### CustomLoaderComponent
-
-Type for custom loader components.
-
-```typescript
-type CustomLoaderComponent = React.ComponentType<CustomLoaderProps>;
-```
-
-## 🔧 Utility Types
-
 ### DataSourceConfig
 
 Configuration for data sources.
 
-```typescript
+```tsx
 interface DataSourceConfig {
   description: string;
   examples: string[];
@@ -437,9 +563,9 @@ interface DataSourceConfig {
 
 ### LayoutConfig
 
-Configuration for layout settings.
+Layout configuration.
 
-```typescript
+```tsx
 interface LayoutConfig {
   grid: {
     columns: number;
@@ -453,261 +579,116 @@ interface LayoutConfig {
 }
 ```
 
-## 🎯 Component Props Types
+## 🚀 Usage Examples
 
-### AdaptiveCommandProps
+### Complete Type Usage
 
-Props for the AdaptiveCommand component.
+```tsx
+import { 
+  AdaptlyProvider, 
+  useAdaptiveUI,
+  UIComponent,
+  UIAdaptation,
+  AdaptlyConfig,
+  AdaptlyJsonConfig,
+  ComponentRegistry,
+  IconRegistry
+} from 'adaptly';
 
-```typescript
-interface AdaptiveCommandProps {
-  keyPress?: string;
-  config?: CommandConfig;
-  handler?: CommandHandler;
-  className?: string;
-  style?: React.CSSProperties;
-  aiSuggestions?: Array<{
-    value: string;
-    label: string;
-    icon?: React.ComponentType<{ className?: string }>;
-    description?: string;
-  }>;
-  showAISuggestions?: boolean;
-  showUtilityCommands?: boolean;
-}
-```
+// Component registry
+const componentRegistry: ComponentRegistry = {
+  MetricCard,
+  SalesChart,
+  DataTable
+};
 
-### AdaptiveLayoutProps
+// Icon registry
+const iconRegistry: IconRegistry = {
+  DollarSign,
+  Users,
+  BarChart3
+};
 
-Props for the AdaptiveLayout component.
-
-```typescript
-interface AdaptiveLayoutProps {
-  className?: string;
-  style?: React.CSSProperties;
-  gridClassName?: string;
-  itemClassName?: string;
-  spacing?: number;
-  columns?: number;
-  layout?: 'grid' | 'flex' | 'absolute';
-  responsive?: boolean;
-  breakpoints?: {
-    mobile: number;
-    tablet: number;
-    desktop: number;
-  };
-}
-```
-
-## 🧪 Testing Types
-
-### TestComponentProps
-
-Props for test components.
-
-```typescript
-interface TestComponentProps {
-  title: string;
-  value: string;
-  change?: string;
-  changeType?: 'positive' | 'negative' | 'neutral';
-}
-```
-
-### MockData
-
-Type for mock data in tests.
-
-```typescript
-interface MockData {
-  components: ComponentMetadata[];
-  layout: UIAdaptation;
-  config: AdaptlyConfig;
-}
-```
-
-## 🔄 Event Types
-
-### LayoutChangeEvent
-
-Event fired when layout changes.
-
-```typescript
-interface LayoutChangeEvent {
-  type: 'layout-change';
-  payload: {
-    oldLayout: UIAdaptation;
-    newLayout: UIAdaptation;
-    source: 'user' | 'ai' | 'programmatic';
-  };
-}
-```
-
-### ComponentAddEvent
-
-Event fired when a component is added.
-
-```typescript
-interface ComponentAddEvent {
-  type: 'component-add';
-  payload: {
-    component: UIComponent;
-    position: { x: number; y: number; w: number; h: number };
-  };
-}
-```
-
-### ComponentRemoveEvent
-
-Event fired when a component is removed.
-
-```typescript
-interface ComponentRemoveEvent {
-  type: 'component-remove';
-  payload: {
-    componentId: string;
-    component: UIComponent;
-  };
-}
-```
-
-## 🎨 Theme Types
-
-### ThemeConfig
-
-Configuration for theming.
-
-```typescript
-interface ThemeConfig {
-  primary: string;
-  secondary: string;
-  accent: string;
-  background: string;
-  foreground: string;
-  muted: string;
-  border: string;
-  radius: number;
-}
-```
-
-### ColorScheme
-
-Color scheme definition.
-
-```typescript
-interface ColorScheme {
-  light: ThemeConfig;
-  dark: ThemeConfig;
-}
-```
-
-## 🔧 Plugin Types
-
-### AdaptlyPlugin
-
-Interface for Adaptly plugins.
-
-```typescript
-interface AdaptlyPlugin {
-  name: string;
-  version: string;
-  install: (adaptly: AdaptlyInstance) => void;
-  uninstall: () => void;
-}
-```
-
-### AdaptlyInstance
-
-Instance of the Adaptly system.
-
-```typescript
-interface AdaptlyInstance {
-  services: {
-    llm: CoreLLMService;
-    registry: RegistryService;
-    logger: typeof adaptlyLogger;
-  };
-  config: AdaptlyConfig;
-  state: UIAdaptation;
-}
-```
-
-## 🚀 Performance Types
-
-### PerformanceMetrics
-
-Metrics for performance monitoring.
-
-```typescript
-interface PerformanceMetrics {
-  renderTime: number;
-  layoutTime: number;
-  aiProcessingTime: number;
-  componentCount: number;
-  memoryUsage: number;
-}
-```
-
-### PerformanceConfig
-
-Configuration for performance optimization.
-
-```typescript
-interface PerformanceConfig {
-  enableVirtualization: boolean;
-  enableMemoization: boolean;
-  enableLazyLoading: boolean;
-  maxComponents: number;
-  debounceTime: number;
-}
-```
-
-## 🆘 Error Types
-
-### AdaptlyError
-
-Base error class for Adaptly.
-
-```typescript
-class AdaptlyError extends Error {
-  code: string;
-  context?: Record<string, unknown>;
-  
-  constructor(message: string, code: string, context?: Record<string, unknown>) {
-    super(message);
-    this.name = 'AdaptlyError';
-    this.code = code;
-    this.context = context;
+// Adaptly configuration
+const adaptlyConfig: AdaptlyJsonConfig = {
+  version: "1.0.0",
+  components: {
+    MetricCard: {
+      description: "Display key performance indicators",
+      props: {
+        title: { type: "string", required: true },
+        value: { type: "string", required: true }
+      },
+      useCases: ["revenue tracking", "user metrics"],
+      space: { min: [2, 1], max: [3, 2], preferred: [2, 1] }
+    }
   }
-}
-```
+};
 
-### ValidationError
-
-Error for validation failures.
-
-```typescript
-class ValidationError extends AdaptlyError {
-  field: string;
-  value: unknown;
-  
-  constructor(field: string, value: unknown, message: string) {
-    super(message, 'VALIDATION_ERROR', { field, value });
-    this.field = field;
-    this.value = value;
+// Main configuration
+const config: AdaptlyConfig = {
+  enableLLM: true,
+  adaptlyJson: adaptlyConfig,
+  storage: {
+    enabled: true,
+    key: "my-app-ui",
+    version: "1.0.0"
+  },
+  loadingOverlay: {
+    enabled: true,
+    message: "AI is generating your layout...",
+    subMessage: "Creating components and arranging them for you"
+  },
+  logging: {
+    enabled: true,
+    level: "info"
   }
+};
+
+// Component usage
+function MyComponent() {
+  const {
+    adaptation,
+    addComponent,
+    removeComponent,
+    parseUserInputWithLLM,
+    isLLMProcessing
+  } = useAdaptiveUI();
+
+  const handleAddComponent = () => {
+    const component: UIComponent = {
+      id: 'metric-1',
+      type: 'MetricCard',
+      props: {
+        title: 'Revenue',
+        value: '$45,231'
+      },
+      position: { x: 0, y: 0, w: 2, h: 1 },
+      visible: true
+    };
+    
+    addComponent(component);
+  };
+
+  return (
+    <div>
+      <button onClick={handleAddComponent}>
+        Add Component
+      </button>
+      <p>Components: {adaptation.components.length}</p>
+    </div>
+  );
 }
 ```
 
-## 📚 Next Steps
+## 📚 Related Documentation
 
-Now that you understand all the types:
-
-1. **Read the [Core Components API](./core-components.md)** - Learn about the main components
-2. **Check out the [Hooks API](./hooks.md)** - Understand the available hooks
-3. **Explore the [Services API](./services.md)** - Understand the underlying services
-4. **Try the [Basic Dashboard Tutorial](../tutorials/basic-dashboard.md)** - Build a complete dashboard
+- **[Core Components API](./core-components.md)** - Component documentation
+- **[Hooks API](./hooks.md)** - Hook documentation
+- **[Services API](./services.md)** - Service layer documentation
+- **[Component Registry Guide](../component-registry.md)** - Component configuration
+- **[Storage Service Guide](../storage-service.md)** - Storage configuration
 
 ---
 
-**Ready to start building?** Check out the [Quick Start Guide](../quick-start.md) to get started!
+Ready to learn about services? Check out the [Services API](./services.md)!

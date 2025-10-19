@@ -1,23 +1,16 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Toaster } from "@/components/ui/sonner";
 import { SidebarProvider } from "@/components/ui/sidebar";
-import {
-  ResizableHandle,
-  ResizablePanel,
-  ResizablePanelGroup,
-} from "@/components/ui/resizable";
-import { Alert, AlertDescription } from "@/components/ui/alert";
 import { DashboardHeader, DashboardSidebar } from "@/components";
-import { AdaptlyProvider } from "adaptly";
+import { AdaptlyProvider, useAdaptiveUI, LoadingOverlay } from "adaptly";
 import adaptlyConfig from "../../adaptly.json";
 import { MetricCard } from "@/components/MetricCard";
 import { SalesChart } from "@/components/SalesChart";
 import { TeamMembers } from "@/components/TeamMembers";
 import { OrdersTable } from "@/components/OrdersTable";
 import { EmptyCard } from "@/components/EmptyCard";
-import { EnhancedLoader } from "@/components/EnhancedLoader";
 import { ActivityFeed } from "@/components/ActivityFeed";
 import { NotificationCenter } from "@/components/NotificationCenter";
 import { WeatherWidget } from "@/components/WeatherWidget";
@@ -29,11 +22,23 @@ import {
   ShoppingCart,
   Activity,
   Sparkles,
-  Loader2,
 } from "lucide-react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
-// Enhanced loader component with full-page overlay and cool animations
-const CustomLoader = EnhancedLoader;
+// Using framework's improved built-in loader
+
+// Content that goes inside the AdaptlyProvider
+function AdaptiveContent() {
+  const { currentLLMProvider } = useAdaptiveUI();
+
+  return null;
+}
 
 // Sample data
 const notificationsData = [
@@ -66,11 +71,77 @@ export default function Dashboard() {
   const [sliderValue, setSliderValue] = useState([50]);
   const [isLoading, setIsLoading] = useState(false);
 
-  // Simple Adaptly configuration
-  const apiKey =
-    process.env.NEXT_PUBLIC_GOOGLE_GENERATIVE_AI_API_KEY ||
-    process.env.NEXT_PUBLIC_GEMINI_API_KEY ||
-    "";
+  // LLM Configuration - Test different providers with persistence
+  const [selectedProvider, setSelectedProvider] = useState<
+    "google" | "openai" | "anthropic"
+  >(() => {
+    if (typeof window !== "undefined") {
+      const saved = localStorage.getItem("adaptly-demo-provider");
+      return (saved as "google" | "openai" | "anthropic") || "google";
+    }
+    return "google";
+  });
+
+  // Model selection with persistence
+  const [selectedModel, setSelectedModel] = useState<string>(() => {
+    if (typeof window !== "undefined") {
+      const saved = localStorage.getItem("adaptly-demo-model");
+      return saved || "gemini-2.0-flash-exp";
+    }
+    return "gemini-2.0-flash-exp";
+  });
+
+  const apiKey = (() => {
+    switch (selectedProvider) {
+      case "google":
+        return process.env.NEXT_PUBLIC_GOOGLE_GENERATIVE_AI_API_KEY || "";
+      case "openai":
+        return process.env.NEXT_PUBLIC_OPENAI_API_KEY || "";
+      case "anthropic":
+        return process.env.NEXT_PUBLIC_ANTHROPIC_API_KEY || "";
+      default:
+        return "";
+    }
+  })();
+
+  const hasApiKey = apiKey.length > 0;
+
+  // Available models for each provider
+  const modelOptions = {
+    google: [
+      "gemini-2.0-flash-exp",
+      "gemini-2.0-flash",
+      "gemini-1.5-pro",
+      "gemini-1.5-flash",
+      "gemini-1.0-pro",
+    ],
+    openai: ["gpt-4o", "gpt-4o-mini", "gpt-4-turbo", "gpt-4", "gpt-3.5-turbo"],
+    anthropic: [
+      "claude-3-5-sonnet-20241022",
+      "claude-3-5-haiku-20241022",
+      "claude-3-opus-20240229",
+      "claude-3-sonnet-20240229",
+    ],
+  };
+
+  // Update model when provider changes
+  useEffect(() => {
+    const providerModels = modelOptions[selectedProvider];
+    if (providerModels && !providerModels.includes(selectedModel)) {
+      const defaultModel = providerModels[0];
+      setSelectedModel(defaultModel);
+      if (typeof window !== "undefined") {
+        localStorage.setItem("adaptly-demo-model", defaultModel);
+      }
+    }
+  }, [selectedProvider, selectedModel]);
+
+  // Save model selection
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      localStorage.setItem("adaptly-demo-model", selectedModel);
+    }
+  }, [selectedModel]);
 
   // Default layout with some initial components
   const defaultLayout = {
@@ -147,12 +218,18 @@ export default function Dashboard() {
     console.log("Filter orders");
   };
 
+  // Save provider selection to localStorage when it changes
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      localStorage.setItem("adaptly-demo-provider", selectedProvider);
+    }
+  }, [selectedProvider]);
+
   return (
     <SidebarProvider>
       <div className="flex h-screen w-full">
         {/* Sidebar */}
         <DashboardSidebar onSectionClick={handleSectionClick} />
-
         {/* Main Content */}
         <div className="flex-1 flex flex-col">
           {/* Header */}
@@ -165,97 +242,102 @@ export default function Dashboard() {
 
           {/* Main Content Area */}
           <div className="flex-1 overflow-auto p-6">
-            <ResizablePanelGroup direction="horizontal" className="h-full">
-              {/* Left Panel - Adaptive Grid */}
-              <ResizablePanel defaultSize={70} minSize={50}>
-                <div className="space-y-6 overflow-auto h-full">
-                  <div className="mb-4">
-                    <h2 className="text-2xl font-bold mb-2">
-                      Adaptive Dashboard
-                    </h2>
-                    <p className="text-muted-foreground">
-                      Press{" "}
-                      <kbd className="bg-muted px-2 py-1 rounded text-sm">
-                        ⌘K
-                      </kbd>{" "}
-                      to describe how you want the UI to look
+            <div className="space-y-6 h-full">
+              <div className="mb-4">
+                <div className="flex items-center justify-between mb-2">
+                  <h2 className="text-2xl font-bold">Adaptive Dashboard</h2>
+                  <div className="flex items-center gap-2">
+                    <Select
+                      value={selectedProvider}
+                      onValueChange={(
+                        value: "google" | "openai" | "anthropic"
+                      ) => setSelectedProvider(value)}
+                    >
+                      <SelectTrigger className="w-40">
+                        <SelectValue placeholder="Select Provider" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="google">Google Gemini</SelectItem>
+                        <SelectItem value="openai">OpenAI GPT-4</SelectItem>
+                        <SelectItem value="anthropic">
+                          Anthropic Claude
+                        </SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <Select
+                      value={selectedModel}
+                      onValueChange={setSelectedModel}
+                    >
+                      <SelectTrigger className="w-48">
+                        <SelectValue placeholder="Select Model" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {modelOptions[selectedProvider].map((model) => (
+                          <SelectItem key={model} value={model}>
+                            {model}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+                <p className="text-muted-foreground">
+                  Press{" "}
+                  <kbd className="bg-muted px-2 py-1 rounded text-sm">⌘K</kbd>{" "}
+                  to describe how you want the UI to look. Using{" "}
+                  <span className="font-medium">{selectedModel}</span> with
+                  persistent storage.
+                </p>
+                {!hasApiKey && (
+                  <div className="mt-2 p-3 bg-yellow-50 dark:bg-yellow-950 border border-yellow-200 dark:border-yellow-800 rounded-lg">
+                    <p className="text-sm text-yellow-800 dark:text-yellow-200">
+                      ⚠️ <strong>API Key Required:</strong> Set your{" "}
+                      {selectedProvider.toUpperCase()} API key in environment
+                      variables to use AI features.
+                      <br />
+                      <code className="text-xs mt-1 block">
+                        NEXT_PUBLIC_{selectedProvider.toUpperCase()}
+                        _API_KEY=your-key-here
+                      </code>
                     </p>
                   </div>
+                )}
+              </div>
 
-                  {/* AdaptlyProvider - NPM package approach with explicit config */}
-                  <AdaptlyProvider
-                    apiKey={apiKey}
-                    components={{
-                      MetricCard,
-                      SalesChart,
-                      TeamMembers,
-                      DataTable: OrdersTable, // Using OrdersTable as DataTable
-                      EmptyCard,
-                      ActivityFeed,
-                      NotificationCenter,
-                      WeatherWidget,
-                      QuickStats,
-                      ResourceMonitor,
-                    }}
-                    icons={{
-                      DollarSign,
-                      Users,
-                      ShoppingCart,
-                      Activity,
-                      Sparkles,
-                    }}
-                    defaultLayout={defaultLayout}
-                    customLoader={CustomLoader}
-                    adaptlyConfig={adaptlyConfig} // REQUIRED - explicit config
-                    className="h-full"
-                  />
-                </div>
-              </ResizablePanel>
-
-              <ResizableHandle />
-
-              {/* Right Panel - Static Components */}
-              <ResizablePanel defaultSize={30} minSize={20}>
-                <div className="space-y-6 mx-4 overflow-auto h-full">
-                  {/* Alerts */}
-                  <Alert>
-                    <Activity className="h-4 w-4" />
-                    <AlertDescription>
-                      Your dashboard is performing well. All systems are
-                      operational and running smoothly.
-                    </AlertDescription>
-                  </Alert>
-
-                  {/* Instructions */}
-                  <div className="p-4 border rounded-lg bg-muted/50">
-                    <h3 className="font-semibold mb-2">AI-Powered Commands:</h3>
-                    <ul className="text-sm text-muted-foreground space-y-1">
-                      <li>
-                        • "Create a sales dashboard" - AI will suggest
-                        components
-                      </li>
-                      <li>
-                        • "Add a revenue chart" - AI will add appropriate charts
-                      </li>
-                      <li>
-                        • "Show team performance" - AI will add team metrics
-                      </li>
-                      <li>• "Create a data table" - AI will add data tables</li>
-                      <li>
-                        • "Make it more compact" - AI will optimize layout
-                      </li>
-                      <li>• "Add more visual elements" - AI will enhance UI</li>
-                      <li>• "Reset to default" - Start over</li>
-                    </ul>
-                    <div className="mt-3 p-2 bg-blue-50 dark:bg-blue-950 rounded text-xs">
-                      <strong>Powered by Gemini 2.0 Flash</strong> - The AI
-                      understands natural language and will suggest the best
-                      components for your needs.
-                    </div>
-                  </div>
-                </div>
-              </ResizablePanel>
-            </ResizablePanelGroup>
+              {/* AdaptlyProvider with integrated content */}
+              <AdaptlyProvider
+                apiKey={apiKey}
+                provider={selectedProvider}
+                model={selectedModel}
+                components={{
+                  MetricCard,
+                  SalesChart,
+                  TeamMembers,
+                  DataTable: OrdersTable,
+                  EmptyCard,
+                  ActivityFeed,
+                  NotificationCenter,
+                  WeatherWidget,
+                  QuickStats,
+                  ResourceMonitor,
+                }}
+                icons={{
+                  DollarSign,
+                  Users,
+                  ShoppingCart,
+                  Activity,
+                  Sparkles,
+                }}
+                defaultLayout={defaultLayout}
+                adaptlyConfig={adaptlyConfig}
+                enableStorage={true}
+                storageKey="adaptly-demo-ui"
+                storageVersion="2.0.0"
+                className="h-full"
+              >
+                <AdaptiveContent />
+              </AdaptlyProvider>
+            </div>
           </div>
         </div>
       </div>

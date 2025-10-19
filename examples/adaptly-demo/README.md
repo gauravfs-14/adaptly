@@ -5,10 +5,13 @@ A comprehensive Next.js demonstration of the Adaptly AI-powered adaptive UI fram
 ## 🎯 What This Demo Shows
 
 - **AI-Powered UI Generation**: Natural language to UI layout conversion
-- **Component Registry**: How to register and configure components
+- **Multi-LLM Support**: Switch between Google Gemini, OpenAI GPT, and Anthropic Claude
+- **Component Registry**: How to register and configure components with adaptly.json
 - **Adaptive Layouts**: Dynamic grid systems that respond to user input
-- **Command Interface**: `⌘K` command bar implementation
+- **Command Interface**: `⌘K` command bar implementation with AI suggestions
+- **Persistent Storage**: UI state is saved and restored across sessions
 - **Real-world Components**: Dashboard, charts, tables, and more
+- **Provider Selection**: Live switching between different LLM providers
 
 ## 🚀 Quick Start
 
@@ -16,7 +19,10 @@ A comprehensive Next.js demonstration of the Adaptly AI-powered adaptive UI fram
 
 - Node.js 18+
 - npm, yarn, pnpm, or bun
-- Google Gemini API key
+- At least one API key from:
+  - Google Gemini API key
+  - OpenAI API key
+  - Anthropic API key
 
 ### Installation
 
@@ -43,10 +49,17 @@ A comprehensive Next.js demonstration of the Adaptly AI-powered adaptive UI fram
    cp .env.example .env.local
    ```
 
-   Add your Gemini API key:
+   Add your API keys (at least one required):
 
    ```env
-   NEXT_PUBLIC_GOOGLE_GENERATIVE_AI_API_KEY=your_api_key_here
+   # Google Gemini (recommended)
+   NEXT_PUBLIC_GOOGLE_GENERATIVE_AI_API_KEY=your_gemini_api_key_here
+   
+   # OpenAI GPT (optional)
+   NEXT_PUBLIC_OPENAI_API_KEY=your_openai_api_key_here
+   
+   # Anthropic Claude (optional)
+   NEXT_PUBLIC_ANTHROPIC_API_KEY=your_anthropic_api_key_here
    ```
 
 4. **Run the development server**
@@ -64,42 +77,55 @@ A comprehensive Next.js demonstration of the Adaptly AI-powered adaptive UI fram
 
 ## 🎮 How to Use
 
-1. **Press `⌘K`** (or `Ctrl+K` on Windows/Linux) to open the command interface
-2. **Describe what you want**: Try commands like:
+1. **Select your LLM provider** from the dropdown in the top-right corner
+2. **Press `⌘K`** (or `Ctrl+K` on Windows/Linux) to open the command interface
+3. **Describe what you want**: Try commands like:
    - "Create a sales dashboard"
    - "Add revenue metrics"
    - "Show team performance"
    - "Create a data table"
    - "Make the layout more compact"
    - "Add more visual elements"
+   - "Show me analytics and charts"
+   - "Create a monitoring dashboard"
 
-3. **Watch the AI work**: The interface will dynamically rearrange and add components based on your description
+4. **Watch the AI work**: The interface will dynamically rearrange and add components based on your description
+5. **Your changes are saved**: Refresh the page and your layout will be restored
 
 ## 🧩 Available Components
 
 The demo includes these pre-configured components:
 
-- **MetricCard**: Key performance indicators with trends
-- **SalesChart**: Interactive charts and graphs
-- **DataTable**: Tabular data with filtering and sorting
+- **MetricCard**: Key performance indicators with trends and progress bars
+- **SalesChart**: Interactive charts and graphs with filtering options
+- **DataTable**: Tabular data with filtering and sorting (OrdersTable)
 - **TeamMembers**: Team member cards with roles and avatars
-- **ActivityFeed**: Real-time activity timeline
-- **NotificationCenter**: Centralized notification management
-- **WeatherWidget**: Weather conditions and forecasts
-- **QuickStats**: Compact KPI displays
-- **ResourceMonitor**: System resource utilization
+- **ActivityFeed**: Real-time activity timeline with sample data
+- **NotificationCenter**: Centralized notification management with filtering
+- **WeatherWidget**: Weather conditions and forecasts with sample data
+- **QuickStats**: Compact KPI displays with multiple metrics
+- **ResourceMonitor**: System resource utilization monitoring
+- **EmptyCard**: Placeholder for empty states and fallbacks
 
 ## 📁 Project Structure
 
-```
+```text
 src/
 ├── app/
 │   ├── layout.tsx          # Root layout with theme provider
-│   └── page.tsx            # Main dashboard page
+│   └── page.tsx            # Main dashboard page with AdaptlyProvider
 ├── components/
 │   ├── ui/                 # shadcn/ui components
 │   ├── MetricCard.tsx      # Sample metric component
-│   ├── SalesChart.tsx     # Sample chart component
+│   ├── SalesChart.tsx      # Sample chart component
+│   ├── TeamMembers.tsx    # Team member component
+│   ├── OrdersTable.tsx    # Data table component
+│   ├── ActivityFeed.tsx    # Activity timeline component
+│   ├── NotificationCenter.tsx # Notification component
+│   ├── WeatherWidget.tsx  # Weather component
+│   ├── QuickStats.tsx     # Quick stats component
+│   ├── ResourceMonitor.tsx # Resource monitoring component
+│   ├── EmptyCard.tsx      # Empty state component
 │   └── ...                 # Other demo components
 ├── adaptly.json           # Component registry configuration
 └── components.json        # shadcn/ui configuration
@@ -116,13 +142,28 @@ This file defines your component registry - what components are available to the
   "version": "1.0.0",
   "components": {
     "MetricCard": {
-      "description": "Display key performance indicators",
+      "description": "Display key performance indicators with values, trends, and progress bars",
       "props": {
         "title": { "type": "string", "required": true },
-        "value": { "type": "string", "required": true }
+        "value": { "type": "string", "required": true },
+        "change": { "type": "string", "required": false },
+        "changeType": { "type": "string", "required": false, "allowed": ["positive", "negative", "neutral"] },
+        "progress": { "type": "number", "required": false },
+        "description": { "type": "string", "required": false }
       },
-      "useCases": ["dashboard", "analytics"],
+      "useCases": ["revenue tracking", "user metrics", "performance indicators", "KPI display"],
       "space": { "min": [2, 1], "max": [3, 2], "preferred": [2, 1] }
+    },
+    "SalesChart": {
+      "description": "Visualize sales data with interactive charts and graphs",
+      "props": {
+        "title": { "type": "string", "required": false },
+        "description": { "type": "string", "required": false },
+        "timeRange": { "type": "string", "required": false, "allowed": ["7d", "30d", "90d", "1y"] },
+        "metric": { "type": "string", "required": false, "allowed": ["sales", "revenue", "profit", "orders"] }
+      },
+      "useCases": ["sales visualization", "trend analysis", "performance charts"],
+      "space": { "min": [3, 3], "max": [6, 5], "preferred": [4, 4] }
     }
   }
 }
@@ -133,9 +174,20 @@ This file defines your component registry - what components are available to the
 ### Adding New Components
 
 1. **Create your component** in `src/components/`
-2. **Register it** in `adaptly.json`
+2. **Register it** in `adaptly.json` with proper props, use cases, and space requirements
 3. **Add it to the components object** in `page.tsx`
-4. **Test with `⌘K`** - describe your new component
+4. **Add icons** to the icons object if needed
+5. **Test with `⌘K`** - describe your new component
+
+### LLM Provider Configuration
+
+The demo supports multiple LLM providers with live switching:
+
+- **Google Gemini**: Default provider with experimental models
+- **OpenAI GPT**: GPT-4, GPT-4o, and other models
+- **Anthropic Claude**: Claude 3.5 Sonnet and other models
+
+You can switch providers using the dropdown in the top-right corner.
 
 ### Styling
 
@@ -145,6 +197,8 @@ The demo uses:
 - **shadcn/ui** for component library
 - **next-themes** for dark/light mode
 - **Lucide React** for icons
+- **Recharts** for data visualization
+- **Sonner** for toast notifications
 
 ## 🚀 Deployment
 
@@ -177,16 +231,21 @@ npm run lint         # Run ESLint
 
 ### Key Files to Modify
 
-- `src/app/page.tsx` - Main dashboard implementation
-- `adaptly.json` - Component registry
+- `src/app/page.tsx` - Main dashboard implementation with AdaptlyProvider
+- `adaptly.json` - Component registry configuration
 - `src/components/` - Your custom components
+- `src/components/ui/` - shadcn/ui components
+- `components.json` - shadcn/ui configuration
 
 ## 📚 Learn More
 
 - [Adaptly Documentation](../docs/)
+- [Adaptly Core Library](../adaptly-lib/)
 - [Next.js Documentation](https://nextjs.org/docs)
 - [shadcn/ui Documentation](https://ui.shadcn.com)
 - [Tailwind CSS Documentation](https://tailwindcss.com/docs)
+- [Recharts Documentation](https://recharts.org/)
+- [Lucide React Icons](https://lucide.dev/)
 
 ## 🤝 Contributing
 

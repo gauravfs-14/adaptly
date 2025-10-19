@@ -2,9 +2,6 @@ import resolve from "@rollup/plugin-node-resolve";
 import commonjs from "@rollup/plugin-commonjs";
 import dts from "rollup-plugin-dts";
 import terser from "@rollup/plugin-terser";
-import peerDepsExternal from "rollup-plugin-peer-deps-external";
-
-import postcss from "rollup-plugin-postcss";
 import ts from "@rollup/plugin-typescript";
 const packageJson = require("./package.json");
 
@@ -18,7 +15,6 @@ export default [
       sourcemap: true,
     },
     plugins: [
-      peerDepsExternal(),
       resolve({
         preferBuiltins: false,
         browser: true
@@ -30,7 +26,6 @@ export default [
         exclude: ["**/*.test.*", "**/*.spec.*"]
       }),
       terser(),
-      postcss(),
     ],
     external: ["react", "react-dom"],
     onwarn(warning, warn) {
@@ -50,7 +45,6 @@ export default [
       sourcemap: true,
     },
     plugins: [
-      peerDepsExternal(),
       resolve({
         preferBuiltins: false,
         browser: true
@@ -62,7 +56,6 @@ export default [
         exclude: ["**/*.test.*", "**/*.spec.*"]
       }),
       terser(),
-      postcss(),
     ],
     external: ["react", "react-dom"],
     onwarn(warning, warn) {

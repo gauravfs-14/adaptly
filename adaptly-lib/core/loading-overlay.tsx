@@ -1,52 +1,164 @@
 "use client";
 
-import React from "react";
-import { Sparkles, Wand2, Loader2 } from "lucide-react";
+import React, { useEffect, useMemo, useState } from "react";
+import { createPortal } from "react-dom";
 
 interface LoadingOverlayProps {
   isVisible: boolean;
   message?: string;
   subMessage?: string;
+  lockScroll?: boolean;
 }
 
 export function LoadingOverlay({
   isVisible,
   message = "AI is generating your layout...",
-  subMessage = "This may take a few moments",
+  subMessage = "Creating components and arranging them for you",
+  lockScroll = true,
 }: LoadingOverlayProps) {
-  if (!isVisible) return null;
+  const [mounted, setMounted] = useState(false);
+  const [dots, setDots] = useState("");
+  const host = useMemo(() => {
+    if (typeof document === "undefined") return null;
+    const el = document.createElement("div");
+    el.setAttribute("data-overlay-host", "true");
+    return el;
+  }, []);
 
-  return (
-    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center">
-      <div className="bg-white rounded-lg shadow-2xl p-8 max-w-md mx-4 text-center">
-        <div className="flex flex-col items-center space-y-4">
-          {/* Animated Sparkles Icon */}
-          <div className="relative">
-            <Sparkles className="h-12 w-12 text-blue-500 animate-pulse" />
-            <Loader2 className="h-6 w-6 text-blue-300 animate-spin absolute -top-1 -right-1" />
-          </div>
+  useEffect(() => {
+    setMounted(true);
+    if (!host) return;
+    document.body.appendChild(host);
+    return () => {
+      host.remove();
+    };
+  }, [host]);
 
-          {/* Main Message */}
-          <div className="space-y-2">
-            <h3 className="text-xl font-semibold text-gray-900">{message}</h3>
-            <p className="text-sm text-gray-600">{subMessage}</p>
-          </div>
+  useEffect(() => {
+    if (!lockScroll) return;
+    if (!isVisible) return;
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = prev;
+    };
+  }, [isVisible, lockScroll]);
 
-          {/* Progress Indicator */}
-          <div className="w-full bg-gray-200 rounded-full h-2">
+  useEffect(() => {
+    if (!isVisible) return;
+
+    const interval = setInterval(() => {
+      setDots((prev) => (prev.length >= 3 ? "" : prev + "."));
+    }, 500);
+
+    return () => clearInterval(interval);
+  }, [isVisible]);
+
+  if (!mounted || !isVisible || !host) return null;
+
+  const rootStyle: React.CSSProperties = {
+    position: "fixed",
+    inset: 0,
+    zIndex: 2147483647,
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+  };
+
+  const backdropDimStyle: React.CSSProperties = {
+    position: "absolute",
+    inset: 0,
+    background: "rgba(0,0,0,0.80)",
+  };
+
+  const backdropBlurStyle: React.CSSProperties = {
+    position: "absolute",
+    inset: 0,
+    // blur may be ignored on some environments; dimmer still works
+    backdropFilter: "blur(10px)",
+    WebkitBackdropFilter: "blur(10px)",
+  };
+
+  const contentStyle: React.CSSProperties = {
+    position: "relative",
+    zIndex: 1,
+    color: "white",
+    textAlign: "center",
+    padding: "24px",
+  };
+
+  return createPortal(
+    <>
+      <style>{`
+        @keyframes bounce {
+          0%, 20%, 53%, 80%, 100% {
+            transform: translate3d(0, 0, 0);
+          }
+          40%, 43% {
+            transform: translate3d(0, -8px, 0);
+          }
+          70% {
+            transform: translate3d(0, -4px, 0);
+          }
+          90% {
+            transform: translate3d(0, -2px, 0);
+          }
+        }
+      `}</style>
+      <div style={rootStyle} role="status" aria-live="polite" aria-busy="true">
+        <div style={backdropDimStyle} />
+        <div style={backdropBlurStyle} />
+        <div style={contentStyle}>
+          <h3 style={{ fontSize: 18, fontWeight: 600, margin: 0 }}>
+            {message}
+          </h3>
+          <p style={{ fontSize: 14, opacity: 0.85, marginTop: 8 }}>
+            {subMessage}
+            {dots}
+          </p>
+
+          {/* Simple progress indicator */}
+          <div
+            style={{
+              marginTop: 24,
+              display: "flex",
+              justifyContent: "center",
+              gap: 4,
+            }}
+          >
             <div
-              className="bg-blue-500 h-2 rounded-full animate-pulse"
-              style={{ width: "60%" }}
-            />
-          </div>
-
-          {/* AI Processing Indicator */}
-          <div className="flex items-center space-x-2 text-sm text-gray-500">
-            <Wand2 className="h-4 w-4 animate-bounce" />
-            <span>Processing with Gemini AI...</span>
+              style={{
+                width: 8,
+                height: 8,
+                backgroundColor: "white",
+                borderRadius: "50%",
+                animation: "bounce 1s infinite",
+              }}
+            ></div>
+            <div
+              style={{
+                width: 8,
+                height: 8,
+                backgroundColor: "white",
+                borderRadius: "50%",
+                animation: "bounce 1s infinite",
+                animationDelay: "0.1s",
+              }}
+            ></div>
+            <div
+              style={{
+                width: 8,
+                height: 8,
+                backgroundColor: "white",
+                borderRadius: "50%",
+                animation: "bounce 1s infinite",
+                animationDelay: "0.2s",
+              }}
+            ></div>
           </div>
         </div>
       </div>
-    </div>
+    </>,
+    host
   );
 }

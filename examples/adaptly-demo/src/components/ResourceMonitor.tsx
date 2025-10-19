@@ -145,8 +145,13 @@ export function ResourceMonitor({
   showStatus = true,
   className = "",
 }: ResourceMonitorProps) {
-  const criticalCount = metrics.filter((m) => m.status === "critical").length;
-  const warningCount = metrics.filter((m) => m.status === "warning").length;
+  // LLM should only filter, not pass data - always use default data
+  const safeMetrics = defaultMetrics;
+
+  const criticalCount = safeMetrics.filter(
+    (m) => m.status === "critical"
+  ).length;
+  const warningCount = safeMetrics.filter((m) => m.status === "warning").length;
 
   return (
     <Card className={`h-full flex flex-col ${className}`}>
@@ -178,7 +183,7 @@ export function ResourceMonitor({
 
       <CardContent className="flex-1">
         <div className="space-y-4">
-          {metrics.map((metric) => {
+          {safeMetrics.map((metric) => {
             const StatusIcon = getStatusIcon(metric.status);
             const IconComponent = metric.icon;
 
@@ -244,24 +249,32 @@ export function ResourceMonitor({
         {/* Summary */}
         <div className="mt-6 pt-4 border-t">
           <div className="grid grid-cols-3 gap-4 text-center">
-            <div>
-              <div className="text-2xl font-bold text-green-600">
-                {metrics.filter((m) => m.status === "healthy").length}
+            {[
+              {
+                key: "healthy",
+                count: safeMetrics.filter((m) => m.status === "healthy").length,
+                label: "Healthy",
+                color: "text-green-600",
+              },
+              {
+                key: "warning",
+                count: safeMetrics.filter((m) => m.status === "warning").length,
+                label: "Warning",
+                color: "text-yellow-600",
+              },
+              {
+                key: "critical",
+                count: safeMetrics.filter((m) => m.status === "critical")
+                  .length,
+                label: "Critical",
+                color: "text-red-600",
+              },
+            ].map(({ key, count, label, color }) => (
+              <div key={key}>
+                <div className={`text-2xl font-bold ${color}`}>{count}</div>
+                <div className="text-xs text-muted-foreground">{label}</div>
               </div>
-              <div className="text-xs text-muted-foreground">Healthy</div>
-            </div>
-            <div>
-              <div className="text-2xl font-bold text-yellow-600">
-                {metrics.filter((m) => m.status === "warning").length}
-              </div>
-              <div className="text-xs text-muted-foreground">Warning</div>
-            </div>
-            <div>
-              <div className="text-2xl font-bold text-red-600">
-                {metrics.filter((m) => m.status === "critical").length}
-              </div>
-              <div className="text-xs text-muted-foreground">Critical</div>
-            </div>
+            ))}
           </div>
         </div>
       </CardContent>

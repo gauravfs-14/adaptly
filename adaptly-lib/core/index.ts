@@ -14,6 +14,8 @@ export { AdaptiveUIProvider, useAdaptiveUI } from "./adaptive-ui-provider";
 export { LoadingOverlay } from "./loading-overlay";
 export { RegistryService, registryService } from "./registry-service";
 export { CoreLLMService } from "./llm-service";
+export { EnhancedLLMService } from "./enhanced-llm-service";
+export { StorageService } from "./storage-service";
 export { adaptlyLogger } from "./logger";
 
 // 📝 TYPES - For TypeScript support
