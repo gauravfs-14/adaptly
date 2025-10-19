@@ -9,25 +9,30 @@ This documentation is designed to help you understand, implement, and master Ada
 ## 🚀 Quick Navigation
 
 ### Getting Started
+
 - **[Installation Guide](./installation.md)** - Set up Adaptly in your project
 - **[Quick Start Guide](./quick-start.md)** - Build your first adaptive UI in minutes
 - **[Component Registry](./component-registry.md)** - Configure your components for AI understanding
 
 ### Core Features
+
 - **[LLM Providers](./llm-providers.md)** - Configure multiple AI providers
 - **[Storage Service](./storage-service.md)** - Persistent UI state management
 - **[Advanced Features](./advanced-features.md)** - Custom loaders, advanced configurations
 
 ### API Reference
+
 - **[Core Components](./api/core-components.md)** - AdaptlyProvider, hooks, and utilities
 - **[Hooks](./api/hooks.md)** - useAdaptiveUI and other React hooks
 - **[Types](./api/types.md)** - TypeScript interfaces and types
 
 ### Tutorials & Examples
-- **[Basic Dashboard Tutorial](./tutorials/basic-dashboard.md)** - Step-by-step dashboard creation
+
+- **[Quick Start Guide](./quick-start.md)** - Step-by-step dashboard creation
 - **[Demo Application](../examples/adaptly-demo/)** - Full-featured example application
 
 ### Troubleshooting
+
 - **[Troubleshooting Guide](./troubleshooting.md)** - Common issues and solutions
 
 ## 🎯 What is Adaptly?
@@ -67,6 +72,8 @@ Your App
 
 ## 🚀 Quick Start
 
+For a complete setup guide, see the [Quick Start Guide](./quick-start.md).
+
 ```tsx
 import { AdaptlyProvider } from 'adaptly';
 import adaptlyConfig from './adaptly.json';
@@ -96,28 +103,11 @@ function App() {
 
 ## 🎨 Component Registry
 
-The heart of Adaptly is the component registry defined in `adaptly.json`. This file tells the AI about your components:
-
-```json
-{
-  "version": "1.0.0",
-  "components": {
-    "MetricCard": {
-      "description": "Display key performance indicators",
-      "props": {
-        "title": { "type": "string", "required": true },
-        "value": { "type": "string", "required": true }
-      },
-      "useCases": ["dashboard", "analytics"],
-      "space": { "min": [2, 1], "max": [3, 2], "preferred": [2, 1] }
-    }
-  }
-}
-```
+The heart of Adaptly is the component registry defined in `adaptly.json`. This file tells the AI about your components. For detailed configuration, see the [Component Registry Guide](./component-registry.md).
 
 ## 🔧 LLM Integration
 
-Adaptly supports multiple AI providers with model selection:
+Adaptly supports multiple AI providers with model selection. For detailed setup instructions, see the [LLM Providers Guide](./llm-providers.md).
 
 - **Google Gemini**: `gemini-2.0-flash-exp`, `gemini-1.5-pro`
 - **OpenAI GPT**: `gpt-4o`, `gpt-4-turbo`, `gpt-3.5-turbo`
@@ -125,7 +115,7 @@ Adaptly supports multiple AI providers with model selection:
 
 ## 💾 Storage & Persistence
 
-Adaptly automatically saves and restores your UI state:
+Adaptly automatically saves and restores your UI state. For detailed configuration, see the [Storage Service Guide](./storage-service.md).
 
 - **localStorage Integration**: Automatic state persistence
 - **Version Control**: Handles configuration changes gracefully

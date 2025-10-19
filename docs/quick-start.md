@@ -8,6 +8,8 @@ We'll create a simple dashboard that responds to natural language commands. User
 
 ## ⚡ 5-Minute Setup
 
+> **Prerequisites**: Make sure you have Node.js 18+ and React 18+ installed. For detailed installation instructions, see the [Installation Guide](./installation.md).
+
 ### Step 1: Create Your Project
 
 ```bash
@@ -32,9 +34,11 @@ Create a `.env.local` file:
 NEXT_PUBLIC_GOOGLE_GENERATIVE_AI_API_KEY=your_api_key_here
 ```
 
+> **Note**: For detailed API key setup and multiple provider configuration, see the [LLM Providers Guide](./llm-providers.md).
+
 ### Step 3: Create adaptly.json
 
-Create `adaptly.json` in your project root:
+Create `adaptly.json` in your project root. For detailed component registry configuration, see the [Component Registry Guide](./component-registry.md).
 
 ```json
 {
