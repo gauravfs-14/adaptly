@@ -1,5 +1,16 @@
 # Adaptly — The AI-Adaptive UI Library for React & Next.js
 
+[![npm version](https://img.shields.io/npm/v/adaptly.svg?style=flat-square)](https://www.npmjs.com/package/adaptly)
+[![npm downloads](https://img.shields.io/npm/dm/adaptly.svg?style=flat-square)](https://www.npmjs.com/package/adaptly)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=flat-square)](https://opensource.org/licenses/MIT)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.9+-blue.svg?style=flat-square)](https://www.typescriptlang.org/)
+[![React](https://img.shields.io/badge/React-19+-61dafb.svg?style=flat-square)](https://reactjs.org/)
+[![Next.js](https://img.shields.io/badge/Next.js-15+-000000.svg?style=flat-square)](https://nextjs.org/)
+[![AI Powered](https://img.shields.io/badge/AI-Powered-ff6b6b.svg?style=flat-square)](https://github.com/gauravfs-14/adaptly)
+[![GitHub stars](https://img.shields.io/github/stars/gauravfs-14/adaptly.svg?style=flat-square)](https://github.com/gauravfs-14/adaptly/stargazers)
+[![GitHub issues](https://img.shields.io/github/issues/gauravfs-14/adaptly.svg?style=flat-square)](https://github.com/gauravfs-14/adaptly/issues)
+[![GitHub pull requests](https://img.shields.io/github/issues-pr/gauravfs-14/adaptly.svg?style=flat-square)](https://github.com/gauravfs-14/adaptly/pulls)
+
 **Adaptly** brings intelligence to modern web dashboards and applications.
 It's a TypeScript-first library that lets your UI *understand what users mean*, not just what they click.
 With a single `Cmd + K`, users can describe their goal or need in plain English, and Adaptly uses an **LLM-driven planner** to dynamically recompose your React interface using your existing components.
