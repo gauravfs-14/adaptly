@@ -296,7 +296,7 @@ export default function Dashboard() {
         apiKey={getApiKey()}
         provider={provider}
         model={model}
-        components={{ MetricCard, SalesChart, DataTable }}
+        components={{"{"} MetricCard, SalesChart, DataTable {"}"}}
         adaptlyConfig={adaptlyConfig}
         enableStorage={true}
       />
@@ -345,12 +345,12 @@ const getProviderConfig = (provider: string) => {
   model="gemini-2.0-flash-exp"
   // Custom LLM configuration
   llmConfig={{
-    maxTokens: 1500,
-    temperature: 0.8,
-    topP: 0.9,
-    frequencyPenalty: 0.1,
-    presencePenalty: 0.1,
-  }}
+        maxTokens: 1500,
+        temperature: 0.8,
+        topP: 0.9,
+        frequencyPenalty: 0.1,
+        presencePenalty: 0.1,
+      {"}"}}
   // ... other props
 />
 ```
