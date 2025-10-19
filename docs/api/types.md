@@ -1,4 +1,8 @@
-# Types API Reference
+---
+layout: default
+title: Types API
+description: TypeScript interfaces and types
+---
 
 This document provides comprehensive type definitions for Adaptly's TypeScript interfaces and types.
 

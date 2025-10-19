@@ -1,6 +1,20 @@
-# Troubleshooting Guide
+---
+layout: default
+title: Troubleshooting Guide
+description: Common issues and solutions
+---
 
 This guide helps you diagnose and resolve common issues with Adaptly. If you're experiencing problems, check this guide first before seeking additional help.
+
+## 📋 Table of Contents
+
+1. [Critical Issues (v0.0.5+)](#-critical-issues-v005)
+2. [Common Issues](#-common-issues)
+3. [API Key Issues](#-api-key-issues)
+4. [Component Issues](#-component-issues)
+5. [Storage Issues](#-storage-issues)
+6. [Performance Issues](#-performance-issues)
+7. [Frequently Asked Questions](#-frequently-asked-questions)
 
 ## 🚨 Critical Issues (v0.0.5+)
 
@@ -9,6 +23,7 @@ This guide helps you diagnose and resolve common issues with Adaptly. If you're 
 **Problem**: Getting peer dependency errors when installing Adaptly in Next.js 15+ applications.
 
 **Symptoms**:
+
 - `npm install adaptly` fails with peer dependency conflicts
 - "Mismatching versions of React and the renderer" errors
 - "More than one copy of React" warnings
@@ -24,6 +39,7 @@ npm install adaptly@latest
 ```
 
 **What was fixed**:
+
 - ✅ React is now properly externalized instead of bundled
 - ✅ Peer dependencies support React 18+ and 19+
 - ✅ Full compatibility with Next.js 15+ and React 19+
@@ -31,6 +47,7 @@ npm install adaptly@latest
 - ✅ Clean installation without warnings
 
 **Verification**:
+
 ```bash
 # Check that React is externalized
 npm ls react
@@ -629,6 +646,56 @@ function ErrorRecovery() {
 - **[LLM Providers Guide](./llm-providers.md)** - AI provider issues
 - **[Storage Service Guide](./storage-service.md)** - Storage issues
 - **[Advanced Features Guide](./advanced-features.md)** - Advanced configurations
+
+## ❓ Frequently Asked Questions
+
+### General Questions
+
+**Q: Do I need to install React and React-DOM separately?**
+A: Yes, Adaptly requires React and React-DOM as peer dependencies. They should already be installed in your Next.js or React project.
+
+**Q: Can I use Adaptly with other UI libraries like Material-UI or Chakra UI?**
+A: Yes! Adaptly works with any React component library. Just register your components in the `components` prop of `AdaptlyProvider`.
+
+**Q: Is Adaptly compatible with React 18 and 19?**
+A: Yes, Adaptly supports both React 18 and 19. The v0.0.5+ release specifically fixes compatibility issues with React 19.
+
+### API Key Questions
+
+**Q: Do I need API keys for all providers?**
+A: No, you only need an API key for the provider you're using. Set the `provider` prop to match your API key.
+
+**Q: Which LLM provider should I use?**
+A:
+
+- **Google Gemini**: Best for beginners, generous free tier
+- **OpenAI GPT**: Most popular, excellent performance
+- **Anthropic Claude**: Great for complex reasoning tasks
+
+**Q: Can I switch providers dynamically?**
+A: Yes, you can change the `provider` and `model` props at runtime, but you'll need the corresponding API key.
+
+### Component Questions
+
+**Q: How many components can I register?**
+A: There's no hard limit, but we recommend starting with 5-10 components for better AI performance.
+
+**Q: Do my components need to be in a specific format?**
+A: Your components should accept props as defined in `adaptly.json`. The AI will pass these props when rendering.
+
+**Q: Can I use TypeScript components?**
+A: Absolutely! Adaptly is TypeScript-first and works seamlessly with TypeScript components.
+
+### Storage Questions
+
+**Q: Where is the UI state stored?**
+A: By default, state is stored in `localStorage`. You can customize this with the `storageKey` prop.
+
+**Q: Can I disable storage?**
+A: Yes, set `enableStorage={false}` to disable automatic state persistence.
+
+**Q: How do I clear saved state?**
+A: Use the `clearStorage()` method from the `useAdaptiveUI` hook, or clear localStorage manually.
 
 ### 2. Debug Information
 

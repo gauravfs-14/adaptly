@@ -1,4 +1,8 @@
-# Storage Service Guide
+---
+layout: default
+title: Storage Service Guide
+description: Persistent UI state management
+---
 
 Adaptly's storage service provides automatic persistence of your UI state, ensuring that user customizations are saved and restored across sessions. This guide covers everything you need to know about storage configuration and management.
 

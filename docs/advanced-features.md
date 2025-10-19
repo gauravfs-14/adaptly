@@ -1,4 +1,8 @@
-# Advanced Features Guide
+---
+layout: default
+title: Advanced Features
+description: Custom loaders, advanced configurations
+---
 
 This guide covers advanced features and configurations for Adaptly, including custom loaders, advanced storage, multi-provider setups, and performance optimizations.
 

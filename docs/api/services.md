@@ -1,4 +1,8 @@
-# Services API Reference
+---
+layout: default
+title: Services API
+description: Storage, LLM, and registry services
+---
 
 This document provides comprehensive API reference for Adaptly's service layer and internal services.
 

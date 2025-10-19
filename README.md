@@ -8,7 +8,9 @@
 [![GitHub stars](https://img.shields.io/github/stars/gauravfs-14/adaptly.svg?style=flat-square)](https://github.com/gauravfs-14/adaptly/stargazers)
 
 **Adaptly** brings intelligence to modern web dashboards and applications.
+
 It's a TypeScript-first library that lets your UI *understand what users mean*, not just what they click.
+
 With a single `Cmd + K`, users can describe their goal or need in plain English, and Adaptly uses an **LLM-driven planner** to dynamically recompose your React interface using your existing components.
 
 > 🚨 **v0.0.5 Critical Update**: Fixed React peer dependency issues with Next.js 15+ and React 19+. Update now for seamless installation!
@@ -21,27 +23,45 @@ Adaptly turns those statements into live UI transformations — rearranging comp
 
 ## 🎯 Key Features
 
-- **Multi-LLM Support**: Choose from Google Gemini, OpenAI GPT-4, or Anthropic Claude
-- **Persistent Storage**: Automatically saves and restores UI state across sessions
-- **Component Registry**: Define your components in `adaptly.json` for AI understanding
-- **Built-in Command Bar**: Cmd + K interface with AI suggestions
-- **Data Filtering**: LLM can filter and configure existing data, not pass new data
-- **TypeScript First**: Full type safety with comprehensive interfaces
-- **Next.js Ready**: Seamless integration with App Router
+- 🤖 **Multi-LLM Support**: Choose from Google Gemini, OpenAI GPT-4, or Anthropic Claude
+- 💾 **Persistent Storage**: Automatically saves and restores UI state across sessions
+- 📋 **Component Registry**: Define your components in `adaptly.json` for AI understanding
+- ⌨️ **Built-in Command Bar**: Cmd + K interface with AI suggestions
+- 🔍 **Data Filtering**: LLM can filter and configure existing data, not pass new data
+- 🔧 **TypeScript First**: Full type safety with comprehensive interfaces
+- ⚡ **Next.js Ready**: Seamless integration with App Router
 
 ## 🚀 Quick Start
 
+Get up and running in 5 minutes with a complete working demo:
+
 ```bash
-# Install Adaptly
+# 1. Create a new Next.js project
+npx create-next-app@latest my-adaptly-demo --typescript --tailwind --eslint
+cd my-adaptly-demo
+
+# 2. Install Adaptly
 npm install adaptly
 
-# Install peer dependencies (if not already installed)
-npm install react react-dom
+# 3. Set up shadcn/ui (optional but recommended)
+npx shadcn@latest init
+npx shadcn@latest add card button
+
+# 4. Set up your API key
+echo "NEXT_PUBLIC_GOOGLE_GENERATIVE_AI_API_KEY=your_api_key_here" > .env.local
+
+# 5. Follow the complete tutorial in docs/quick-start.md
 ```
 
-**Note**: All AI SDKs and UI dependencies are bundled automatically. You only need React and React-DOM as peer dependencies.
+**📖 For a complete step-by-step tutorial that results in a working demo, see our [Quick Start Guide](./docs/quick-start.md)**
 
-### 1. Create your `adaptly.json` configuration
+## 📚 Complete Tutorial
+
+For a comprehensive step-by-step guide that creates a working demo, see our [Quick Start Guide](./docs/quick-start.md).
+
+### Basic Configuration
+
+Create your `adaptly.json` configuration:
 
 ```json
 {

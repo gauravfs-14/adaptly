@@ -1,4 +1,8 @@
-# LLM Providers Guide
+---
+layout: default
+title: LLM Providers Guide
+description: Configure multiple AI providers
+---
 
 Adaptly supports multiple AI providers, allowing you to choose the best model for your needs. This guide covers setting up and configuring different LLM providers.
 

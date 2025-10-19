@@ -1,4 +1,8 @@
-# Hooks API Reference
+---
+layout: default
+title: Hooks API
+description: useAdaptiveUI and other React hooks
+---
 
 This document provides comprehensive API reference for Adaptly's React hooks and their usage.
 

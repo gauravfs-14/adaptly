@@ -1,4 +1,8 @@
-# Core Components API Reference
+---
+layout: default
+title: Core Components API
+description: AdaptlyProvider, hooks, and utilities
+---
 
 This document provides comprehensive API reference for Adaptly's core components and their usage.
 

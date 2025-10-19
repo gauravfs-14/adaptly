@@ -1,2 +1,83 @@
-theme: jekyll-theme-cayman
-color_scheme: dark
+theme: jekyll-theme-minimal
+title: Adaptly Documentation
+description: AI-Adaptive UI Library for React & Next.js
+
+# Navigation
+navigation:
+  - title: Getting Started
+    url: /adaptly/
+  - title: Quick Start
+    url: /adaptly/quick-start
+  - title: Component Registry
+    url: /adaptly/component-registry
+  - title: LLM Providers
+    url: /adaptly/llm-providers
+  - title: Storage Service
+    url: /adaptly/storage-service
+  - title: Advanced Features
+    url: /adaptly/advanced-features
+  - title: API Reference
+    children:
+      - title: Core Components
+        url: /adaptly/api/core-components
+      - title: Hooks
+        url: /adaptly/api/hooks
+      - title: Services
+        url: /adaptly/api/services
+      - title: Types
+        url: /adaptly/api/types
+  - title: Troubleshooting
+    url: /adaptly/troubleshooting
+
+# Markdown processing
+markdown: kramdown
+highlighter: rouge
+kramdown:
+  input: GFM
+  syntax_highlighter: rouge
+  syntax_highlighter_opts:
+    css_class: "highlight"
+    span:
+      line_numbers: false
+    block:
+      line_numbers: false
+
+# Plugins
+plugins:
+  - jekyll-feed
+  - jekyll-sitemap
+  - jekyll-seo-tag
+
+# SEO
+author: Adaptly Team
+twitter:
+  username: adaptly_ui
+  card: summary_large_image
+
+# Social links
+social:
+  github: gauravfs-14/adaptly
+  twitter: adaptly_ui
+
+# Footer
+footer:
+  message: "Built with ❤️ by the Adaptly Team"
+  copyright: "© 2025 Adaptly. All rights reserved."
+
+# Search
+search: true
+
+# Analytics (add your tracking ID)
+# google_analytics: UA-XXXXXXXXX-X
+
+# Exclude files from processing
+exclude:
+  - Gemfile
+  - Gemfile.lock
+  - node_modules
+  - vendor
+  - README.md
+  - LICENSE
+  - .gitignore
+  - .git
+  - .github

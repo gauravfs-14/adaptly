@@ -1,10 +1,26 @@
-# Quick Start Guide
+---
+layout: default
+title: Quick Start Guide
+description: Get up and running with Adaptly in just a few minutes
+---
 
 Get up and running with Adaptly in just a few minutes! This guide will walk you through installing Adaptly and creating your first AI-powered adaptive UI.
 
 ## 🎯 What We'll Build
 
-We'll create a simple dashboard that responds to natural language commands. Users can press `⌘K` and describe what they want, and the AI will dynamically arrange components.
+We'll create a complete working dashboard that responds to natural language commands. Users can press `⌘K` and describe what they want, and the AI will dynamically arrange components. By the end of this tutorial, you'll have a fully functional demo that you can extend and customize.
+
+## 📋 Table of Contents
+
+1. [Prerequisites](#-prerequisites)
+2. [5-Minute Setup](#-5-minute-setup)
+3. [Create Your Components](#-step-5-create-your-components)
+4. [Set Up AdaptlyProvider](#-step-6-set-up-adaptlyprovider)
+5. [Run Your Application](#-step-7-run-your-application)
+6. [Try It Out](#-try-it-out)
+7. [Troubleshooting](#-troubleshooting)
+8. [What's Happening?](#-whats-happening)
+9. [Customization Options](#-customization-options)
 
 ## 📋 Prerequisites
 
@@ -44,7 +60,7 @@ npx tailwindcss init -p
 ### Step 2: Install Adaptly
 
 ```bash
-# Install Adaptly (no peer dependencies required!)
+# Install Adaptly (React peer dependencies properly handled!)
 npm install adaptly
 
 # Install shadcn/ui (optional but recommended for Next.js)
@@ -52,7 +68,7 @@ npx shadcn@latest init
 npx shadcn@latest add card button
 ```
 
-> **Note**: Adaptly v0.0.4+ no longer requires manual peer dependency installation. All dependencies are bundled automatically!
+> **Note**: Adaptly v0.0.5+ properly handles React peer dependencies. No manual installation required!
 
 ### Step 3: Set Up Environment Variables
 
@@ -132,9 +148,7 @@ Create `adaptly.json` in your project root. For detailed component registry conf
 
 ### Step 5: Create Your Components
 
-Create `src/components/MetricCard.tsx`:
-
-{% raw %}
+First, let's create the component files. Create `src/components/MetricCard.tsx`:
 
 ```tsx
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -195,8 +209,6 @@ export function MetricCard({
   );
 }
 ```
-
-{% endraw %}
 
 Create `src/components/SalesChart.tsx`:
 
@@ -318,7 +330,7 @@ export function DataTable({ title, data, columns }: DataTableProps) {
 }
 ```
 
-### Step 5: Set Up AdaptlyProvider
+### Step 6: Set Up AdaptlyProvider
 
 Update `src/app/page.tsx`:
 
@@ -362,7 +374,7 @@ export default function Home() {
 }
 ```
 
-### Step 6: Run Your Application
+### Step 7: Run Your Application
 
 ```bash
 npm run dev
@@ -370,17 +382,77 @@ npm run dev
 
 Open [http://localhost:3000](http://localhost:3000) in your browser.
 
+**🎉 Congratulations!** You should now see a working dashboard with:
+
+- A clean interface with instructions
+- The ability to press `⌘K` (or `Ctrl+K`) to open the command palette
+- AI-powered component generation and layout
+
 ## 🎮 Try It Out
 
 1. **Press `⌘K`** (or `Ctrl+K` on Windows/Linux)
 2. **Try these commands**:
-   - "Add a revenue metric"
-   - "Create a sales dashboard"
-   - "Show me some charts"
-   - "Add a data table"
-   - "Make it more compact"
+   - "Add a revenue metric showing $50K with 12% growth"
+   - "Create a sales dashboard with charts and metrics"
+   - "Show me some charts and data tables"
+   - "Add a team members section"
+   - "Make it more compact and organized"
 
 3. **Watch the magic happen** - the AI will dynamically add and arrange components!
+
+### Example Commands to Try
+
+Here are some specific commands that work well with the demo:
+
+```bash
+# Metrics and KPIs
+"Add a revenue metric showing $45,231 with +20.1% growth"
+"Create a user metrics card with 1,234 active users"
+"Show me conversion rate and bounce rate"
+
+# Charts and Visualizations
+"Add a sales chart for the last 30 days"
+"Create a revenue trend chart"
+"Show me a performance dashboard"
+
+# Data Tables
+"Add a data table with recent orders"
+"Create a user activity table"
+"Show me a transactions list"
+
+# Layout and Organization
+"Make the layout more compact"
+"Organize everything in a grid"
+"Add some spacing between components"
+```
+
+## 🚨 Troubleshooting
+
+### Common Issues
+
+**Issue: "Command palette not opening"**
+
+- Make sure you're pressing `⌘K` (Mac) or `Ctrl+K` (Windows/Linux)
+- Check browser console for errors
+- Verify your API key is set correctly
+
+**Issue: "API key not working"**
+
+- Double-check your `.env.local` file has the correct variable name
+- Restart your development server after adding environment variables
+- Verify your API key is valid and has sufficient credits
+
+**Issue: "Components not rendering"**
+
+- Ensure all component files are created in the correct locations
+- Check that imports in `page.tsx` match your file structure
+- Verify `adaptly.json` syntax is correct
+
+**Issue: "Build errors"**
+
+- Make sure you've installed all dependencies: `npm install`
+- Check that shadcn/ui components are properly installed
+- Verify TypeScript types are correct
 
 ## 🎯 What's Happening?
 
