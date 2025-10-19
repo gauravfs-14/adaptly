@@ -1,4 +1,4 @@
-theme: just-the-docs
+theme: minima
 plugins:
   - jekyll-feed
   - jekyll-sitemap
@@ -7,49 +7,7 @@ plugins:
 title: Adaptly Documentation
 description: AI-Adaptive UI Library for React & Next.js
 
-# Just the Docs theme configuration
-search_enabled: true
-search_tokenizer_separator: /[\s/]+/
-search_placeholder: "Search docs..."
-search_button_label: "Search"
-
-# Navigation structure
-nav:
-  - title: Getting Started
-    url: /
-  - title: Quick Start
-    url: quick-start.html
-  - title: Component Registry
-    url: component-registry.html
-  - title: LLM Providers
-    url: llm-providers.html
-  - title: Storage Service
-    url: storage-service.html
-  - title: Advanced Features
-    url: advanced-features.html
-  - title: API Reference
-    children:
-      - title: Core Components
-        url: api/core-components.html
-      - title: Hooks
-        url: api/hooks.html
-      - title: Services
-        url: api/services.html
-      - title: Types
-        url: api/types.html
-  - title: Troubleshooting
-    url: troubleshooting.html
-
-# Header links
-header_links:
-  - title: "GitHub"
-    url: "https://github.com/gauravfs-14/adaptly"
-
-# Footer
-footer_content: "Built with ❤️ by the Adaptly Team"
-
-# Color scheme
-color_scheme: dark
+# Minima theme configuration
 
 # Markdown processing
 markdown: kramdown
@@ -84,6 +42,33 @@ twitter:
 social:
   github: gauravfs-14/adaptly
   twitter: adaptly_ui
+
+# Navigation
+nav:
+  - title: Getting Started
+    url: /
+  - title: Quick Start
+    url: quick-start.html
+  - title: Component Registry
+    url: component-registry.html
+  - title: LLM Providers
+    url: llm-providers.html
+  - title: Storage Service
+    url: storage-service.html
+  - title: Advanced Features
+    url: advanced-features.html
+  - title: API Reference
+    children:
+      - title: Core Components
+        url: api/core-components.html
+      - title: Hooks
+        url: api/hooks.html
+      - title: Services
+        url: api/services.html
+      - title: Types
+        url: api/types.html
+  - title: Troubleshooting
+    url: troubleshooting.html
 
 # Exclude files from processing
 exclude:
