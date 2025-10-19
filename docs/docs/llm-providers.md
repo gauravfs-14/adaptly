@@ -1,549 +1,367 @@
 ---
 sidebar_position: 4
+title: LLM Providers
+description: Set up AI providers (Google Gemini, OpenAI GPT, Anthropic Claude) for Adaptly
 ---
 
 # LLM Providers Guide
 
-Configure multiple AI providers
+Adaptly supports multiple Large Language Model providers, giving you flexibility in AI capabilities, costs, and performance. This guide covers setup for all supported providers.
 
-Adaptly supports multiple AI providers, allowing you to choose the best model for your needs. This guide covers setting up and configuring different LLM providers.
+## Quick Start (Google Gemini)
 
-## 🎯 Supported Providers
+For beginners, we recommend starting with Google Gemini as it's the easiest to set up and has a generous free tier.
 
-Adaptly supports three major AI providers:
+### 1. Get Your API Key
 
-- **Google Gemini** - Fast, cost-effective, great for most use cases
-- **OpenAI GPT** - Powerful, excellent for complex reasoning
-- **Anthropic Claude** - Balanced performance and cost
+1. Go to [Google AI Studio](https://aistudio.google.com/)
+2. Sign in with your Google account
+3. Click "Get API Key" and create a new key
+4. Copy the API key (starts with `AIza...`)
 
-## 🔧 Provider Configuration
+### 2. Set Up Environment Variables
 
-### Basic Setup
-
-```tsx
-<AdaptlyProvider
-  apiKey="your-api-key"
-  provider="google" // or "openai" or "anthropic"
-  model="gemini-2.0-flash-exp"
-  // ... other props
-/>
-```
-
-### Environment Variables
-
-Set up your API keys in environment variables:
+Create a `.env.local` file:
 
 ```bash
-# .env.local (Next.js) or .env (React)
-
-# Google Gemini (recommended for beginners)
-NEXT_PUBLIC_GOOGLE_GENERATIVE_AI_API_KEY=your_gemini_api_key_here
-
-# OpenAI GPT
-NEXT_PUBLIC_OPENAI_API_KEY=your_openai_api_key_here
-
-# Anthropic Claude
-NEXT_PUBLIC_ANTHROPIC_API_KEY=your_anthropic_api_key_here
+# .env.local
+NEXT_PUBLIC_GOOGLE_GENERATIVE_AI_API_KEY=your_api_key_here
 ```
 
-## 🤖 Google Gemini
-
-### Getting Started
-
-1. **Get your API key**:
-   - Go to [Google AI Studio](https://makersuite.google.com/app/apikey)
-   - Create a new API key
-   - Copy the key
-
-2. **Set environment variable**:
-
-   ```bash
-   NEXT_PUBLIC_GOOGLE_GENERATIVE_AI_API_KEY=your_api_key_here
-   ```
-
-3. **Configure AdaptlyProvider**:
-
-   ```tsx
-   <AdaptlyProvider
-     apiKey={process.env.NEXT_PUBLIC_GOOGLE_GENERATIVE_AI_API_KEY!}
-     provider="google"
-     model="gemini-2.0-flash-exp"
-     // ... other props
-   />
-   ```
-
-### Available Models
+### 3. Configure AdaptlyProvider
 
 ```tsx
-// Experimental models (latest features)
-model="gemini-2.0-flash-exp"
+import { AdaptlyProvider } from "adaptly";
+import adaptlyConfig from "./adaptly.json";
 
-// Stable models
-model="gemini-2.0-flash"
-model="gemini-1.5-pro"
-model="gemini-1.5-flash"
-model="gemini-1.0-pro"
+export default function App() {
+  return (
+    <AdaptlyProvider
+      apiKey={process.env.NEXT_PUBLIC_GOOGLE_GENERATIVE_AI_API_KEY!}
+      provider="google"
+      model="gemini-2.0-flash-exp"
+      components={{ MetricCard, SalesChart }}
+      adaptlyConfig={adaptlyConfig}
+    />
+  );
+}
 ```
 
-### Model Comparison
+### 4. Supported Models
 
-| Model | Speed | Cost | Best For |
-|-------|-------|------|----------|
-| `gemini-2.0-flash-exp` | Fast | Low | Latest features, experimentation |
-| `gemini-2.0-flash` | Fast | Low | Production use, fast responses |
-| `gemini-1.5-pro` | Medium | Medium | Complex reasoning, detailed analysis |
-| `gemini-1.5-flash` | Fast | Low | Quick responses, simple tasks |
-| `gemini-1.0-pro` | Medium | Medium | Balanced performance |
+- `gemini-2.0-flash-exp` (recommended - latest)
+- `gemini-2.0-flash`
+- `gemini-1.5-pro`
+- `gemini-1.5-flash`
+- `gemini-1.0-pro`
 
-### Example Configuration
+## Advanced Provider Setup
 
-```tsx
-<AdaptlyProvider
-  apiKey={process.env.NEXT_PUBLIC_GOOGLE_GENERATIVE_AI_API_KEY!}
-  provider="google"
-  model="gemini-2.0-flash-exp"
-  components={{ MetricCard, SalesChart, DataTable }}
-  adaptlyConfig={adaptlyConfig}
-  enableStorage={true}
-/>
+### OpenAI GPT Setup
+
+#### 1. Get Your API Key
+
+1. Go to [OpenAI Platform](https://platform.openai.com/)
+2. Sign in and navigate to API Keys
+3. Create a new secret key
+4. Copy the key (starts with `sk-...`)
+
+#### 2. Environment Variables
+
+```bash
+# .env.local
+NEXT_PUBLIC_OPENAI_API_KEY=your_openai_key_here
 ```
 
-## 🧠 OpenAI GPT
-
-### Getting Started
-
-1. **Get your API key**:
-   - Go to [OpenAI Platform](https://platform.openai.com/api-keys)
-   - Create a new API key
-   - Copy the key
-
-2. **Set environment variable**:
-
-   ```bash
-   NEXT_PUBLIC_OPENAI_API_KEY=your_api_key_here
-   ```
-
-3. **Configure AdaptlyProvider**:
-
-   ```tsx
-   <AdaptlyProvider
-     apiKey={process.env.NEXT_PUBLIC_OPENAI_API_KEY!}
-     provider="openai"
-     model="gpt-4o"
-     // ... other props
-   />
-   ```
-
-### Available Models
-
-```tsx
-// Latest models
-model="gpt-4o"           // Latest GPT-4 model
-model="gpt-4o-mini"      // Cost-effective version
-
-// Previous models
-model="gpt-4-turbo"      // GPT-4 Turbo
-model="gpt-4"            // GPT-4
-model="gpt-3.5-turbo"    // GPT-3.5 Turbo
-```
-
-### Model Comparison
-
-| Model | Speed | Cost | Best For |
-|-------|-------|------|----------|
-| `gpt-4o` | Fast | Medium | Latest features, best performance |
-| `gpt-4o-mini` | Fast | Low | Cost-effective, good performance |
-| `gpt-4-turbo` | Medium | High | Complex reasoning, detailed analysis |
-| `gpt-4` | Medium | High | High-quality responses |
-| `gpt-3.5-turbo` | Fast | Low | Quick responses, simple tasks |
-
-### Example Configuration
+#### 3. Configuration
 
 ```tsx
 <AdaptlyProvider
   apiKey={process.env.NEXT_PUBLIC_OPENAI_API_KEY!}
   provider="openai"
   model="gpt-4o"
-  components={{ MetricCard, SalesChart, DataTable }}
+  components={{ MetricCard, SalesChart }}
   adaptlyConfig={adaptlyConfig}
-  enableStorage={true}
 />
 ```
 
-## 🎭 Anthropic Claude
+#### 4. Supported Models
 
-### Getting Started
+- `gpt-4o` (recommended - most capable)
+- `gpt-4o-mini` (cost-effective)
+- `gpt-4-turbo`
+- `gpt-4`
+- `gpt-3.5-turbo`
 
-1. **Get your API key**:
-   - Go to [Anthropic Console](https://console.anthropic.com/)
-   - Create a new API key
-   - Copy the key
+### Anthropic Claude Setup
 
-2. **Set environment variable**:
+#### 1. Get Your API Key
 
-   ```bash
-   NEXT_PUBLIC_ANTHROPIC_API_KEY=your_api_key_here
-   ```
+1. Go to [Anthropic Console](https://console.anthropic.com/)
+2. Sign in and navigate to API Keys
+3. Create a new key
+4. Copy the key (starts with `sk-ant-...`)
 
-3. **Configure AdaptlyProvider**:
+#### 2. Environment Variables
 
-   ```tsx
-   <AdaptlyProvider
-     apiKey={process.env.NEXT_PUBLIC_ANTHROPIC_API_KEY!}
-     provider="anthropic"
-     model="claude-3-5-sonnet-20241022"
-     // ... other props
-   />
-   ```
-
-### Available Models
-
-```tsx
-// Latest models
-model="claude-3-5-sonnet-20241022"  // Latest Claude 3.5 Sonnet
-model="claude-3-5-haiku-20241022"   // Fast Claude 3.5 Haiku
-
-// Previous models
-model="claude-3-opus-20240229"      // Claude 3 Opus
-model="claude-3-sonnet-20240229"    // Claude 3 Sonnet
+```bash
+# .env.local
+NEXT_PUBLIC_ANTHROPIC_API_KEY=your_anthropic_key_here
 ```
 
-### Model Comparison
-
-| Model | Speed | Cost | Best For |
-|-------|-------|------|----------|
-| `claude-3-5-sonnet-20241022` | Medium | Medium | Balanced performance, latest features |
-| `claude-3-5-haiku-20241022` | Fast | Low | Quick responses, cost-effective |
-| `claude-3-opus-20240229` | Slow | High | Complex reasoning, detailed analysis |
-| `claude-3-sonnet-20240229` | Medium | Medium | Balanced performance |
-
-### Example Configuration
+#### 3. Configuration
 
 ```tsx
 <AdaptlyProvider
   apiKey={process.env.NEXT_PUBLIC_ANTHROPIC_API_KEY!}
   provider="anthropic"
   model="claude-3-5-sonnet-20241022"
-  components={{ MetricCard, SalesChart, DataTable }}
+  components={{ MetricCard, SalesChart }}
   adaptlyConfig={adaptlyConfig}
-  enableStorage={true}
 />
 ```
 
-## 🔄 Dynamic Provider Switching
+#### 4. Supported Models
 
-### Runtime Provider Selection
+- `claude-3-5-sonnet-20241022` (recommended - most capable)
+- `claude-3-5-haiku-20241022` (fastest)
+- `claude-3-opus-20240229`
+- `claude-3-sonnet-20240229`
 
-You can switch providers at runtime using state:
+## Provider Comparison
+
+| Provider | Best For | Cost | Speed | Capabilities |
+|----------|----------|------|-------|--------------|
+| **Google Gemini** | Beginners, Free tier | Free tier available | Fast | Good for most tasks |
+| **OpenAI GPT** | Advanced reasoning | Higher cost | Medium | Excellent for complex tasks |
+| **Anthropic Claude** | Balanced performance | Medium cost | Fast | Great for structured output |
+
+## Runtime Provider Switching
+
+You can switch providers at runtime using state management:
 
 ```tsx
 "use client";
 
-import { useState } from 'react';
-import { AdaptlyProvider } from 'adaptly';
+import { useState } from "react";
+import { AdaptlyProvider } from "adaptly";
 
-export default function Dashboard() {
-  const [provider, setProvider] = useState<'google' | 'openai' | 'anthropic'>('google');
-  const [model, setModel] = useState('gemini-2.0-flash-exp');
+export default function App() {
+  const [selectedProvider, setSelectedProvider] = useState<"google" | "openai" | "anthropic">("google");
+  const [selectedModel, setSelectedModel] = useState("gemini-2.0-flash-exp");
 
   const getApiKey = () => {
-    switch (provider) {
-      case 'google':
+    switch (selectedProvider) {
+      case "google":
         return process.env.NEXT_PUBLIC_GOOGLE_GENERATIVE_AI_API_KEY!;
-      case 'openai':
+      case "openai":
         return process.env.NEXT_PUBLIC_OPENAI_API_KEY!;
-      case 'anthropic':
+      case "anthropic":
         return process.env.NEXT_PUBLIC_ANTHROPIC_API_KEY!;
       default:
-        return '';
+        return "";
     }
   };
 
-  const getModelOptions = () => {
-    switch (provider) {
-      case 'google':
-        return ['gemini-2.0-flash-exp', 'gemini-1.5-pro', 'gemini-1.5-flash'];
-      case 'openai':
-        return ['gpt-4o', 'gpt-4o-mini', 'gpt-4-turbo'];
-      case 'anthropic':
-        return ['claude-3-5-sonnet-20241022', 'claude-3-5-haiku-20241022'];
-      default:
-        return [];
-    }
+  const modelOptions = {
+    google: ["gemini-2.0-flash-exp", "gemini-2.0-flash", "gemini-1.5-pro"],
+    openai: ["gpt-4o", "gpt-4o-mini", "gpt-4-turbo"],
+    anthropic: ["claude-3-5-sonnet-20241022", "claude-3-5-haiku-20241022"]
   };
 
   return (
     <div>
-      <div className="mb-4">
-        <select 
-          value={provider} 
-          onChange={(e) => setProvider(e.target.value as any)}
-        >
-          <option value="google">Google Gemini</option>
-          <option value="openai">OpenAI GPT</option>
-          <option value="anthropic">Anthropic Claude</option>
-        </select>
-        
-        <select 
-          value={model} 
-          onChange={(e) => setModel(e.target.value)}
-        >
-          {getModelOptions().map((m) => (
-            <option key={m} value={m}>{m}</option>
-          ))}
-        </select>
-      </div>
+      {/* Provider selector */}
+      <select 
+        value={selectedProvider} 
+        onChange={(e) => setSelectedProvider(e.target.value as any)}
+      >
+        <option value="google">Google Gemini</option>
+        <option value="openai">OpenAI GPT</option>
+        <option value="anthropic">Anthropic Claude</option>
+      </select>
+
+      {/* Model selector */}
+      <select 
+        value={selectedModel} 
+        onChange={(e) => setSelectedModel(e.target.value)}
+      >
+        {modelOptions[selectedProvider].map(model => (
+          <option key={model} value={model}>{model}</option>
+        ))}
+      </select>
 
       <AdaptlyProvider
         apiKey={getApiKey()}
-        provider={provider}
-        model={model}
-        components={{ MetricCard, SalesChart, DataTable }}
+        provider={selectedProvider}
+        model={selectedModel}
+        components={{ MetricCard, SalesChart }}
         adaptlyConfig={adaptlyConfig}
-        enableStorage={true}
       />
     </div>
   );
 }
 ```
 
-### Provider-Specific Configuration
+## Model Selection Guide
 
-```tsx
-const getProviderConfig = (provider: string) => {
-  switch (provider) {
-    case 'google':
-      return {
-        model: 'gemini-2.0-flash-exp',
-        maxTokens: 1000,
-        temperature: 0.7,
-      };
-    case 'openai':
-      return {
-        model: 'gpt-4o',
-        maxTokens: 1500,
-        temperature: 0.8,
-      };
-    case 'anthropic':
-      return {
-        model: 'claude-3-5-sonnet-20241022',
-        maxTokens: 2000,
-        temperature: 0.7,
-      };
-    default:
-      return {};
-  }
-};
-```
+### For Development
 
-## ⚙️ Advanced Configuration
+- **Google Gemini**: `gemini-2.0-flash-exp` (free tier, good performance)
+- **OpenAI**: `gpt-4o-mini` (cost-effective, good quality)
+- **Anthropic**: `claude-3-5-haiku-20241022` (fastest, good quality)
+
+### For Production
+
+- **Google Gemini**: `gemini-2.0-flash` (stable, good performance)
+- **OpenAI**: `gpt-4o` (best quality, higher cost)
+- **Anthropic**: `claude-3-5-sonnet-20241022` (excellent quality, balanced cost)
+
+### For Cost Optimization
+
+- **Google Gemini**: `gemini-1.5-flash` (fastest, lowest cost)
+- **OpenAI**: `gpt-3.5-turbo` (good quality, lower cost)
+- **Anthropic**: `claude-3-5-haiku-20241022` (fast, cost-effective)
+
+## Advanced Configuration
 
 ### Custom LLM Settings
+
+You can customize LLM behavior through the AdaptlyProvider:
 
 ```tsx
 <AdaptlyProvider
   apiKey={apiKey}
-  provider="google"
-  model="gemini-2.0-flash-exp"
-  // Custom LLM configuration
-  llmConfig={{
-        maxTokens: 1500,
-        temperature: 0.8,
-        topP: 0.9,
-        frequencyPenalty: 0.1,
-        presencePenalty: 0.1,
-      }}
-  // ... other props
+  provider="openai"
+  model="gpt-4o"
+  components={components}
+  adaptlyConfig={adaptlyConfig}
+  // Custom configuration
+  enableStorage={true}
+  storageKey="my-app-ui"
+  storageVersion="1.0.0"
 />
 ```
 
-### Provider-Specific Optimizations
+### Error Handling
+
+Each provider has different error patterns:
 
 ```tsx
-// Google Gemini optimizations
-const geminiConfig = {
-  model: 'gemini-2.0-flash-exp',
-  maxTokens: 1000,
-  temperature: 0.7,
-  // Gemini-specific settings
-  safetySettings: [
-    {
-      category: 'HARM_CATEGORY_HARASSMENT',
-      threshold: 'BLOCK_MEDIUM_AND_ABOVE',
-    },
-  ],
-};
-
-// OpenAI GPT optimizations
-const openaiConfig = {
-  model: 'gpt-4o',
-  maxTokens: 1500,
-  temperature: 0.8,
-  // OpenAI-specific settings
-  topP: 0.9,
-  frequencyPenalty: 0.1,
-  presencePenalty: 0.1,
-};
-
-// Anthropic Claude optimizations
-const claudeConfig = {
-  model: 'claude-3-5-sonnet-20241022',
-  maxTokens: 2000,
-  temperature: 0.7,
-  // Claude-specific settings
-  topP: 0.9,
-  topK: 40,
+// Handle provider-specific errors
+const handleLLMError = (error: Error) => {
+  if (error.message.includes("API key")) {
+    console.error("Invalid API key for provider");
+  } else if (error.message.includes("quota")) {
+    console.error("API quota exceeded");
+  } else if (error.message.includes("model")) {
+    console.error("Model not available");
+  }
 };
 ```
 
-## 🎯 Provider Selection Guide
+### Provider-Specific Features
 
-### Choose Google Gemini When
+#### Google Gemini
 
-- **Budget is a concern** - Lowest cost per request
-- **Speed is important** - Fastest response times
-- **Simple use cases** - Basic UI generation and layout
-- **Getting started** - Easiest to set up and use
+- **Free tier**: 15 requests per minute
+- **Rate limits**: Generous for development
+- **Best for**: Quick prototyping, free development
 
-### Choose OpenAI GPT When
+#### OpenAI GPT
 
-- **Complex reasoning** - Need advanced AI capabilities
-- **Quality over cost** - Willing to pay for best performance
-- **Latest features** - Want access to newest AI capabilities
-- **Enterprise use** - Need reliable, production-ready AI
+- **Rate limits**: Varies by model and tier
+- **Best for**: Complex reasoning, advanced tasks
+- **Cost**: Higher but excellent quality
 
-### Choose Anthropic Claude When
+#### Anthropic Claude
 
-- **Balanced approach** - Good balance of cost and performance
-- **Safety is important** - Built-in safety features
-- **Long conversations** - Better context retention
-- **Creative tasks** - Excellent for creative UI generation
+- **Rate limits**: 5 requests per minute (free tier)
+- **Best for**: Balanced performance and cost
+- **Safety**: Built-in safety features
 
-## 🔍 Performance Comparison
+## Troubleshooting
 
-### Response Time
+### Common Issues
 
-| Provider | Model | Avg Response Time | Best For |
-|----------|-------|-------------------|----------|
-| Google | gemini-2.0-flash-exp | 1-2s | Quick responses |
-| Google | gemini-1.5-pro | 2-3s | Balanced performance |
-| OpenAI | gpt-4o | 2-4s | High quality |
-| OpenAI | gpt-4o-mini | 1-2s | Cost-effective |
-| Anthropic | claude-3-5-sonnet | 2-3s | Balanced approach |
-| Anthropic | claude-3-5-haiku | 1-2s | Fast responses |
+**"API key is required" error:**
 
-### Cost Comparison
+- Check environment variable name matches exactly
+- Restart development server after adding variables
+- Verify API key format (starts with correct prefix)
 
-| Provider | Model | Cost per 1K tokens | Best For |
-|----------|-------|-------------------|----------|
-| Google | gemini-2.0-flash-exp | $0.0005 | Budget-friendly |
-| Google | gemini-1.5-pro | $0.001 | Balanced cost |
-| OpenAI | gpt-4o | $0.005 | Premium quality |
-| OpenAI | gpt-4o-mini | $0.00015 | Cost-effective |
-| Anthropic | claude-3-5-sonnet | $0.003 | Balanced cost |
-| Anthropic | claude-3-5-haiku | $0.00025 | Budget-friendly |
+**"Model not found" error:**
 
-## 🚨 Common Issues
+- Check model name spelling
+- Verify model is available in your region
+- Try a different model from the supported list
 
-### API Key Issues
+**"Rate limit exceeded" error:**
 
-**Error**: "API key not found"
+- Wait before making more requests
+- Consider upgrading your API plan
+- Switch to a different provider temporarily
 
-- **Solution**: Check that your environment variable is set correctly
-- **Solution**: Ensure the variable name matches your provider
-- **Solution**: Verify the API key is valid and has sufficient credits
+**"Invalid API key" error:**
 
-**Error**: "Invalid API key"
-
-- **Solution**: Regenerate your API key
-- **Solution**: Check that the key is copied correctly
-- **Solution**: Ensure the key has the right permissions
-
-### Model Issues
-
-**Error**: "Model not found"
-
-- **Solution**: Check that the model name is correct
-- **Solution**: Ensure the model is available in your region
-- **Solution**: Try a different model from the same provider
-
-**Error**: "Model not supported"
-
-- **Solution**: Use a supported model for your provider
-- **Solution**: Check the model availability in your region
-- **Solution**: Update to a newer model version
-
-### Rate Limiting
-
-**Error**: "Rate limit exceeded"
-
-- **Solution**: Wait before making more requests
-- **Solution**: Upgrade your API plan
-- **Solution**: Implement request queuing
-
-## 🔧 Troubleshooting
+- Verify the key is correct and active
+- Check if the key has expired
+- Ensure the key has the right permissions
 
 ### Debug Mode
 
 Enable debug logging to see provider-specific information:
 
 ```tsx
-<AdaptlyProvider
-  // ... other props
-  logging={{ enabled: true, level: 'debug' }}
-/>
+// In your component
+import { adaptlyLogger } from "adaptly";
+
+// Enable debug logging
+adaptlyLogger.setConfig({ enabled: true, level: "debug" });
 ```
 
-### Provider Testing
+### Provider Status
 
-Test different providers with the same request:
+Check if your provider is working:
 
 ```tsx
-const testProviders = async () => {
-  const providers = ['google', 'openai', 'anthropic'];
-  
-  for (const provider of providers) {
-    console.log(`Testing ${provider}...`);
-    // Test your AdaptlyProvider with this provider
-  }
-};
+const { currentLLMProvider, isLLMProcessing } = useAdaptiveUI();
+
+console.log("Current provider:", currentLLMProvider);
+console.log("Processing:", isLLMProcessing);
 ```
 
-### Performance Monitoring
+## Cost Optimization
 
-Monitor provider performance:
+### Free Tiers
 
-```tsx
-const [providerStats, setProviderStats] = useState({});
+- **Google Gemini**: 15 requests/minute (free)
+- **OpenAI**: $5 credit (new accounts)
+- **Anthropic**: 5 requests/minute (free)
 
-const trackProviderPerformance = (provider: string, responseTime: number) => {
-  setProviderStats(prev => ({
-    ...prev,
-    [provider]: {
-      ...prev[provider],
-      responseTime,
-      requestCount: (prev[provider]?.requestCount || 0) + 1,
-    },
-  }));
-};
-```
+### Cost-Effective Models
 
-## 📚 Next Steps
+- **Google**: `gemini-1.5-flash` (fastest, cheapest)
+- **OpenAI**: `gpt-3.5-turbo` (good quality, lower cost)
+- **Anthropic**: `claude-3-5-haiku-20241022` (fast, cost-effective)
 
-Now that you understand LLM providers:
+### Usage Monitoring
 
-1. **Read the [Storage Service Guide](storage-service)** for persistent state management
-2. **Explore [Advanced Features](advanced-features)** for custom configurations
-3. **Check out [Troubleshooting Guide](troubleshooting)** for common issues
-4. **See the [Demo Application](https://github.com/gauravfs-14/adaptly/tree/main/examples/adaptly-demo/)** for complete examples
+- Monitor your API usage in provider dashboards
+- Set up billing alerts
+- Use development models for testing
 
-## 🆘 Support
+## Next Steps
 
-- **Documentation**: Check other guides in this documentation
-- **Examples**: Look at the demo application in `/examples`
-- **Issues**: [GitHub Issues](https://github.com/gauravfs-14/adaptly/issues)
-- **Discussions**: [GitHub Discussions](https://github.com/gauravfs-14/adaptly/discussions)
+- **[Storage Service Guide](storage-service)** - Configure persistence
+- **[Advanced Features Guide](advanced-features)** - Custom loaders and validation
+- **[API Reference](api/core-components)** - Complete component documentation
+
+## Example Implementations
+
+- **[Demo App](https://github.com/gauravfs-14/adaptly/tree/main/examples/adaptly-demo)** - Full provider switching
+- **[Component Examples](https://github.com/gauravfs-14/adaptly/tree/main/examples/adaptly-demo/src/components)** - Real React components
 
 ---
 
-Ready to learn about persistent storage? Check out the [Storage Service Guide](storage-service)!
+**Ready to configure persistence?** Check out the [Storage Service Guide](storage-service) to learn how Adaptly automatically saves and restores your UI state!

@@ -1,27 +1,27 @@
 ---
-sidebar_position: 8
+sidebar_position: 2
+title: Core Components API
+description: Complete documentation of AdaptlyProvider, AdaptiveLayout, AdaptiveCommand, and other core components
 ---
 
-# Core Components API
+# Core Components API Reference
 
-AdaptlyProvider, hooks, and utilities
+This page documents all core components available in Adaptly, including their props, usage examples, and implementation details.
 
-This document provides comprehensive API reference for Adaptly's core components and their usage.
+## AdaptlyProvider
 
-## 🎯 AdaptlyProvider
-
-The main provider component that wraps your application and provides AI-powered adaptive functionality.
+The main provider component that wraps your application and provides AI-powered adaptive UI functionality.
 
 ### Props
 
-```tsx
+```typescript
 interface AdaptlyProviderProps {
-  // Required
+  // Required props
   apiKey: string;
   components: Record<string, React.ComponentType<any>>;
   adaptlyConfig: AdaptlyJsonConfig;
   
-  // Optional
+  // Optional props
   icons?: Record<string, React.ComponentType<any>>;
   model?: string;
   provider?: "google" | "openai" | "anthropic";
@@ -33,7 +33,7 @@ interface AdaptlyProviderProps {
   aiSuggestions?: Array<{
     value: string;
     label: string;
-    icon?: React.ComponentType<{ className?: string }>;
+    icon?: React.ComponentType<unknown>;
     description?: string;
   }>;
   showAISuggestions?: boolean;
@@ -52,178 +52,264 @@ interface AdaptlyProviderProps {
 }
 ```
 
-### Basic Usage
+### Required Props
+
+#### apiKey
+
+- **Type**: `string`
+- **Description**: API key for the LLM provider
+- **Example**: `process.env.NEXT_PUBLIC_GOOGLE_GENERATIVE_AI_API_KEY!`
+
+#### components
+
+- **Type**: `Record<string, React.ComponentType<any>>`
+- **Description**: Registry of React components available to the AI
+- **Example**: `{ MetricCard, SalesChart, TeamMembers }`
+
+#### adaptlyConfig
+
+- **Type**: `AdaptlyJsonConfig`
+- **Description**: Component registry configuration from adaptly.json
+- **Example**: `import adaptlyConfig from "./adaptly.json"`
+
+### Optional Props
+
+#### icons
+
+- **Type**: `Record<string, React.ComponentType<any>>`
+- **Default**: `undefined`
+- **Description**: Registry of icon components
+- **Example**: `{ DollarSign, Users, ShoppingCart }`
+
+#### model
+
+- **Type**: `string`
+- **Default**: `"gemini-2.0-flash-exp"`
+- **Description**: LLM model to use
+- **Examples**:
+  - Google: `"gemini-2.0-flash-exp"`, `"gemini-1.5-pro"`
+  - OpenAI: `"gpt-4o"`, `"gpt-4o-mini"`
+  - Anthropic: `"claude-3-5-sonnet-20241022"`
+
+#### provider
+
+- **Type**: `"google" | "openai" | "anthropic"`
+- **Default**: `"google"`
+- **Description**: LLM provider to use
+
+#### defaultLayout
+
+- **Type**: `Partial<UIAdaptation>`
+- **Default**: `undefined`
+- **Description**: Default UI layout when no saved state exists
+
+#### className
+
+- **Type**: `string`
+- **Default**: `""`
+- **Description**: CSS class name for the container
+
+#### style
+
+- **Type**: `React.CSSProperties`
+- **Default**: `{}`
+- **Description**: Inline styles for the container
+
+#### aiSuggestions
+
+- **Type**: `Array<{ value: string; label: string; icon?: React.ComponentType<unknown>; description?: string; }>`
+- **Default**: `undefined`
+- **Description**: Custom AI suggestions for the command bar
+
+#### showAISuggestions
+
+- **Type**: `boolean`
+- **Default**: `true`
+- **Description**: Whether to show AI suggestions in the command bar
+
+#### showUtilityCommands
+
+- **Type**: `boolean`
+- **Default**: `true`
+- **Description**: Whether to show utility commands (reset, etc.)
+
+#### customLoader
+
+- **Type**: `CustomLoaderComponent`
+- **Default**: `undefined`
+- **Description**: Custom loading overlay component
+
+#### enableStorage
+
+- **Type**: `boolean`
+- **Default**: `true`
+- **Description**: Whether to enable persistent storage
+
+#### storageKey
+
+- **Type**: `string`
+- **Default**: `"adaptly-ui"`
+- **Description**: Key prefix for localStorage
+
+#### storageVersion
+
+- **Type**: `string`
+- **Default**: `"1.0.0"`
+- **Description**: Version for data migration
+
+#### children
+
+- **Type**: `React.ReactNode`
+- **Default**: `undefined`
+- **Description**: Child components
+
+### Usage Examples
+
+#### Basic Usage
 
 ```tsx
-import { AdaptlyProvider } from 'adaptly';
-import adaptlyConfig from './adaptly.json';
-import { MetricCard, SalesChart, DataTable } from './components';
+import { AdaptlyProvider } from "adaptly";
+import { MetricCard, SalesChart } from "./components";
+import adaptlyConfig from "./adaptly.json";
 
-function App() {
-  return (
-    <AdaptlyProvider
-      apiKey="your-api-key"
-      provider="google"
-      model="gemini-2.0-flash-exp"
-      components={{ MetricCard, SalesChart, DataTable }}
-      adaptlyConfig={adaptlyConfig}
-      enableStorage={true}
-      storageKey="my-app-ui"
-    />
-  );
-}
-```
-
-### Advanced Usage
-
-```tsx
 <AdaptlyProvider
   apiKey={process.env.NEXT_PUBLIC_GOOGLE_GENERATIVE_AI_API_KEY!}
   provider="google"
   model="gemini-2.0-flash-exp"
-  components={{ MetricCard, SalesChart, DataTable }}
-  icons={{ DollarSign, Users, BarChart3 }}
+  components={{ MetricCard, SalesChart }}
   adaptlyConfig={adaptlyConfig}
-  enableStorage={true}
-  storageKey="my-app-ui"
-  storageVersion="1.0.0"
+/>
+```
+
+#### Advanced Configuration
+
+```tsx
+<AdaptlyProvider
+  apiKey={apiKey}
+  provider="openai"
+  model="gpt-4o"
+  components={{ MetricCard, SalesChart, TeamMembers }}
+  icons={{ DollarSign, Users, ShoppingCart }}
+  adaptlyConfig={adaptlyConfig}
   defaultLayout={{
-    components: [],
+    components: [
+      {
+        id: "welcome",
+        type: "EmptyCard",
+        props: { title: "Welcome!", description: "Press ⌘K to start" },
+        position: { x: 0, y: 0, w: 6, h: 2 },
+        visible: true
+      }
+    ],
     layout: "grid",
     spacing: 6,
     columns: 6
   }}
-  aiSuggestions={[
-    { value: "Add metrics", label: "📊 Add metrics" },
-    { value: "Show charts", label: "📈 Show charts" }
-  ]}
+  enableStorage={true}
+  storageKey="my-dashboard"
+  storageVersion="1.0.0"
+  className="h-full"
+  style={{ minHeight: "100vh" }}
+/>
+```
+
+#### Custom AI Suggestions
+
+```tsx
+const customSuggestions = [
+  {
+    value: "Create a sales dashboard",
+    label: "📊 Create a sales dashboard",
+    description: "Generate a dashboard with sales metrics"
+  },
+  {
+    value: "Show user analytics",
+    label: "👥 Show user analytics",
+    description: "Display user engagement metrics"
+  }
+];
+
+<AdaptlyProvider
+  apiKey={apiKey}
+  components={components}
+  adaptlyConfig={adaptlyConfig}
+  aiSuggestions={customSuggestions}
   showAISuggestions={true}
   showUtilityCommands={true}
+/>
+```
+
+#### Custom Loader
+
+```tsx
+function MyCustomLoader({ isVisible, message, subMessage }) {
+  if (!isVisible) return null;
+  
+  return (
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+      <div className="bg-white p-8 rounded-lg shadow-lg">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+        <h3>{message}</h3>
+        <p>{subMessage}</p>
+      </div>
+    </div>
+  );
+}
+
+<AdaptlyProvider
+  apiKey={apiKey}
+  components={components}
+  adaptlyConfig={adaptlyConfig}
   customLoader={MyCustomLoader}
-  className="h-full"
-  style={{ minHeight: '100vh' }}
->
-  <MyCustomContent />
-</AdaptlyProvider>
+/>
 ```
 
-## 🎣 useAdaptiveUI Hook
+## AdaptiveUIProvider
 
-React hook that provides access to the adaptive UI context and methods.
-
-### Return Value
-
-```tsx
-interface AdaptiveUIContextType {
-  // UI state
-  adaptation: UIAdaptation;
-  updateAdaptation: (adaptation: Partial<UIAdaptation>) => void;
-  addComponent: (component: UIComponent) => void;
-  removeComponent: (id: string) => void;
-  updateComponent: (id: string, updates: Partial<UIComponent>) => void;
-  
-  // AI processing
-  parseUserInput: (input: string) => void;
-  parseUserInputWithLLM: (input: string) => Promise<void>;
-  resetToDefault: () => void;
-  isLLMProcessing: boolean;
-  lastLLMResponse?: string;
-  
-  // Configuration
-  config?: AdaptlyConfig;
-  
-  // Storage methods
-  saveToStorage: () => boolean;
-  loadFromStorage: () => UIAdaptation | null;
-  clearStorage: () => boolean;
-  hasStoredData: () => boolean;
-  
-  // LLM provider info
-  currentLLMProvider?: string;
-}
-```
-
-### Basic Usage
-
-```tsx
-import { useAdaptiveUI } from 'adaptly';
-
-function MyComponent() {
-  const {
-    adaptation,
-    addComponent,
-    removeComponent,
-    parseUserInputWithLLM,
-    isLLMProcessing,
-    lastLLMResponse,
-  } = useAdaptiveUI();
-
-  const handleAddComponent = () => {
-    const newComponent = {
-      id: 'metric-1',
-      type: 'MetricCard',
-      props: {
-        title: 'Revenue',
-        value: '$45,231',
-        change: '+20.1%',
-        changeType: 'positive'
-      },
-      position: { x: 0, y: 0, w: 2, h: 1 },
-      visible: true
-    };
-    
-    addComponent(newComponent);
-  };
-
-  const handleAIRequest = async () => {
-    await parseUserInputWithLLM('Add a revenue metric card');
-  };
-
-  return (
-    <div>
-      <button onClick={handleAddComponent}>Add Component</button>
-      <button onClick={handleAIRequest} disabled={isLLMProcessing}>
-        {isLLMProcessing ? 'Processing...' : 'Ask AI'}
-      </button>
-      {lastLLMResponse && (
-        <p>AI Response: {lastLLMResponse}</p>
-      )}
-    </div>
-  );
-}
-```
-
-### Storage Usage
-
-```tsx
-function StorageControls() {
-  const {
-    saveToStorage,
-    loadFromStorage,
-    clearStorage,
-    hasStoredData,
-  } = useAdaptiveUI();
-
-  return (
-    <div>
-      <button onClick={saveToStorage}>Save State</button>
-      <button onClick={loadFromStorage}>Load State</button>
-      <button onClick={clearStorage}>Clear Storage</button>
-      <p>Has stored data: {hasStoredData() ? 'Yes' : 'No'}</p>
-    </div>
-  );
-}
-```
-
-## 🎨 AdaptiveLayout
-
-Internal component that renders the adaptive UI layout. Not typically used directly by developers.
+Lower-level provider component for advanced usage. Use this when you need more control over the configuration.
 
 ### Props
 
+```typescript
+interface AdaptiveUIProviderProps {
+  children: React.ReactNode;
+  config?: AdaptlyConfig;
+}
+```
+
+### Usage
+
 ```tsx
+import { AdaptiveUIProvider } from "adaptly";
+
+const config: AdaptlyConfig = {
+  enableLLM: true,
+  llm: {
+    provider: "google",
+    apiKey: process.env.NEXT_PUBLIC_GOOGLE_GENERATIVE_AI_API_KEY!,
+    model: "gemini-2.0-flash-exp"
+  },
+  adaptlyJson: adaptlyConfig,
+  storage: {
+    enabled: true,
+    key: "my-app",
+    version: "1.0.0"
+  }
+};
+
+<AdaptiveUIProvider config={config}>
+  <MyApp />
+</AdaptiveUIProvider>
+```
+
+## AdaptiveLayout
+
+Renders the adaptive UI layout using the component registry.
+
+### Props
+
+```typescript
 interface AdaptiveLayoutProps {
-  adaptation: UIAdaptation;
   componentRegistry: ComponentRegistry;
   iconRegistry?: IconRegistry;
   className?: string;
@@ -234,17 +320,23 @@ interface AdaptiveLayoutProps {
 ### Usage
 
 ```tsx
-// This is handled automatically by AdaptlyProvider
-// You don't need to use this component directly
+import { AdaptiveLayout } from "adaptly";
+
+<AdaptiveLayout
+  componentRegistry={{ MetricCard, SalesChart }}
+  iconRegistry={{ DollarSign, Users }}
+  className="grid-layout"
+  style={{ gap: "1rem" }}
+/>
 ```
 
-## ⌨️ AdaptiveCommand
+## AdaptiveCommand
 
-Internal component that provides the command interface. Not typically used directly by developers.
+Command bar component for natural language input.
 
 ### Props
 
-```tsx
+```typescript
 interface AdaptiveCommandProps {
   keyPress?: string;
   config?: CommandConfig;
@@ -265,330 +357,290 @@ interface AdaptiveCommandProps {
 ### Usage
 
 ```tsx
-// This is handled automatically by AdaptlyProvider
-// You don't need to use this component directly
+import { AdaptiveCommand } from "adaptly";
+
+<AdaptiveCommand
+  keyPress="k"
+  aiSuggestions={customSuggestions}
+  showAISuggestions={true}
+  showUtilityCommands={true}
+  className="command-bar"
+/>
 ```
 
-## 🔄 LoadingOverlay
+## AdaptiveCommandWrapper
 
-Internal component that shows loading state during AI processing. Not typically used directly by developers.
+Wrapper component that provides command bar functionality with default configuration.
 
 ### Props
 
-```tsx
-interface LoadingOverlayProps {
-  isVisible: boolean;
-  message?: string;
-  subMessage?: string;
+```typescript
+interface AdaptiveCommandWrapperProps {
+  aiSuggestions?: Array<{
+    value: string;
+    label: string;
+    icon?: React.ComponentType<{ className?: string }>;
+    description?: string;
+  }>;
+  showAISuggestions?: boolean;
+  showUtilityCommands?: boolean;
 }
 ```
 
 ### Usage
 
 ```tsx
-// This is handled automatically by AdaptlyProvider
-// You don't need to use this component directly
-```
+import { AdaptiveCommandWrapper } from "adaptly";
 
-## 🏗️ Type Definitions
-
-### UIComponent
-
-```tsx
-interface UIComponent {
-  id: string;
-  type: string;
-  props: Record<string, unknown>;
-  position: { x: number; y: number; w: number; h: number };
-  visible: boolean;
-}
-```
-
-### UIAdaptation
-
-```tsx
-interface UIAdaptation {
-  components: UIComponent[];
-  layout: "grid" | "flex" | "absolute";
-  spacing: number;
-  columns: number;
-}
-```
-
-### AdaptlyConfig
-
-```tsx
-interface AdaptlyConfig {
-  llm?: LLMConfig;
-  registry?: RegistryConfig;
-  defaultLayout?: Partial<UIAdaptation>;
-  enableLLM?: boolean;
-  adaptlyJson: AdaptlyJsonConfig;
-  storage?: {
-    enabled?: boolean;
-    key?: string;
-    version?: string;
-  };
-  loadingOverlay?: {
-    enabled?: boolean;
-    message?: string;
-    subMessage?: string;
-    customLoader?: CustomLoaderComponent;
-  };
-  logging?: {
-    enabled?: boolean;
-    level?: "debug" | "info" | "warn" | "error";
-  };
-}
-```
-
-### AdaptlyJsonConfig
-
-```tsx
-interface AdaptlyJsonConfig {
-  version: string;
-  components: Record<string, ComponentJsonConfig>;
-}
-```
-
-### ComponentJsonConfig
-
-```tsx
-interface ComponentJsonConfig {
-  description: string;
-  props: Record<string, PropJsonConfig>;
-  useCases: string[];
-  space: {
-    min: number[];
-    max: number[];
-    preferred: number[];
-  };
-}
-```
-
-### PropJsonConfig
-
-```tsx
-interface PropJsonConfig {
-  type: string;
-  required: boolean;
-  allowed?: (string | number)[];
-}
-```
-
-### CustomLoaderComponent
-
-```tsx
-interface CustomLoaderProps {
-  isVisible: boolean;
-  message?: string;
-  subMessage?: string;
-}
-
-type CustomLoaderComponent = React.ComponentType<CustomLoaderProps>;
-```
-
-## 🎯 Component Registry
-
-### ComponentRegistry
-
-```tsx
-interface ComponentRegistry {
-  [key: string]: React.ComponentType<unknown>;
-}
-```
-
-### IconRegistry
-
-```tsx
-interface IconRegistry {
-  [key: string]: React.ComponentType<unknown>;
-}
-```
-
-## 🔧 Command Interface
-
-### Command
-
-```tsx
-interface Command {
-  id: string;
-  label: string;
-  description: string;
-  icon: React.ComponentType<{ className?: string }>;
-  action: string;
-  category: "layout" | "component" | "theme" | "utility";
-}
-```
-
-### CommandConfig
-
-```tsx
-interface CommandConfig {
-  keyPress?: string;
-  commands?: Command[];
-  enableLLM?: boolean;
-  placeholder?: string;
-  emptyMessage?: string;
-}
-```
-
-### CommandHandler
-
-```tsx
-interface CommandHandler {
-  parseUserInput: (input: string) => void;
-  parseUserInputWithLLM?: (input: string) => Promise<void>;
-  resetToDefault: () => void;
-  isLLMProcessing?: boolean;
-  lastLLMResponse?: string;
-}
-```
-
-## 🚀 Examples
-
-### Complete Dashboard Setup
-
-```tsx
-import { AdaptlyProvider } from 'adaptly';
-import { useAdaptiveUI } from 'adaptly';
-import adaptlyConfig from './adaptly.json';
-import { MetricCard, SalesChart, DataTable } from './components';
-
-function Dashboard() {
-  return (
-    <AdaptlyProvider
-      apiKey={process.env.NEXT_PUBLIC_GOOGLE_GENERATIVE_AI_API_KEY!}
-      provider="google"
-      model="gemini-2.0-flash-exp"
-      components={{ MetricCard, SalesChart, DataTable }}
-      adaptlyConfig={adaptlyConfig}
-      enableStorage={true}
-      storageKey="dashboard-ui"
-      storageVersion="1.0.0"
-      aiSuggestions={[
-        { value: "Add revenue metrics", label: "💰 Add revenue metrics" },
-        { value: "Show sales charts", label: "📊 Show sales charts" },
-        { value: "Create data table", label: "📋 Create data table" }
-      ]}
-      showAISuggestions={true}
-      showUtilityCommands={true}
-      className="h-full"
-    />
-  );
-}
-
-function DashboardControls() {
-  const {
-    adaptation,
-    addComponent,
-    removeComponent,
-    parseUserInputWithLLM,
-    isLLMProcessing,
-    saveToStorage,
-    loadFromStorage,
-    clearStorage,
-    hasStoredData,
-  } = useAdaptiveUI();
-
-  const handleAIRequest = async (input: string) => {
-    await parseUserInputWithLLM(input);
-  };
-
-  return (
-    <div className="p-4 border-b">
-      <div className="flex gap-2 mb-4">
-        <button 
-          onClick={() => handleAIRequest('Add a revenue metric')}
-          disabled={isLLMProcessing}
-          className="px-4 py-2 bg-blue-500 text-white rounded"
-        >
-          {isLLMProcessing ? 'Processing...' : 'Add Revenue Metric'}
-        </button>
-        <button 
-          onClick={() => handleAIRequest('Show sales chart')}
-          disabled={isLLMProcessing}
-          className="px-4 py-2 bg-green-500 text-white rounded"
-        >
-          {isLLMProcessing ? 'Processing...' : 'Show Sales Chart'}
-        </button>
-      </div>
-      
-      <div className="flex gap-2">
-        <button onClick={saveToStorage} className="px-3 py-1 bg-gray-500 text-white rounded text-sm">
-          Save
-        </button>
-        <button onClick={loadFromStorage} className="px-3 py-1 bg-gray-500 text-white rounded text-sm">
-          Load
-        </button>
-        <button onClick={clearStorage} className="px-3 py-1 bg-red-500 text-white rounded text-sm">
-          Clear
-        </button>
-        <span className="text-sm text-gray-600">
-          Stored: {hasStoredData() ? 'Yes' : 'No'}
-        </span>
-      </div>
-    </div>
-  );
-}
-```
-
-### Custom Loader Component
-
-```tsx
-function MyCustomLoader({ isVisible, message, subMessage }: CustomLoaderProps) {
-  if (!isVisible) return null;
-
-  return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white p-6 rounded-lg shadow-lg text-center">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mx-auto mb-4"></div>
-        <h3 className="text-lg font-semibold mb-2">{message}</h3>
-        <p className="text-gray-600">{subMessage}</p>
-      </div>
-    </div>
-  );
-}
-
-// Use with AdaptlyProvider
-<AdaptlyProvider
-  // ... other props
-  customLoader={MyCustomLoader}
+<AdaptiveCommandWrapper
+  aiSuggestions={customSuggestions}
+  showAISuggestions={true}
+  showUtilityCommands={true}
 />
 ```
 
-## 🚨 Common Issues
+## LoadingOverlay
+
+Loading overlay component that appears during AI processing.
+
+### Props
+
+```typescript
+interface LoadingOverlayProps {
+  isVisible: boolean;
+  message?: string;
+  subMessage?: string;
+  className?: string;
+  style?: React.CSSProperties;
+}
+```
+
+### Usage
+
+```tsx
+import { LoadingOverlay } from "adaptly";
+
+<LoadingOverlay
+  isVisible={isProcessing}
+  message="AI is generating your layout..."
+  subMessage="Creating components and arranging them for you"
+  className="loading-overlay"
+/>
+```
+
+## Component Implementation Details
+
+### AdaptlyProvider Implementation
+
+The AdaptlyProvider component:
+
+1. **Validates Configuration**: Checks that adaptly.json is properly configured
+2. **Initializes Services**: Sets up LLM and storage services
+3. **Renders Layout**: Uses AdaptiveLayout to render components
+4. **Provides Context**: Makes adaptive UI functionality available via useAdaptiveUI hook
+
+```tsx
+export function AdaptlyProvider({
+  apiKey,
+  components,
+  adaptlyConfig,
+  // ... other props
+}) {
+  // Validate configuration
+  const validatedConfig = validateAdaptlyConfig(adaptlyConfig);
+  
+  // Create configuration object
+  const config: AdaptlyConfig = {
+    enableLLM: true,
+    llm: { provider, apiKey, model },
+    adaptlyJson: validatedConfig,
+    storage: { enabled: enableStorage, key: storageKey, version: storageVersion },
+    // ... other config
+  };
+  
+  return (
+    <AdaptiveUIProvider config={config}>
+      <div className={`adaptly-container ${className}`} style={style}>
+        <AdaptiveLayout componentRegistry={components} iconRegistry={icons} />
+        <AdaptiveCommandWrapper
+          aiSuggestions={aiSuggestions}
+          showAISuggestions={showAISuggestions}
+          showUtilityCommands={showUtilityCommands}
+        />
+        {children}
+      </div>
+    </AdaptiveUIProvider>
+  );
+}
+```
+
+### AdaptiveLayout Implementation
+
+The AdaptiveLayout component:
+
+1. **Renders Components**: Maps over the adaptation components
+2. **Handles Missing Components**: Shows error for missing components
+3. **Applies Grid Layout**: Uses CSS Grid for positioning
+4. **Filters Props**: Removes problematic props before passing to components
+
+```tsx
+export function AdaptiveLayout({ adaptation, componentRegistry }) {
+  const renderComponent = useCallback((component) => {
+    const Component = componentRegistry[component.type];
+    if (!Component) {
+      return <div>Component {component.type} not found</div>;
+    }
+    
+    // Filter props to remove problematic objects
+    const safeProps = { ...component.props };
+    // ... prop filtering logic
+    
+    return <Component {...safeProps} />;
+  }, [componentRegistry]);
+  
+  return (
+    <div className="adaptive-layout" style={gridStyle}>
+      {adaptation.components.map(renderComponent)}
+    </div>
+  );
+}
+```
+
+## Error Handling
 
 ### Component Not Found
 
-**Error**: "Component type MetricCard not found in registry"
+When a component type is not found in the registry:
 
-- **Solution**: Ensure component is properly exported and registered
-- **Solution**: Check that component name matches in adaptly.json
+```tsx
+// Shows error message
+<div className="p-4 bg-red-50 border border-red-200 rounded-lg">
+  <p className="text-red-600 text-sm">
+    Component {component.type} not found
+  </p>
+</div>
+```
 
-### Hook Usage Outside Provider
+### Invalid Configuration
 
-**Error**: "useAdaptiveUI must be used within an AdaptiveUIProvider"
+When adaptly.json is invalid:
 
-- **Solution**: Wrap your component with AdaptlyProvider
-- **Solution**: Ensure hook is called inside provider context
+```tsx
+// Throws error during initialization
+throw new Error("adaptly.json must define at least one component");
+```
 
-### Storage Not Working
+### Missing API Key
 
-**Error**: Storage methods return false
+When API key is not provided:
 
-- **Solution**: Check that enableStorage is true
-- **Solution**: Verify localStorage is available
-- **Solution**: Check storage key and version
+```tsx
+// LLM service will not initialize
+if (!apiKey) {
+  console.warn("API key is required for LLM functionality");
+}
+```
 
-## 📚 Related Documentation
+## Performance Considerations
 
-- **[Hooks API](hooks)** - Detailed hook documentation
-- **[Types API](types)** - Complete type definitions
-- **[Services API](services)** - Service layer documentation
-- **[Component Registry Guide](../component-registry)** - Component configuration
-- **[Storage Service Guide](../storage-service)** - Storage configuration
+### Component Memoization
+
+Memoize expensive components to prevent unnecessary re-renders:
+
+```tsx
+const MemoizedMetricCard = React.memo(MetricCard);
+
+<AdaptlyProvider
+  components={{ MetricCard: MemoizedMetricCard }}
+  // ... other props
+/>
+```
+
+### Lazy Loading
+
+Load components lazily to reduce initial bundle size:
+
+```tsx
+const LazyChart = React.lazy(() => import("./components/Chart"));
+
+<AdaptlyProvider
+  components={{ 
+    MetricCard,
+    Chart: LazyChart 
+  }}
+  // ... other props
+/>
+```
+
+## Best Practices
+
+### 1. Component Registry
+
+```tsx
+// ✅ Good - descriptive component names
+const components = {
+  MetricCard,
+  SalesChart,
+  TeamMembers,
+  DataTable: OrdersTable
+};
+
+// ❌ Avoid - generic names
+const components = {
+  Card,
+  Chart,
+  List
+};
+```
+
+### 2. Icon Registry
+
+```tsx
+// ✅ Good - semantic icon names
+const icons = {
+  DollarSign,
+  Users,
+  ShoppingCart,
+  Activity
+};
+
+// ❌ Avoid - generic names
+const icons = {
+  Icon1,
+  Icon2,
+  Icon3
+};
+```
+
+### 3. Configuration
+
+```tsx
+// ✅ Good - complete configuration
+<AdaptlyProvider
+  apiKey={apiKey}
+  provider="google"
+  model="gemini-2.0-flash-exp"
+  components={components}
+  adaptlyConfig={adaptlyConfig}
+  enableStorage={true}
+  storageKey="my-app"
+  storageVersion="1.0.0"
+/>
+
+// ❌ Avoid - missing required props
+<AdaptlyProvider
+  apiKey={apiKey}
+  components={components}
+  // Missing adaptlyConfig
+/>
+```
+
+## Related Documentation
+
+- **[Hooks API](../api/hooks)** - useAdaptiveUI hook documentation
+- **[Services API](../api/services)** - Service documentation
+- **[Types API](../api/types)** - TypeScript interfaces
 
 ---
 
-Ready to learn about hooks? Check out the [Hooks API](hooks)!
+**Ready for hooks documentation?** Check out the [Hooks API](../api/hooks) for complete documentation of the useAdaptiveUI hook and other React hooks!

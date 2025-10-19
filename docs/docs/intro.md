@@ -1,122 +1,175 @@
 ---
 sidebar_position: 1
+title: Introduction
+description: Learn what Adaptly is and how it brings AI-powered adaptive UI to your React applications
 ---
 
-# Welcome to Adaptly
+# What is Adaptly?
 
-Build intelligent, adaptive user interfaces with AI-powered component generation and natural language commands.
+Adaptly is an AI-powered adaptive UI library that lets your React applications understand natural language and automatically rearrange components based on user intent. With a simple `⌘K` command, users can describe what they want to see, and Adaptly uses Large Language Models (LLMs) to dynamically recompose your interface using your existing components.
+
+## 🎯 The Problem Adaptly Solves
+
+Traditional dashboards and applications require users to:
+
+- Navigate through complex menus to find features
+- Manually configure layouts and filters
+- Learn specific UI patterns and workflows
+- Constantly switch between different views
+
+**Adaptly changes this by letting users simply say what they want:**
+
+> "Show me sales data for this quarter"  
+> "Create a dashboard with revenue metrics"  
+> "Add charts and filter by this week"
+
+The AI understands the intent and automatically:
+
+- Selects the right components from your registry
+- Arranges them in an optimal layout
+- Configures props and filters
+- Updates the UI in real-time
+
+## 🚀 Key Features
+
+- **🤖 Multi-LLM Support:**  
+  Choose from Google Gemini, OpenAI GPT-4, or Anthropic Claude with seamless provider switching at runtime.
+
+- **💾 Persistent Storage:**  
+  Automatically saves and restores UI state across sessions with version control and migration support.
+
+- **📋 Component Registry:**  
+  Define your components in `adaptly.json` with descriptions, props, and use cases for AI understanding.
+
+- **⌨️ Built-in Command Interface:**  
+  Press `⌘K` to open the command bar with AI suggestions and natural language input.
+
+- **🔍 Smart Data Filtering:**  
+  LLM can filter and configure existing data without passing new data - perfect for security and performance.
+
+- **🔧 TypeScript First:**  
+  Full type safety with comprehensive interfaces and IntelliSense support.
+
+- **⚡ Next.js Ready:**  
+  Seamless integration with App Router and React 19+ support.
+
+## 🏗️ How It Works
+
+```mermaid
+graph TD
+    A[User presses ⌘K] --> B[Natural language input]
+    B --> C[LLM processes request]
+    C --> D[Analyzes available components]
+    D --> E[Generates layout plan]
+    E --> F[Validates components]
+    F --> G[Updates UI]
+    G --> H[Auto-saves to storage]
+```
+
+### 1. **Component Registry**
+
+You define your components in `adaptly.json` with descriptions, props, and use cases:
+
+```json
+{
+  "version": "1.0.0",
+  "components": {
+    "MetricCard": {
+      "description": "Display key performance indicators with values, trends, and progress bars",
+      "props": {
+        "title": { "type": "string", "required": true },
+        "value": { "type": "string", "required": true },
+        "change": { "type": "string", "required": false }
+      },
+      "useCases": ["revenue tracking", "user metrics", "KPI display"],
+      "space": { "min": [2, 1], "max": [3, 2], "preferred": [2, 1] }
+    }
+  }
+}
+```
+
+### 2. **AI Processing**
+
+When a user says "Show me revenue metrics", the LLM:
+
+- Analyzes the request against your component registry
+- Selects appropriate components (MetricCard)
+- Generates props and layout configuration
+- Returns a structured plan
+
+### 3. **Dynamic Rendering**
+
+Adaptly renders the components using your actual React components:
+
+```tsx
+<AdaptlyProvider
+  apiKey="your-api-key"
+  provider="google"
+  model="gemini-2.0-flash-exp"
+  components={{ MetricCard, SalesChart, TeamMembers }}
+  adaptlyConfig={adaptlyConfig}
+  enableStorage={true}
+/>
+```
+
+### 4. **Persistent State**
+
+All changes are automatically saved to localStorage and restored on page reload.
+
+## 🎯 Real-World Use Cases
+
+### Dashboard Applications
+
+- **Analytics Dashboards**: "Show me user engagement metrics for this month"
+- **Business Intelligence**: "Create a sales performance dashboard"
+- **Monitoring Systems**: "Display server health and alerts"
+
+### Content Management
+
+- **Admin Panels**: "Show me recent user registrations and activity"
+- **E-commerce**: "Display order analytics and inventory status"
+- **Project Management**: "Create a team productivity overview"
+
+### Data Visualization
+
+- **Financial Reports**: "Show me quarterly revenue and expenses"
+- **Marketing Analytics**: "Display campaign performance metrics"
+- **Operational Dashboards**: "Create a system status overview"
 
 ## 🚀 Quick Start
 
-Get up and running in 5 minutes with a complete working demo:
+Ready to get started? Follow our [Quick Start Guide](quick-start) to set up Adaptly in 5 minutes with a working example.
 
-```bash
-# 1. Create a new Next.js project
-npx create-next-app@latest my-adaptly-demo --typescript --tailwind --eslint
-cd my-adaptly-demo
+### For Beginners
 
-# 2. Install Adaptly
-npm install adaptly
+- [Quick Start Guide](quick-start) - Get up and running in 5 minutes
+- [Component Registry Guide](component-registry) - Learn to configure your components
+- [LLM Providers Guide](llm-providers) - Set up AI providers
 
-# 3. Set up shadcn/ui
-npx shadcn@latest init
-npx shadcn@latest add card button command
+### For Advanced Users
 
-# 4. Set up your API key
-echo "NEXT_PUBLIC_GOOGLE_GENERATIVE_AI_API_KEY=your_api_key_here" > .env.local
+- [Advanced Features Guide](advanced-features) - Custom loaders, validation, and hooks
+- [Storage Service Guide](storage-service) - Persistent state management
+- [API Reference](api/core-components) - Complete component documentation
 
-# 5. Follow the complete tutorial
-```
+## 🔗 Example Applications
 
-**[📖 Complete Quick Start Guide →](quick-start)**
+See Adaptly in action with our complete demo application:
 
-## ✨ Key Features
+- **[Adaptly Demo](https://github.com/gauravfs-14/adaptly/tree/main/examples/adaptly-demo)** - Full-featured dashboard with 10+ components
+- **[Component Examples](https://github.com/gauravfs-14/adaptly/tree/main/examples/adaptly-demo/src/components)** - Real React components you can use
+- **[Configuration Examples](https://github.com/gauravfs-14/adaptly/tree/main/examples/adaptly-demo/adaptly.json)** - Complete `adaptly.json` setup
 
-- **🤖 AI-Powered UI Generation**: Natural language to UI layout conversion
-- **🔄 Multi-LLM Support**: Google Gemini, OpenAI GPT, Anthropic Claude
-- **💾 Persistent Storage**: Automatic state management with version control
-- **📋 Component Registry**: JSON-based component configuration
-- **⌨️ Command Interface**: Built-in `⌘K` command bar with AI suggestions
-- **🎨 Adaptive Layouts**: Dynamic grid systems that respond to user input
-- **🔧 TypeScript Support**: Full type safety and IntelliSense
-- **📱 Next.js Ready**: Seamless integration with App Router
+## 🤝 Community & Support
 
-## 🏗️ Architecture Overview
-
-```
-Your App
-└── AdaptlyProvider (Main Provider)
-    ├── AdaptiveLayout (Renders components dynamically)
-    ├── AdaptiveCommand (⌘K command interface)
-    ├── LoadingOverlay (AI processing indicator)
-    └── StorageService (Persistent state management)
-```
-
-### Core Components
-
-1. **AdaptlyProvider**: Main provider that wraps your app
-2. **AdaptiveLayout**: Renders components in AI-driven layouts
-3. **AdaptiveCommand**: Built-in command bar with AI suggestions
-4. **LoadingOverlay**: Visual feedback during AI processing
-5. **StorageService**: Manages persistent UI state
-6. **EnhancedLLMService**: Multi-provider AI integration
-
-## 🎯 What is Adaptly?
-
-Adaptly is a TypeScript-first library that brings AI intelligence to your React applications. It allows users to describe what they want in plain English, and the AI dynamically recomposes your UI using your existing components.
-
-## 📖 How It Works
-
-1. **Configure Components**: Define your components in `adaptly.json`
-2. **Register Components**: Pass your React components to AdaptlyProvider
-3. **User Interaction**: Users press `⌘K` and describe what they want
-4. **AI Processing**: LLM analyzes the request and generates a layout plan
-5. **Dynamic Rendering**: AdaptiveLayout renders the new UI configuration
-6. **State Persistence**: Changes are automatically saved and restored
-
-## 🎨 Component Registry
-
-The heart of Adaptly is the component registry defined in `adaptly.json`. This file tells the AI about your components. For detailed configuration, see the [Component Registry Guide](component-registry).
-
-## 🔧 LLM Integration
-
-Adaptly supports multiple AI providers with model selection. For detailed setup instructions, see the [LLM Providers Guide](llm-providers).
-
-- **Google Gemini**: `gemini-2.0-flash-exp`, `gemini-1.5-pro`
-- **OpenAI GPT**: `gpt-4o`, `gpt-4-turbo`, `gpt-3.5-turbo`
-- **Anthropic Claude**: `claude-3-5-sonnet-20241022`, `claude-3-opus-20240229`
-
-## 💾 Storage & Persistence
-
-Adaptly automatically saves and restores your UI state. For detailed configuration, see the [Storage Service Guide](storage-service).
-
-- **localStorage Integration**: Automatic state persistence
-- **Version Control**: Handles configuration changes gracefully
-- **Manual Controls**: Save, load, and clear storage programmatically
-
-## 🎯 Use Cases
-
-- **Dashboard Applications**: Dynamic business intelligence dashboards
-- **Admin Panels**: Configurable admin interfaces
-- **Analytics Tools**: Adaptive data visualization
-- **Content Management**: Dynamic content layouts
-- **Prototyping**: Rapid UI iteration and testing
-
-## 🤝 Contributing
-
-We welcome contributions! Please see our [Contributing Guidelines](https://github.com/gauravfs-14/adaptly/blob/main/CONTRIBUTING.md) for details.
+- **GitHub Issues**: [Report bugs and request features](https://github.com/gauravfs-14/adaptly/issues)
+- **Discussions**: [Ask questions and share ideas](https://github.com/gauravfs-14/adaptly/discussions)
+- **NPM Package**: [Install from npm](https://www.npmjs.com/package/adaptly)
 
 ## 📄 License
 
-This project is licensed under the MIT License - see the [LICENSE](https://github.com/gauravfs-14/adaptly/blob/main/LICENSE) file for details.
-
-## 🆘 Support
-
-- **Documentation**: This comprehensive guide
-- **Examples**: Working examples in `/examples`
-- **Issues**: [GitHub Issues](https://github.com/gauravfs-14/adaptly/issues)
-- **Discussions**: [GitHub Discussions](https://github.com/gauravfs-14/adaptly/discussions)
+Adaptly is open source and available under the [MIT License](https://github.com/gauravfs-14/adaptly/blob/main/LICENSE).
 
 ---
 
-Ready to get started? Check out the [Quick Start Guide](quick-start) to install Adaptly and build your first adaptive UI!
+**Ready to build intelligent, adaptive UIs?** Start with our [Quick Start Guide](quick-start) and have Adaptly running in your app in just 5 minutes!

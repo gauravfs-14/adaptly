@@ -1,353 +1,785 @@
 ---
-sidebar_position: 3
+sidebar_position: 4
 title: Services API
-description: Service layer APIs for LLM providers, storage, and component registry
+description: Complete documentation of Adaptly's service layer including LLM, storage, and registry services
 ---
 
-# Services API
+# Services API Reference
 
-Adaptly provides a comprehensive service layer for managing AI-powered adaptive UI components. This API covers LLM providers, storage services, and component registries.
+This page documents all service classes available in Adaptly, including their methods, configuration, and usage examples.
 
-## LLM Service
+## EnhancedLLMService
 
-The LLM service handles communication with various language model providers.
+Service for managing AI interactions with multiple LLM providers (Google Gemini, OpenAI GPT, Anthropic Claude).
 
-### EnhancedLLMService
+### Constructor
 
 ```typescript
-import { EnhancedLLMService } from 'adaptly';
+constructor(config: LLMConfig)
+```
+
+**Parameters**:
+
+- `config`: LLM configuration object
+
+**Example**:
+
+```typescript
+import { EnhancedLLMService } from "adaptly";
 
 const llmService = new EnhancedLLMService({
-  provider: 'openai',
-  apiKey: 'your-api-key',
-  model: 'gpt-4',
+  provider: "openai",
+  apiKey: process.env.NEXT_PUBLIC_OPENAI_API_KEY!,
+  model: "gpt-4o",
+  maxTokens: 1000,
   temperature: 0.7
 });
-
-// Generate UI layout from natural language
-const layout = await llmService.generateLayout('Create a dashboard with charts');
 ```
-
-### Configuration Options
-
-- `provider`: LLM provider ('openai', 'anthropic', 'google')
-- `apiKey`: API key for the provider
-- `model`: Model name to use
-- `temperature`: Creativity level (0-1)
-- `maxTokens`: Maximum tokens to generate
 
 ### Methods
 
-#### generateLayout(prompt: string)
+#### processUserRequest
 
-Generates a UI layout from natural language description.
+**Type**: `(userInput: string, currentAdaptation: UIAdaptation, availableSpace: { width: number; height: number }, availableComponents?: string[], adaptlyConfig?: unknown) => Promise<{ success: boolean; newAdaptation?: Partial<UIAdaptation>; reasoning?: string; error?: string; }>`
+
+**Description**: Processes user input and generates UI adaptation using AI.
+
+**Parameters**:
+
+- `userInput`: Natural language input from user
+- `currentAdaptation`: Current UI adaptation state
+- `availableSpace`: Available space for components
+- `availableComponents`: Array of available component types
+- `adaptlyConfig`: Component registry configuration
+
+**Returns**: Promise with success status, new adaptation, reasoning, or error
+
+**Example**:
 
 ```typescript
-const layout = await llmService.generateLayout(
-  'Create a login form with email and password fields'
+const result = await llmService.processUserRequest(
+  "Create a sales dashboard with revenue metrics",
+  currentAdaptation,
+  { width: 6, height: 6 },
+  ["MetricCard", "SalesChart", "TeamMembers"],
+  adaptlyConfig
 );
+
+if (result.success && result.newAdaptation) {
+  console.log("AI generated layout:", result.newAdaptation);
+  console.log("Reasoning:", result.reasoning);
+} else {
+  console.error("AI processing failed:", result.error);
+}
 ```
 
-#### generateComponent(prompt: string, context?: any)
+### Provider Initialization
 
-Generates a specific component configuration.
-
-```typescript
-const component = await llmService.generateComponent(
-  'Create a primary button',
-  { theme: 'dark' }
-);
-```
-
-#### optimizeLayout(layout: any, feedback?: string)
-
-Optimizes an existing layout based on feedback.
+The service automatically initializes the appropriate provider based on configuration:
 
 ```typescript
-const optimized = await llmService.optimizeLayout(
-  currentLayout,
-  'Make it more accessible'
-);
-```
+// Google Gemini
+const googleService = new EnhancedLLMService({
+  provider: "google",
+  apiKey: "your-google-key",
+  model: "gemini-2.0-flash-exp"
+});
 
-## Storage Service
+// OpenAI GPT
+const openaiService = new EnhancedLLMService({
+  provider: "openai",
+  apiKey: "your-openai-key",
+  model: "gpt-4o"
+});
 
-The storage service provides persistent data management.
-
-### StorageService
-
-```typescript
-import { StorageService } from 'adaptly';
-
-const storage = new StorageService({
-  provider: 'localStorage',
-  prefix: 'adaptly_',
-  version: '1.0.0'
+// Anthropic Claude
+const anthropicService = new EnhancedLLMService({
+  provider: "anthropic",
+  apiKey: "your-anthropic-key",
+  model: "claude-3-5-sonnet-20241022"
 });
 ```
 
-### Configuration Options
+### Error Handling
 
-- `provider`: Storage provider ('localStorage', 'indexedDB', 'memory')
-- `prefix`: Key prefix for stored data
+```typescript
+try {
+  const result = await llmService.processUserRequest(
+    userInput,
+    currentAdaptation,
+    availableSpace,
+    availableComponents,
+    adaptlyConfig
+  );
+  
+  if (result.success) {
+    // Handle successful response
+    updateAdaptation(result.newAdaptation);
+  } else {
+    // Handle error
+    console.error("LLM processing failed:", result.error);
+  }
+} catch (error) {
+  console.error("Service error:", error);
+}
+```
+
+## StorageService
+
+Service for managing persistent storage of UI adaptations using localStorage.
+
+### Constructor
+
+```typescript
+constructor(config: StorageConfig)
+```
+
+**Parameters**:
+
+- `config`: Storage configuration object
+
+**Example**:
+
+```typescript
+import { StorageService } from "adaptly";
+
+const storageService = new StorageService({
+  enabled: true,
+  key: "my-dashboard",
+  version: "1.0.0"
+});
+```
+
+### Methods
+
+#### saveAdaptation
+
+**Type**: `(adaptation: UIAdaptation) => boolean`
+
+**Description**: Saves UI adaptation to localStorage.
+
+**Parameters**:
+
+- `adaptation`: UI adaptation object to save
+
+**Returns**: `true` if successful, `false` if failed
+
+**Example**:
+
+```typescript
+const saved = storageService.saveAdaptation(adaptation);
+if (saved) {
+  console.log("UI state saved successfully");
+} else {
+  console.log("Failed to save UI state");
+}
+```
+
+#### loadAdaptation
+
+**Type**: `() => UIAdaptation | null`
+
+**Description**: Loads UI adaptation from localStorage.
+
+**Returns**: Saved adaptation object or `null` if none exists
+
+**Example**:
+
+```typescript
+const savedAdaptation = storageService.loadAdaptation();
+if (savedAdaptation) {
+  console.log("Loaded saved state:", savedAdaptation);
+  setAdaptation(savedAdaptation);
+} else {
+  console.log("No saved state found");
+}
+```
+
+#### clearStorage
+
+**Type**: `() => boolean`
+
+**Description**: Clears all stored data from localStorage.
+
+**Returns**: `true` if successful, `false` if failed
+
+**Example**:
+
+```typescript
+const cleared = storageService.clearStorage();
+if (cleared) {
+  console.log("Storage cleared successfully");
+} else {
+  console.log("Failed to clear storage");
+}
+```
+
+#### hasStoredAdaptation
+
+**Type**: `() => boolean`
+
+**Description**: Checks if stored data exists in localStorage.
+
+**Returns**: `true` if data exists, `false` if not
+
+**Example**:
+
+```typescript
+if (storageService.hasStoredAdaptation()) {
+  console.log("Found saved data");
+} else {
+  console.log("No saved data found");
+}
+```
+
+#### getStorageInfo
+
+**Type**: `() => StorageInfo`
+
+**Description**: Gets information about stored data.
+
+**Returns**: Storage information object
+
+**Example**:
+
+```typescript
+const info = storageService.getStorageInfo();
+console.log("Storage info:", info);
+```
+
+### Storage Configuration
+
+```typescript
+interface StorageConfig {
+  enabled: boolean;
+  key: string;
+  version: string;
+}
+```
+
+**Fields**:
+
+- `enabled`: Whether storage is enabled
+- `key`: Storage key prefix
 - `version`: Data version for migration
-- `encryption`: Enable encryption for sensitive data
 
-### Methods
+### Storage Key Format
 
-#### save(key: string, data: any, options?: SaveOptions)
-
-Saves data to storage with optional metadata.
+Storage keys are created using the pattern: `{key}_{version}`
 
 ```typescript
-await storage.save('user-preferences', {
-  theme: 'dark',
-  layout: 'grid'
-}, {
-  expires: Date.now() + 86400000, // 24 hours
-  tags: ['user', 'preferences']
-});
+// Example configurations
+const config1 = { key: "dashboard", version: "1.0.0" }; // → "dashboard_1.0.0"
+const config2 = { key: "analytics", version: "2.0.0" }; // → "analytics_2.0.0"
 ```
 
-#### load(key: string, options?: LoadOptions)
+### Data Structure
 
-Loads data from storage with optional filtering.
+The service stores data in the following format:
 
 ```typescript
-const data = await storage.load('user-preferences', {
-  includeMetadata: true
-});
+interface StoredData {
+  adaptation: UIAdaptation;
+  timestamp: number;
+  version: string;
+}
 ```
 
-#### remove(key: string)
+**Example**:
 
-Removes data from storage.
-
-```typescript
-await storage.remove('user-preferences');
-```
-
-#### clear(options?: ClearOptions)
-
-Clears all stored data.
-
-```typescript
-await storage.clear({
-  pattern: 'user_*' // Only clear keys matching pattern
-});
-```
-
-#### list(options?: ListOptions)
-
-Lists stored data with optional filtering.
-
-```typescript
-const items = await storage.list({
-  pattern: 'user_*',
-  includeMetadata: true
-});
-```
-
-## Registry Service
-
-The registry service manages component definitions and configurations.
-
-### RegistryService
-
-```typescript
-import { RegistryService } from 'adaptly';
-
-const registry = new RegistryService({
-  provider: 'json',
-  source: './components.json'
-});
-```
-
-### Configuration Options
-
-- `provider`: Registry provider ('json', 'api', 'memory')
-- `source`: Source for component definitions
-- `cache`: Enable caching for better performance
-- `validation`: Enable schema validation
-
-### Methods
-
-#### registerComponent(name: string, definition: ComponentDefinition)
-
-Registers a new component definition.
-
-```typescript
-await registry.registerComponent('custom-button', {
-  type: 'button',
-  props: {
-    variant: 'primary',
-    size: 'medium'
+```json
+{
+  "adaptation": {
+    "components": [
+      {
+        "id": "metric-1",
+        "type": "MetricCard",
+        "props": { "title": "Revenue", "value": "$45,231" },
+        "position": { "x": 0, "y": 0, "w": 2, "h": 1 },
+        "visible": true
+      }
+    ],
+    "layout": "grid",
+    "spacing": 6,
+    "columns": 6
   },
-  styles: {
-    backgroundColor: '#007bff',
-    color: 'white'
-  },
-  accessibility: {
-    role: 'button',
-    ariaLabel: 'Custom button'
-  }
+  "timestamp": 1703123456789,
+  "version": "1.0.0"
+}
+```
+
+### Version Control
+
+The service automatically handles version mismatches:
+
+```typescript
+// Version 1.0.0
+const service1 = new StorageService({
+  enabled: true,
+  key: "my-app",
+  version: "1.0.0"
+});
+
+// Version 2.0.0 - old data cleared automatically
+const service2 = new StorageService({
+  enabled: true,
+  key: "my-app",
+  version: "2.0.0"
 });
 ```
 
-#### getComponent(name: string)
+## RegistryService
 
-Retrieves a component definition.
+Service for managing component registries and metadata.
+
+### Constructor
 
 ```typescript
-const component = await registry.getComponent('custom-button');
+constructor(config?: RegistryConfig)
 ```
 
-#### listComponents(filter?: ComponentFilter)
+**Parameters**:
 
-Lists all registered components.
+- `config`: Registry configuration object (optional)
 
-```typescript
-const components = await registry.listComponents({
-  type: 'button',
-  tags: ['primary']
-});
-```
-
-#### updateComponent(name: string, definition: ComponentDefinition)
-
-Updates an existing component definition.
+**Example**:
 
 ```typescript
-await registry.updateComponent('custom-button', {
-  ...existingDefinition,
-  props: {
-    ...existingDefinition.props,
-    size: 'large'
-  }
-});
-```
+import { RegistryService } from "adaptly";
 
-#### removeComponent(name: string)
-
-Removes a component definition.
-
-```typescript
-await registry.removeComponent('custom-button');
-```
-
-## Logger Service
-
-The logger service provides structured logging for debugging and monitoring.
-
-### Logger
-
-```typescript
-import { Logger } from 'adaptly';
-
-const logger = new Logger({
-  level: 'info',
-  format: 'json',
-  transports: ['console', 'file']
+const registryService = new RegistryService({
+  components: componentMetadata,
+  categories: { "metrics": "Performance Metrics" },
+  enableCaching: true,
+  maxCacheSize: 100
 });
 ```
 
 ### Methods
 
-#### log(level: LogLevel, message: string, meta?: any)
+#### registerComponent
 
-Logs a message with specified level.
+**Type**: `(name: string, definition: ComponentMetadata) => void`
+
+**Description**: Registers a new component in the registry.
+
+**Parameters**:
+
+- `name`: Component name
+- `definition`: Component metadata
+
+**Example**:
 
 ```typescript
-logger.log('info', 'Component registered', { name: 'custom-button' });
+registryService.registerComponent("MetricCard", {
+  id: "metric-card",
+  name: "Metric Card",
+  description: "Display key performance indicators",
+  category: "metrics",
+  icon: "chart",
+  tags: ["kpi", "metrics", "dashboard"],
+  gridRequirements: {
+    minWidth: 2,
+    maxWidth: 3,
+    minHeight: 1,
+    maxHeight: 2,
+    preferredWidth: 2,
+    preferredHeight: 1,
+    aspectRatio: 2,
+    responsive: {
+      mobile: { minWidth: 1, maxWidth: 2, minHeight: 1, maxHeight: 1, preferredWidth: 1, preferredHeight: 1, aspectRatio: 1 },
+      tablet: { minWidth: 2, maxWidth: 3, minHeight: 1, maxHeight: 2, preferredWidth: 2, preferredHeight: 1, aspectRatio: 2 },
+      desktop: { minWidth: 2, maxWidth: 3, minHeight: 1, maxHeight: 2, preferredWidth: 2, preferredHeight: 1, aspectRatio: 2 }
+    }
+  },
+  props: {
+    required: ["title", "value"],
+    optional: ["change", "changeType", "progress", "description"],
+    defaults: { changeType: "neutral" },
+    validation: { changeType: "positive|negative|neutral" },
+    definitions: [
+      {
+        name: "title",
+        type: "string",
+        description: "Metric title",
+        required: true
+      }
+    ]
+  },
+  examples: [
+    {
+      name: "Revenue Metric",
+      description: "Display revenue with change indicator",
+      props: { title: "Revenue", value: "$45,231", change: "+20.1%" },
+      gridPosition: { x: 0, y: 0, w: 2, h: 1 },
+      useCase: "revenue tracking"
+    }
+  ],
+  priority: "high"
+});
 ```
 
-#### info(message: string, meta?: any)
+#### getComponent
 
-Logs an info message.
+**Type**: `(name: string) => ComponentMetadata | undefined`
+
+**Description**: Retrieves component metadata by name.
+
+**Parameters**:
+
+- `name`: Component name
+
+**Returns**: Component metadata or `undefined` if not found
+
+**Example**:
 
 ```typescript
-logger.info('User action completed', { action: 'save' });
+const component = registryService.getComponent("MetricCard");
+if (component) {
+  console.log("Component found:", component.description);
+} else {
+  console.log("Component not found");
+}
 ```
 
-#### warn(message: string, meta?: any)
+#### getAllComponents
 
-Logs a warning message.
+**Type**: `() => ComponentMetadata[]`
+
+**Description**: Gets all registered components.
+
+**Returns**: Array of component metadata
+
+**Example**:
 
 ```typescript
-logger.warn('Deprecated API used', { api: 'old-method' });
+const components = registryService.getAllComponents();
+console.log("Registered components:", components.length);
 ```
 
-#### error(message: string, error?: Error, meta?: any)
+#### getComponentsByCategory
 
-Logs an error message.
+**Type**: `(category: string) => ComponentMetadata[]`
+
+**Description**: Gets components by category.
+
+**Parameters**:
+
+- `category`: Category name
+
+**Returns**: Array of components in the category
+
+**Example**:
 
 ```typescript
-logger.error('Failed to save data', error, { key: 'user-data' });
+const metricComponents = registryService.getComponentsByCategory("metrics");
+console.log("Metric components:", metricComponents.length);
+```
+
+#### getComponentsByTags
+
+**Type**: `(tags: string[]) => ComponentMetadata[]`
+
+**Description**: Gets components by tags.
+
+**Parameters**:
+
+- `tags`: Array of tag names
+
+**Returns**: Array of components matching the tags
+
+**Example**:
+
+```typescript
+const dashboardComponents = registryService.getComponentsByTags(["dashboard", "kpi"]);
+console.log("Dashboard components:", dashboardComponents.length);
+```
+
+#### getComponentsForPosition
+
+**Type**: `(availableWidth: number, availableHeight: number, screenSize?: "mobile" | "tablet" | "desktop") => ComponentMetadata[]`
+
+**Description**: Gets components that fit in the available space.
+
+**Parameters**:
+
+- `availableWidth`: Available width in grid units
+- `availableHeight`: Available height in grid units
+- `screenSize`: Screen size for responsive requirements
+
+**Returns**: Array of components that fit the space
+
+**Example**:
+
+```typescript
+const fittingComponents = registryService.getComponentsForPosition(2, 1, "desktop");
+console.log("Components that fit 2x1 space:", fittingComponents.length);
+```
+
+#### getRecommendedComponents
+
+**Type**: `(useCase: string, availableSpace: { width: number; height: number }, screenSize?: "mobile" | "tablet" | "desktop") => ComponentMetadata[]`
+
+**Description**: Gets components recommended for a specific use case.
+
+**Parameters**:
+
+- `useCase`: Use case description
+- `availableSpace`: Available space
+- `screenSize`: Screen size for responsive requirements
+
+**Returns**: Array of recommended components
+
+**Example**:
+
+```typescript
+const recommended = registryService.getRecommendedComponents(
+  "revenue tracking",
+  { width: 3, height: 2 },
+  "desktop"
+);
+console.log("Recommended components:", recommended.length);
+```
+
+#### getSuggestions
+
+**Type**: `(userInput: string, availableSpace: { width: number; height: number }, screenSize?: "mobile" | "tablet" | "desktop") => ComponentSuggestion[]`
+
+**Description**: Gets AI suggestions for components based on user input.
+
+**Parameters**:
+
+- `userInput`: User input string
+- `availableSpace`: Available space
+- `screenSize`: Screen size for responsive requirements
+
+**Returns**: Array of component suggestions
+
+**Example**:
+
+```typescript
+const suggestions = registryService.getSuggestions(
+  "Create a sales dashboard",
+  { width: 6, height: 4 },
+  "desktop"
+);
+console.log("AI suggestions:", suggestions.length);
+```
+
+## Logger
+
+Service for managing logging throughout the application.
+
+### Methods
+
+#### log
+
+**Type**: `(level: LogLevel, message: string, meta?: any) => void`
+
+**Description**: Logs a message with specified level.
+
+**Parameters**:
+
+- `level`: Log level (debug, info, warn, error)
+- `message`: Log message
+- `meta`: Additional metadata (optional)
+
+**Example**:
+
+```typescript
+import { adaptlyLogger } from "adaptly";
+
+adaptlyLogger.log("info", "Component registered", { name: "MetricCard" });
+adaptlyLogger.log("error", "Failed to save data", { error: "Storage full" });
+```
+
+#### info
+
+**Type**: `(message: string, meta?: any) => void`
+
+**Description**: Logs an info message.
+
+**Example**:
+
+```typescript
+adaptlyLogger.info("User action completed", { action: "save" });
+```
+
+#### warn
+
+**Type**: `(message: string, meta?: any) => void`
+
+**Description**: Logs a warning message.
+
+**Example**:
+
+```typescript
+adaptlyLogger.warn("Deprecated API used", { api: "old-method" });
+```
+
+#### error
+
+**Type**: `(message: string, error?: Error, meta?: any) => void`
+
+**Description**: Logs an error message.
+
+**Example**:
+
+```typescript
+adaptlyLogger.error("Failed to save data", error, { key: "user-data" });
+```
+
+#### debug
+
+**Type**: `(message: string, meta?: any) => void`
+
+**Description**: Logs a debug message.
+
+**Example**:
+
+```typescript
+adaptlyLogger.debug("Component rendered", { type: "MetricCard", props: component.props });
+```
+
+#### setConfig
+
+**Type**: `(config: { enabled: boolean; level: string }) => void`
+
+**Description**: Configures the logger.
+
+**Example**:
+
+```typescript
+adaptlyLogger.setConfig({ enabled: true, level: "debug" });
 ```
 
 ## Service Integration
 
-Services can be integrated together for comprehensive functionality:
+### Using Services Together
 
 ```typescript
 import { 
   EnhancedLLMService, 
   StorageService, 
   RegistryService,
-  Logger 
-} from 'adaptly';
+  adaptlyLogger 
+} from "adaptly";
 
 // Initialize services
-const logger = new Logger({ level: 'debug' });
-const storage = new StorageService({ provider: 'localStorage' });
-const registry = new RegistryService({ provider: 'json' });
-const llm = new EnhancedLLMService({ provider: 'openai' });
+const logger = adaptlyLogger;
+const storage = new StorageService({ 
+  enabled: true, 
+  key: "my-app", 
+  version: "1.0.0" 
+});
+const registry = new RegistryService();
+const llm = new EnhancedLLMService({
+  provider: "google",
+  apiKey: process.env.NEXT_PUBLIC_GOOGLE_GENERATIVE_AI_API_KEY!,
+  model: "gemini-2.0-flash-exp"
+});
 
 // Use services together
 const generateAndSave = async (prompt: string) => {
   try {
-    logger.info('Generating layout', { prompt });
-    const layout = await llm.generateLayout(prompt);
+    logger.info("Generating layout", { prompt });
     
-    logger.info('Saving layout', { layoutId: layout.id });
-    await storage.save(`layout_${layout.id}`, layout);
+    const availableComponents = registry.getAllComponents().map(c => c.name);
+    const result = await llm.processUserRequest(
+      prompt,
+      currentAdaptation,
+      { width: 6, height: 6 },
+      availableComponents,
+      adaptlyConfig
+    );
     
-    logger.info('Layout generated and saved successfully');
-    return layout;
+    if (result.success && result.newAdaptation) {
+      logger.info("Saving layout", { layoutId: result.newAdaptation.components?.length });
+      storage.saveAdaptation(result.newAdaptation);
+      logger.info("Layout generated and saved successfully");
+      return result.newAdaptation;
+    }
   } catch (error) {
-    logger.error('Failed to generate layout', error);
+    logger.error("Failed to generate layout", error);
     throw error;
   }
 };
 ```
 
-## Error Handling
-
-All services include comprehensive error handling:
+### Error Handling
 
 ```typescript
+// LLM Service errors
 try {
-  const result = await service.method();
+  const result = await llmService.processUserRequest(input, adaptation, space, components, config);
 } catch (error) {
-  if (error instanceof ValidationError) {
-    // Handle validation errors
-  } else if (error instanceof NetworkError) {
-    // Handle network errors
+  if (error.message.includes("API key")) {
+    console.error("Invalid API key");
+  } else if (error.message.includes("quota")) {
+    console.error("API quota exceeded");
   } else {
-    // Handle other errors
+    console.error("LLM processing failed:", error);
   }
+}
+
+// Storage Service errors
+try {
+  const saved = storageService.saveAdaptation(adaptation);
+  if (!saved) {
+    console.error("Failed to save adaptation");
+  }
+} catch (error) {
+  console.error("Storage error:", error);
+}
+
+// Registry Service errors
+try {
+  const component = registryService.getComponent("MetricCard");
+  if (!component) {
+    console.error("Component not found in registry");
+  }
+} catch (error) {
+  console.error("Registry error:", error);
 }
 ```
 
 ## Performance Optimization
 
-Services include built-in performance optimizations:
+### Service Caching
 
-- **Caching**: Automatic caching for frequently accessed data
-- **Batching**: Batch operations for better performance
-- **Lazy Loading**: Load data only when needed
-- **Connection Pooling**: Efficient connection management
+```typescript
+// Enable caching for registry service
+const registry = new RegistryService({
+  enableCaching: true,
+  maxCacheSize: 100
+});
+```
 
-## Examples
+### Lazy Loading
 
-See the [Advanced Features](/docs/advanced-features) guide for complete examples of service integration and usage patterns.
+```typescript
+// Load services only when needed
+const loadServices = async () => {
+  const { EnhancedLLMService } = await import("adaptly");
+  return new EnhancedLLMService(config);
+};
+```
+
+### Memory Management
+
+```typescript
+// Clear caches periodically
+setInterval(() => {
+  registry.clearCache();
+}, 300000); // 5 minutes
+```
+
+## Related Documentation
+
+- **[Core Components API](../api/core-components)** - Component documentation
+- **[Hooks API](../api/hooks)** - Hook documentation
+- **[Types API](../api/types)** - TypeScript interfaces
+
+---
+
+**Ready for troubleshooting?** Check out the [Troubleshooting Guide](../troubleshooting) for common issues and solutions!

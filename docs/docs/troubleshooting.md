@@ -1,820 +1,678 @@
 ---
 sidebar_position: 7
+title: Troubleshooting
+description: Common issues, error messages, and solutions for Adaptly
 ---
 
 # Troubleshooting Guide
 
-Common issues and solutions
+This guide covers common issues you might encounter when using Adaptly, along with solutions and debugging tips.
 
-This guide helps you diagnose and resolve common issues with Adaptly. If you're experiencing problems, check this guide first before seeking additional help.
+## API Key Issues
 
-## 📋 Table of Contents
+### "API key is required" Error
 
-1. [Critical Issues (v0.0.5+)](#-critical-issues-v005)
-2. [Common Issues](#-common-issues)
-3. [API Key Issues](#-api-key-issues)
-4. [Component Issues](#-component-issues)
-5. [Storage Issues](#-storage-issues)
-6. [Performance Issues](#-performance-issues)
-7. [Frequently Asked Questions](#-frequently-asked-questions)
+**Problem**: Adaptly shows "API key is required" error message.
 
-## 🚨 Critical Issues (v0.0.5+)
-
-### React Peer Dependency Issues ✅ **FIXED in v0.0.5**
-
-**Problem**: Getting peer dependency errors when installing Adaptly in Next.js 15+ applications.
-
-**Symptoms**:
-
-- `npm install adaptly` fails with peer dependency conflicts
-- "Mismatching versions of React and the renderer" errors
-- "More than one copy of React" warnings
-- Installation fails with React version conflicts
-
-**Solution**: **Update to v0.0.5+** - This issue has been completely resolved!
-
-```bash
-# Update to the latest version
-npm update adaptly
-# or
-npm install adaptly@latest
-```
-
-**What was fixed**:
-
-- ✅ React is now properly externalized instead of bundled
-- ✅ Peer dependencies support React 18+ and 19+
-- ✅ Full compatibility with Next.js 15+ and React 19+
-- ✅ No more duplicate React instances
-- ✅ Clean installation without warnings
-
-**Verification**:
-
-```bash
-# Check that React is externalized
-npm ls react
-# Should show only one React version
-```
-
-## 🚨 Common Issues
-
-### 1. Component Not Found Errors
-
-**Error**: `Component type MetricCard not found in registry`
-
-**Causes:**
-
-- Component not properly exported
-- Component not registered in AdaptlyProvider
-- Component name mismatch between code and registry
-
-**Solutions:**
-
-1. **Check component export:**
-
-```tsx
-// ✅ Correct export
-export function MetricCard(props: MetricCardProps) {
-  return <div>...</div>;
-}
-
-// ❌ Incorrect export
-export default function MetricCard(props: MetricCardProps) {
-  return <div>...</div>;
-}
-```
-
-2. **Check component registration:**
-
-```tsx
-// ✅ Correct registration
-<AdaptlyProvider
-  components={{ MetricCard, SalesChart, DataTable }}
-  // ... other props
-/>
-
-// ❌ Incorrect registration
-<AdaptlyProvider
-  components={{ metricCard: MetricCard }} // Wrong key
-  // ... other props
-/>
-```
-
-3. **Check adaptly.json configuration:**
-
-```json
-{
-  "components": {
-    "MetricCard": {  // Must match component name
-      "description": "Display key performance indicators",
-      // ... other config
-    }
-  }
-}
-```
-
-### 2. API Key Issues
-
-**Error**: `API key not found` or `Invalid API key`
-
-**Causes:**
+**Causes**:
 
 - Environment variable not set
-- Wrong environment variable name
-- Invalid API key
-- API key not accessible
+- API key not provided to AdaptlyProvider
+- Environment variable name mismatch
 
-**Solutions:**
+**Solutions**:
 
-1. **Check environment variable:**
+1. **Check environment variable name**:
 
-```bash
-# .env.local (Next.js)
-NEXT_PUBLIC_GOOGLE_GENERATIVE_AI_API_KEY=your_api_key_here
+   ```bash
+   # .env.local
+   NEXT_PUBLIC_GOOGLE_GENERATIVE_AI_API_KEY=your_api_key_here
+   ```
 
-# .env (React)
-REACT_APP_GOOGLE_GENERATIVE_AI_API_KEY=your_api_key_here
-```
+2. **Verify API key format**:
+   - Google: Starts with `AIza...`
+   - OpenAI: Starts with `sk-...`
+   - Anthropic: Starts with `sk-ant-...`
 
-2. **Verify variable name:**
+3. **Restart development server**:
+
+   ```bash
+   npm run dev
+   ```
+
+4. **Check API key in code**:
+
+   ```tsx
+   console.log("API key:", process.env.NEXT_PUBLIC_GOOGLE_GENERATIVE_AI_API_KEY);
+   ```
+
+### "Invalid API key" Error
+
+**Problem**: API key is provided but marked as invalid.
+
+**Solutions**:
+
+1. **Verify key is correct**:
+   - Check for typos
+   - Ensure key is complete
+   - Verify key hasn't expired
+
+2. **Check provider-specific requirements**:
+   - Google: Get key from [Google AI Studio](https://aistudio.google.com/)
+   - OpenAI: Get key from [OpenAI Platform](https://platform.openai.com/)
+   - Anthropic: Get key from [Anthropic Console](https://console.anthropic.com/)
+
+3. **Test key independently**:
+
+   ```bash
+   curl -H "Authorization: Bearer YOUR_API_KEY" https://api.openai.com/v1/models
+   ```
+
+### "Rate limit exceeded" Error
+
+**Problem**: API requests are being rate limited.
+
+**Solutions**:
+
+1. **Wait before retrying**:
+   - Google: 15 requests/minute (free tier)
+   - OpenAI: Varies by model and tier
+   - Anthropic: 5 requests/minute (free tier)
+
+2. **Upgrade API plan**:
+   - Check your provider's pricing
+   - Consider upgrading for higher limits
+
+3. **Switch providers temporarily**:
+
+   ```tsx
+   // Use different provider
+   <AdaptlyProvider
+     apiKey={process.env.NEXT_PUBLIC_OPENAI_API_KEY!}
+     provider="openai"
+     model="gpt-4o-mini"
+     // ... other props
+   />
+   ```
+
+## Component Issues
+
+### "Component not found" Error
+
+**Problem**: AI tries to use a component that doesn't exist.
+
+**Causes**:
+
+- Component not registered in `components` prop
+- Component name mismatch between `adaptly.json` and component registry
+- Component not exported properly
+
+**Solutions**:
+
+1. **Check component registration**:
+
+   ```tsx
+   // ✅ Correct
+   <AdaptlyProvider
+     components={{ MetricCard, SalesChart, TeamMembers }}
+     // ... other props
+   />
+   
+   // ❌ Missing component
+   <AdaptlyProvider
+     components={{ MetricCard }} // Missing SalesChart
+     // ... other props
+   />
+   ```
+
+2. **Verify component names match**:
+
+   ```json
+   // adaptly.json
+   {
+     "components": {
+       "MetricCard": { /* ... */ }  // Must match component name
+     }
+   }
+   ```
+
+3. **Check component exports**:
+
+   ```tsx
+   // ✅ Correct export
+   export function MetricCard(props) { /* ... */ }
+   
+   // ❌ Wrong export
+   export default function MetricCard(props) { /* ... */ }
+   ```
+
+### Component Not Rendering
+
+**Problem**: Component is registered but not appearing in UI.
+
+**Causes**:
+
+- Component validation failed
+- Invalid props passed to component
+- Component position outside grid bounds
+
+**Solutions**:
+
+1. **Check component validation**:
+
+   ```tsx
+   // Enable debug logging
+   import { adaptlyLogger } from "adaptly";
+   adaptlyLogger.setConfig({ enabled: true, level: "debug" });
+   ```
+
+2. **Verify component props**:
+
+   ```tsx
+   // Check if props match adaptly.json schema
+   const component = {
+     id: "metric-1",
+     type: "MetricCard",
+     props: {
+       title: "Revenue",    // Required
+       value: "$45,231"    // Required
+     },
+     position: { x: 0, y: 0, w: 2, h: 1 },
+     visible: true
+   };
+   ```
+
+3. **Check grid bounds**:
+
+   ```tsx
+   // Ensure position is within grid
+   position: { x: 0, y: 0, w: 2, h: 1 } // Within 6x6 grid
+   ```
+
+### Component Validation Errors
+
+**Problem**: Components are filtered out during validation.
+
+**Common validation failures**:
+
+1. **Missing required props**:
+
+   ```json
+   // adaptly.json
+   {
+     "props": {
+       "title": { "type": "string", "required": true },
+       "value": { "type": "string", "required": true }
+     }
+   }
+   ```
+
+   ```tsx
+   // ❌ Missing required props
+   const component = {
+     type: "MetricCard",
+     props: { title: "Revenue" } // Missing value
+   };
+   
+   // ✅ All required props
+   const component = {
+     type: "MetricCard",
+     props: { title: "Revenue", value: "$45,231" }
+   };
+   ```
+
+2. **Invalid prop types**:
+
+   ```json
+   // adaptly.json
+   {
+     "props": {
+       "progress": { "type": "number", "required": false }
+     }
+   }
+   ```
+
+   ```tsx
+   // ❌ Wrong type
+   const component = {
+     type: "MetricCard",
+     props: { progress: "75%" } // Should be number
+   };
+   
+   // ✅ Correct type
+   const component = {
+     type: "MetricCard",
+     props: { progress: 75 }
+   };
+   ```
+
+3. **Invalid allowed values**:
+
+   ```json
+   // adaptly.json
+   {
+     "props": {
+       "changeType": { 
+         "type": "string", 
+         "allowed": ["positive", "negative", "neutral"] 
+       }
+     }
+   }
+   ```
+
+   ```tsx
+   // ❌ Invalid value
+   const component = {
+     type: "MetricCard",
+     props: { changeType: "good" } // Not in allowed list
+   };
+   
+   // ✅ Valid value
+   const component = {
+     type: "MetricCard",
+     props: { changeType: "positive" }
+   };
+   ```
+
+## Storage Issues
+
+### Storage Not Persisting
+
+**Problem**: UI changes are not saved between sessions.
+
+**Causes**:
+
+- Storage disabled
+- localStorage not available
+- Storage key issues
+
+**Solutions**:
+
+1. **Check storage configuration**:
+
+   ```tsx
+   <AdaptlyProvider
+     enableStorage={true}        // Must be true
+     storageKey="my-app"        // Must be set
+     storageVersion="1.0.0"     // Must be set
+     // ... other props
+   />
+   ```
+
+2. **Check localStorage availability**:
+
+   ```tsx
+   if (typeof window !== "undefined" && window.localStorage) {
+     console.log("localStorage is available");
+   } else {
+     console.log("localStorage not available");
+   }
+   ```
+
+3. **Check storage key**:
+
+   ```tsx
+   // Check what's stored
+   const storageKey = "my-app_1.0.0";
+   const stored = localStorage.getItem(storageKey);
+   console.log("Stored data:", stored);
+   ```
+
+### Version Mismatch
+
+**Problem**: "Stored adaptation version doesn't match current version" warning.
+
+**Causes**:
+
+- Storage version changed
+- Data migration needed
+
+**Solutions**:
+
+1. **Update storage version**:
+
+   ```tsx
+   // Old version
+   <AdaptlyProvider storageVersion="1.0.0" />
+   
+   // New version - old data cleared automatically
+   <AdaptlyProvider storageVersion="2.0.0" />
+   ```
+
+2. **Manual data migration**:
+
+   ```tsx
+   const { loadFromStorage, clearStorage } = useAdaptiveUI();
+   
+   const migrateData = () => {
+     const oldData = loadFromStorage();
+     if (oldData) {
+       // Transform old data to new format
+       const newData = transformData(oldData);
+       // Save new data
+       updateAdaptation(newData);
+       // Clear old data
+       clearStorage();
+     }
+   };
+   ```
+
+### Storage Quota Exceeded
+
+**Problem**: "Storage quota exceeded" error.
+
+**Solutions**:
+
+1. **Clear old data**:
+
+   ```tsx
+   const { clearStorage } = useAdaptiveUI();
+   clearStorage();
+   ```
+
+2. **Use smaller storage keys**:
+
+   ```tsx
+   // ✅ Smaller key
+   <AdaptlyProvider storageKey="ui" />
+   
+   // ❌ Large key
+   <AdaptlyProvider storageKey="my-very-long-application-name-ui" />
+   ```
+
+3. **Implement data compression**:
+
+   ```tsx
+   // Compress data before storing
+   const compressed = JSON.stringify(adaptation);
+   localStorage.setItem(storageKey, compressed);
+   ```
+
+## LLM Issues
+
+### LLM Not Responding
+
+**Problem**: AI commands are not being processed.
+
+**Causes**:
+
+- API key issues
+- Network connectivity
+- Model availability
+- Rate limiting
+
+**Solutions**:
+
+1. **Check API key**:
+
+   ```tsx
+   console.log("API key:", process.env.NEXT_PUBLIC_GOOGLE_GENERATIVE_AI_API_KEY);
+   ```
+
+2. **Check network connectivity**:
+
+   ```tsx
+   // Test API connectivity
+   fetch("https://generativelanguage.googleapis.com/v1beta/models")
+     .then(response => console.log("Google API accessible:", response.ok))
+     .catch(error => console.error("Network error:", error));
+   ```
+
+3. **Check model availability**:
+
+   ```tsx
+   // Try different model
+   <AdaptlyProvider
+     model="gemini-1.5-flash"  // Instead of gemini-2.0-flash-exp
+     // ... other props
+   />
+   ```
+
+4. **Check rate limits**:
+
+   ```tsx
+   const { isLLMProcessing } = useAdaptiveUI();
+   
+   if (isLLMProcessing) {
+     console.log("LLM is processing, please wait");
+   }
+   ```
+
+### Poor AI Responses
+
+**Problem**: AI generates irrelevant or incorrect components.
+
+**Solutions**:
+
+1. **Improve adaptly.json descriptions**:
+
+   ```json
+   // ✅ Good description
+   {
+     "description": "Display key performance indicators with values, trends, and progress bars",
+     "useCases": ["revenue tracking", "user metrics", "performance indicators"]
+   }
+   
+   // ❌ Poor description
+   {
+     "description": "Shows data",
+     "useCases": ["metrics"]
+   }
+   ```
+
+2. **Add more use cases**:
+
+   ```json
+   {
+     "useCases": [
+       "revenue tracking",
+       "user metrics", 
+       "performance indicators",
+       "KPI display",
+       "sales data",
+       "analytics overview"
+     ]
+   }
+   ```
+
+3. **Use more specific prompts**:
+
+   ```tsx
+   // ✅ Specific prompt
+   await parseUserInputWithLLM("Create a sales dashboard with revenue metrics and user growth charts");
+   
+   // ❌ Vague prompt
+   await parseUserInputWithLLM("Make a dashboard");
+   ```
+
+## Build and Deployment Issues
+
+### Next.js Build Errors
+
+**Problem**: Build fails with Adaptly-related errors.
+
+**Solutions**:
+
+1. **Check React version compatibility**:
+
+   ```json
+   // package.json
+   {
+     "dependencies": {
+       "react": "^19.0.0",
+       "react-dom": "^19.0.0"
+     }
+   }
+   ```
+
+2. **Check TypeScript configuration**:
+
+   ```json
+   // tsconfig.json
+   {
+     "compilerOptions": {
+       "target": "ES2020",
+       "lib": ["DOM", "DOM.Iterable", "ES6"],
+       "allowJs": true,
+       "skipLibCheck": true,
+       "strict": true,
+       "forceConsistentCasingInFileNames": true,
+       "noEmit": true,
+       "esModuleInterop": true,
+       "module": "esnext",
+       "moduleResolution": "node",
+       "resolveJsonModule": true,
+       "isolatedModules": true,
+       "jsx": "preserve",
+       "incremental": true,
+       "plugins": [
+         {
+           "name": "next"
+         }
+       ]
+     }
+   }
+   ```
+
+3. **Check environment variables**:
+
+   ```bash
+   # .env.local
+   NEXT_PUBLIC_GOOGLE_GENERATIVE_AI_API_KEY=your_key_here
+   ```
+
+### React 19 Compatibility
+
+**Problem**: Issues with React 19 and Next.js 15+.
+
+**Solutions**:
+
+1. **Update to latest Adaptly version**:
+
+   ```bash
+   npm install adaptly@latest
+   ```
+
+2. **Check peer dependencies**:
+
+   ```bash
+   npm ls react react-dom
+   ```
+
+3. **Use proper React 19 patterns**:
+
+   ```tsx
+   // ✅ Correct for React 19
+   "use client";
+   
+   import { AdaptlyProvider } from "adaptly";
+   
+   export default function App() {
+     return (
+       <AdaptlyProvider
+         apiKey={process.env.NEXT_PUBLIC_GOOGLE_GENERATIVE_AI_API_KEY!}
+         components={components}
+         adaptlyConfig={adaptlyConfig}
+       />
+     );
+   }
+   ```
+
+## Debugging Tips
+
+### Enable Debug Logging
 
 ```tsx
-// ✅ Correct usage
-<AdaptlyProvider
-  apiKey={process.env.NEXT_PUBLIC_GOOGLE_GENERATIVE_AI_API_KEY!}
-  // ... other props
-/>
+import { adaptlyLogger } from "adaptly";
 
-// ❌ Incorrect usage
-<AdaptlyProvider
-  apiKey={process.env.GOOGLE_API_KEY!} // Wrong variable name
-  // ... other props
-/>
+// Enable debug logging
+adaptlyLogger.setConfig({ enabled: true, level: "debug" });
 ```
 
-3. **Test API key:**
+### Check Component Registry
 
 ```tsx
-// Test API key validity
-const testApiKey = async () => {
-  try {
-    const response = await fetch('https://generativelanguage.googleapis.com/v1beta/models', {
-      headers: {
-        'Authorization': `Bearer ${process.env.NEXT_PUBLIC_GOOGLE_GENERATIVE_AI_API_KEY}`
-      }
-    });
-    console.log('API key valid:', response.ok);
-  } catch (error) {
-    console.error('API key test failed:', error);
-  }
-};
+const { adaptation } = useAdaptiveUI();
+
+console.log("Current components:", adaptation.components);
+console.log("Layout:", adaptation.layout);
+console.log("Grid columns:", adaptation.columns);
 ```
 
-### 3. Storage Issues
-
-**Error**: `Storage not working` or `Data not persisting`
-
-**Causes:**
-
-- localStorage disabled
-- Storage quota exceeded
-- Version mismatch
-- Invalid data format
-
-**Solutions:**
-
-1. **Check localStorage availability:**
+### Check Storage Contents
 
 ```tsx
-const checkLocalStorage = () => {
-  try {
-    localStorage.setItem('test', 'test');
-    localStorage.removeItem('test');
-    console.log('localStorage is available');
-    return true;
-  } catch (error) {
-    console.error('localStorage not available:', error);
-    return false;
-  }
-};
+const storageKey = "my-app_1.0.0";
+const stored = localStorage.getItem(storageKey);
+console.log("Stored data:", JSON.parse(stored));
 ```
 
-2. **Check storage quota:**
+### Check LLM Processing
 
 ```tsx
-const checkStorageQuota = async () => {
-  if ('storage' in navigator && 'estimate' in navigator.storage) {
-    const estimate = await navigator.storage.estimate();
-    console.log('Storage quota:', estimate.quota);
-    console.log('Storage usage:', estimate.usage);
-    console.log('Available space:', estimate.quota - estimate.usage);
-  }
-};
+const { isLLMProcessing, lastLLMResponse } = useAdaptiveUI();
+
+console.log("Processing:", isLLMProcessing);
+console.log("Last response:", lastLLMResponse);
 ```
 
-3. **Handle version mismatch:**
+### Check Provider Status
 
 ```tsx
-// Clear storage on version mismatch
-const handleVersionMismatch = () => {
-  const currentVersion = '2.0.0';
-  const storedVersion = localStorage.getItem('my-app-ui_version');
-  
-  if (storedVersion && storedVersion !== currentVersion) {
-    console.log('Version mismatch detected, clearing storage');
-    localStorage.removeItem('my-app-ui_1.0.0');
-    localStorage.removeItem('my-app-ui_2.0.0');
-  }
-};
+const { currentLLMProvider } = useAdaptiveUI();
+
+console.log("Current provider:", currentLLMProvider);
 ```
 
-### 4. LLM Processing Issues
+## Common Error Messages
 
-**Error**: `LLM processing failed` or `AI not responding`
+### "adaptly.json must define at least one component"
 
-**Causes:**
+**Solution**: Ensure your `adaptly.json` has at least one component defined.
 
-- Network issues
-- API rate limits
-- Invalid model name
-- Insufficient API credits
+### "Component 'MetricCard' must have a description"
 
-**Solutions:**
+**Solution**: Add description to component in `adaptly.json`.
 
-1. **Check network connectivity:**
+### "No components defined in adaptly.json configuration"
 
-```tsx
-const checkNetwork = async () => {
-  try {
-    const response = await fetch('https://generativelanguage.googleapis.com/v1beta/models');
-    console.log('Network connectivity:', response.ok);
-  } catch (error) {
-    console.error('Network error:', error);
-  }
-};
-```
+**Solution**: Check that `adaptlyConfig` prop is passed correctly.
 
-2. **Handle rate limits:**
+### "LLM service not initialized"
 
-```tsx
-const handleRateLimit = (error: Error) => {
-  if (error.message.includes('rate limit')) {
-    console.log('Rate limit exceeded, waiting...');
-    setTimeout(() => {
-      // Retry request
-    }, 60000); // Wait 1 minute
-  }
-};
-```
+**Solution**: Check API key and provider configuration.
 
-3. **Check model availability:**
+### "Storage not available or disabled"
 
-```tsx
-const checkModelAvailability = async (provider: string, model: string) => {
-  try {
-    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}`);
-    console.log('Model available:', response.ok);
-  } catch (error) {
-    console.error('Model not available:', error);
-  }
-};
-```
+**Solution**: Check `enableStorage` prop and localStorage availability.
 
-### 5. Component Rendering Issues
+## Getting Help
 
-**Error**: `Component not rendering` or `Empty components`
+### GitHub Issues
 
-**Causes:**
+- **[Report bugs](https://github.com/gauravfs-14/adaptly/issues)**
+- **[Request features](https://github.com/gauravfs-14/adaptly/issues)**
+- **[Ask questions](https://github.com/gauravfs-14/adaptly/discussions)**
 
-- Invalid component props
-- Missing required props
-- Component validation failures
-- Empty or invalid data
+### Documentation
 
-**Solutions:**
+- **[Quick Start Guide](quick-start)** - Basic setup
+- **[Component Registry Guide](component-registry)** - Configuration
+- **[API Reference](api/core-components)** - Complete API docs
 
-1. **Validate component props:**
+### Community
 
-```tsx
-const validateComponentProps = (component: UIComponent, config: ComponentJsonConfig) => {
-  const requiredProps = Object.entries(config.props)
-    .filter(([_, propConfig]) => propConfig.required)
-    .map(([name, _]) => name);
+- **[GitHub Discussions](https://github.com/gauravfs-14/adaptly/discussions)**
+- **[NPM Package](https://www.npmjs.com/package/adaptly)**
 
-  for (const prop of requiredProps) {
-    if (!component.props[prop]) {
-      console.error(`Missing required prop: ${prop}`);
-      return false;
-    }
-  }
-  return true;
-};
-```
+## Related Documentation
 
-2. **Check component data:**
-
-```tsx
-const checkComponentData = (component: UIComponent) => {
-  if (component.type === 'MetricCard') {
-    const { title, value } = component.props;
-    if (!title || !value || value === '$0' || value === '0') {
-      console.warn('Invalid metric card data:', component.props);
-      return false;
-    }
-  }
-  return true;
-};
-```
-
-3. **Debug component rendering:**
-
-```tsx
-const debugComponentRendering = (component: UIComponent) => {
-  console.log('Rendering component:', component.type);
-  console.log('Component props:', component.props);
-  console.log('Component position:', component.position);
-  console.log('Component visible:', component.visible);
-};
-```
-
-## 🔍 Debugging Tools
-
-### 1. Enable Debug Logging
-
-```tsx
-<AdaptlyProvider
-  // ... other props
-  logging={{ enabled: true, level: 'debug' }}
-/>
-```
-
-### 2. Component Inspector
-
-```tsx
-function ComponentInspector() {
-  const { adaptation } = useAdaptiveUI();
-
-  return (
-    <div className="p-4 bg-gray-100 rounded-lg">
-      <h3 className="text-lg font-semibold mb-4">Component Inspector</h3>
-      <div className="space-y-2">
-        {adaptation.components.map(component => (
-          <div key={component.id} className="p-2 bg-white rounded border">
-            <div className="flex justify-between items-start">
-              <div>
-                <p className="font-medium">{component.type}</p>
-                <p className="text-sm text-gray-600">ID: {component.id}</p>
-                <p className="text-sm text-gray-600">
-                  Position: {component.position.x}, {component.position.y} 
-                  ({component.position.w}x{component.position.h})
-                </p>
-              </div>
-              <div className="text-sm text-gray-500">
-                {component.visible ? 'Visible' : 'Hidden'}
-              </div>
-            </div>
-            <div className="mt-2">
-              <p className="text-xs text-gray-500">Props:</p>
-              <pre className="text-xs bg-gray-50 p-2 rounded">
-                {JSON.stringify(component.props, null, 2)}
-              </pre>
-            </div>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-}
-```
-
-### 3. Storage Inspector
-
-```tsx
-function StorageInspector() {
-  const { hasStoredData, loadFromStorage } = useAdaptiveUI();
-  const [storageData, setStorageData] = useState<any>(null);
-
-  const inspectStorage = () => {
-    if (hasStoredData()) {
-      const data = loadFromStorage();
-      setStorageData(data);
-    }
-  };
-
-  return (
-    <div className="p-4 bg-gray-100 rounded-lg">
-      <h3 className="text-lg font-semibold mb-4">Storage Inspector</h3>
-      <button 
-        onClick={inspectStorage}
-        className="px-4 py-2 bg-blue-500 text-white rounded mb-4"
-      >
-        Inspect Storage
-      </button>
-      {storageData && (
-        <div className="bg-white p-4 rounded border">
-          <pre className="text-sm overflow-auto">
-            {JSON.stringify(storageData, null, 2)}
-          </pre>
-        </div>
-      )}
-    </div>
-  );
-}
-```
-
-### 4. Performance Monitor
-
-```tsx
-function PerformanceMonitor() {
-  const [metrics, setMetrics] = useState({
-    renderTime: 0,
-    componentCount: 0,
-    memoryUsage: 0
-  });
-
-  useEffect(() => {
-    const startTime = performance.now();
-    
-    // Measure render time
-    const endTime = performance.now();
-    const renderTime = endTime - startTime;
-    
-    // Measure memory usage
-    const memoryUsage = (performance as any).memory?.usedJSHeapSize || 0;
-    
-    setMetrics({
-      renderTime,
-      componentCount: document.querySelectorAll('[data-adaptly-component]').length,
-      memoryUsage
-    });
-  }, []);
-
-  return (
-    <div className="p-4 bg-gray-100 rounded-lg">
-      <h3 className="text-lg font-semibold mb-4">Performance Monitor</h3>
-      <div className="grid grid-cols-3 gap-4">
-        <div>
-          <p className="text-sm text-gray-600">Render Time</p>
-          <p className="text-lg font-semibold">{metrics.renderTime.toFixed(2)}ms</p>
-        </div>
-        <div>
-          <p className="text-sm text-gray-600">Components</p>
-          <p className="text-lg font-semibold">{metrics.componentCount}</p>
-        </div>
-        <div>
-          <p className="text-sm text-gray-600">Memory</p>
-          <p className="text-lg font-semibold">{(metrics.memoryUsage / 1024 / 1024).toFixed(2)}MB</p>
-        </div>
-      </div>
-    </div>
-  );
-}
-```
-
-## 🛠️ Common Fixes
-
-### 1. Reset to Default
-
-```tsx
-function ResetButton() {
-  const { resetToDefault, clearStorage } = useAdaptiveUI();
-
-  const handleReset = () => {
-    resetToDefault();
-    clearStorage();
-    console.log('Reset to default state');
-  };
-
-  return (
-    <button 
-      onClick={handleReset}
-      className="px-4 py-2 bg-red-500 text-white rounded"
-    >
-      Reset to Default
-    </button>
-  );
-}
-```
-
-### 2. Clear Storage
-
-```tsx
-function ClearStorageButton() {
-  const { clearStorage } = useAdaptiveUI();
-
-  const handleClear = () => {
-    const success = clearStorage();
-    if (success) {
-      console.log('Storage cleared successfully');
-    } else {
-      console.error('Failed to clear storage');
-    }
-  };
-
-  return (
-    <button 
-      onClick={handleClear}
-      className="px-4 py-2 bg-yellow-500 text-white rounded"
-    >
-      Clear Storage
-    </button>
-  );
-}
-```
-
-### 3. Reload Components
-
-```tsx
-function ReloadComponentsButton() {
-  const { loadFromStorage } = useAdaptiveUI();
-
-  const handleReload = () => {
-    const savedData = loadFromStorage();
-    if (savedData) {
-      console.log('Components reloaded from storage');
-    } else {
-      console.log('No saved data to reload');
-    }
-  };
-
-  return (
-    <button 
-      onClick={handleReload}
-      className="px-4 py-2 bg-green-500 text-white rounded"
-    >
-      Reload Components
-    </button>
-  );
-}
-```
-
-## 🚨 Error Handling
-
-### 1. Global Error Boundary
-
-```tsx
-class AdaptlyErrorBoundary extends React.Component {
-  constructor(props: any) {
-    super(props);
-    this.state = { hasError: false, error: null };
-  }
-
-  static getDerivedStateFromError(error: Error) {
-    return { hasError: true, error };
-  }
-
-  componentDidCatch(error: Error, errorInfo: any) {
-    console.error('Adaptly Error:', error, errorInfo);
-  }
-
-  render() {
-    if (this.state.hasError) {
-      return (
-        <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
-          <h3 className="text-lg font-semibold text-red-800">Something went wrong</h3>
-          <p className="text-red-600 mt-2">
-            {this.state.error?.message || 'An unexpected error occurred'}
-          </p>
-          <button 
-            onClick={() => this.setState({ hasError: false, error: null })}
-            className="mt-4 px-4 py-2 bg-red-500 text-white rounded"
-          >
-            Try Again
-          </button>
-        </div>
-      );
-    }
-
-    return this.props.children;
-  }
-}
-
-// Use with AdaptlyProvider
-<AdaptlyErrorBoundary>
-  <AdaptlyProvider
-    // ... props
-  />
-</AdaptlyErrorBoundary>
-```
-
-### 2. Error Recovery
-
-```tsx
-function ErrorRecovery() {
-  const { resetToDefault, clearStorage } = useAdaptiveUI();
-  const [error, setError] = useState<Error | null>(null);
-
-  const handleError = (error: Error) => {
-    console.error('Adaptly error:', error);
-    setError(error);
-  };
-
-  const recoverFromError = () => {
-    try {
-      resetToDefault();
-      clearStorage();
-      setError(null);
-      console.log('Recovered from error');
-    } catch (recoveryError) {
-      console.error('Recovery failed:', recoveryError);
-    }
-  };
-
-  if (error) {
-    return (
-      <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
-        <h3 className="text-lg font-semibold text-red-800">Error Detected</h3>
-        <p className="text-red-600 mt-2">{error.message}</p>
-        <button 
-          onClick={recoverFromError}
-          className="mt-4 px-4 py-2 bg-red-500 text-white rounded"
-        >
-          Recover
-        </button>
-      </div>
-    );
-  }
-
-  return null;
-}
-```
-
-## 📞 Getting Help
-
-### 1. Check Documentation
-
-- **[Quick Start Guide](quick-start)** - Setup and basic usage
-- **[Component Registry Guide](component-registry)** - Component configuration
-- **[LLM Providers Guide](llm-providers)** - AI provider issues
-- **[Storage Service Guide](storage-service)** - Storage issues
-- **[Advanced Features Guide](advanced-features)** - Advanced configurations
-
-## ❓ Frequently Asked Questions
-
-### General Questions
-
-**Q: Do I need to install React and React-DOM separately?**
-A: Yes, Adaptly requires React and React-DOM as peer dependencies. They should already be installed in your Next.js or React project.
-
-**Q: Can I use Adaptly with other UI libraries like Material-UI or Chakra UI?**
-A: Yes! Adaptly works with any React component library. Just register your components in the `components` prop of `AdaptlyProvider`.
-
-**Q: Is Adaptly compatible with React 18 and 19?**
-A: Yes, Adaptly supports both React 18 and 19. The v0.0.5+ release specifically fixes compatibility issues with React 19.
-
-### API Key Questions
-
-**Q: Do I need API keys for all providers?**
-A: No, you only need an API key for the provider you're using. Set the `provider` prop to match your API key.
-
-**Q: Which LLM provider should I use?**
-A:
-
-- **Google Gemini**: Best for beginners, generous free tier
-- **OpenAI GPT**: Most popular, excellent performance
-- **Anthropic Claude**: Great for complex reasoning tasks
-
-**Q: Can I switch providers dynamically?**
-A: Yes, you can change the `provider` and `model` props at runtime, but you'll need the corresponding API key.
-
-### Component Questions
-
-**Q: How many components can I register?**
-A: There's no hard limit, but we recommend starting with 5-10 components for better AI performance.
-
-**Q: Do my components need to be in a specific format?**
-A: Your components should accept props as defined in `adaptly.json`. The AI will pass these props when rendering.
-
-**Q: Can I use TypeScript components?**
-A: Absolutely! Adaptly is TypeScript-first and works seamlessly with TypeScript components.
-
-### Storage Questions
-
-**Q: Where is the UI state stored?**
-A: By default, state is stored in `localStorage`. You can customize this with the `storageKey` prop.
-
-**Q: Can I disable storage?**
-A: Yes, set `enableStorage={false}` to disable automatic state persistence.
-
-**Q: How do I clear saved state?**
-A: Use the `clearStorage()` method from the `useAdaptiveUI` hook, or clear localStorage manually.
-
-### 2. Debug Information
-
-When reporting issues, include:
-
-```tsx
-function DebugInfo() {
-  const { adaptation, config, currentLLMProvider } = useAdaptiveUI();
-
-  const debugInfo = {
-    version: '1.0.0',
-    components: adaptation.components.length,
-    layout: adaptation.layout,
-    llmProvider: currentLLMProvider,
-    storageEnabled: config?.storage?.enabled,
-    storageKey: config?.storage?.key,
-    storageVersion: config?.storage?.version,
-    userAgent: navigator.userAgent,
-    localStorage: typeof localStorage !== 'undefined',
-    timestamp: new Date().toISOString()
-  };
-
-  return (
-    <div className="p-4 bg-gray-100 rounded-lg">
-      <h3 className="text-lg font-semibold mb-4">Debug Information</h3>
-      <pre className="text-sm overflow-auto">
-        {JSON.stringify(debugInfo, null, 2)}
-      </pre>
-    </div>
-  );
-}
-```
-
-### 3. Community Support
-
-- **GitHub Issues**: [Report bugs and request features](https://github.com/gauravfs-14/adaptly/issues)
-- **GitHub Discussions**: [Ask questions and share ideas](https://github.com/gauravfs-14/adaptly/discussions)
-- **Documentation**: Check this comprehensive guide
-- **Examples**: Look at the demo application in `/examples`
-
-### 4. Common Solutions
-
-| Issue | Solution |
-|-------|----------|
-| Component not found | Check export and registration |
-| API key error | Verify environment variable |
-| Storage not working | Check localStorage availability |
-| AI not responding | Verify API key and model |
-| Performance issues | Enable memoization and debouncing |
-| Version conflicts | Clear storage and update version |
-
-## 🎯 Prevention
-
-### 1. Best Practices
-
-- Always validate component props
-- Use TypeScript for type safety
-- Test with different providers
-- Monitor performance metrics
-- Handle errors gracefully
-- Keep documentation updated
-
-### 2. Testing
-
-```tsx
-// Test component registration
-const testComponentRegistration = () => {
-  const components = { MetricCard, SalesChart, DataTable };
-  const componentNames = Object.keys(components);
-  console.log('Registered components:', componentNames);
-};
-
-// Test API key
-const testApiKey = async () => {
-  try {
-    const response = await fetch('https://generativelanguage.googleapis.com/v1beta/models');
-    console.log('API key test:', response.ok);
-  } catch (error) {
-    console.error('API key test failed:', error);
-  }
-};
-
-// Test storage
-const testStorage = () => {
-  try {
-    localStorage.setItem('test', 'test');
-    localStorage.removeItem('test');
-    console.log('Storage test: passed');
-  } catch (error) {
-    console.error('Storage test failed:', error);
-  }
-};
-```
-
-### 3. Monitoring
-
-```tsx
-// Monitor component changes
-useEffect(() => {
-  console.log('Components changed:', adaptation.components.length);
-}, [adaptation.components]);
-
-// Monitor AI processing
-useEffect(() => {
-  if (isLLMProcessing) {
-    console.log('AI processing started');
-  } else {
-    console.log('AI processing completed');
-  }
-}, [isLLMProcessing]);
-
-// Monitor storage
-useEffect(() => {
-  console.log('Storage status:', hasStoredData());
-}, [hasStoredData]);
-```
+- **[Quick Start Guide](quick-start)** - Basic setup and troubleshooting
+- **[Component Registry Guide](component-registry)** - Configuration issues
+- **[LLM Providers Guide](llm-providers)** - API key and provider issues
+- **[Storage Service Guide](storage-service)** - Persistence issues
+- **[Advanced Features Guide](advanced-features)** - Advanced troubleshooting
 
 ---
 
-Still having issues? Check out the [GitHub Issues](https://github.com/gauravfs-14/adaptly/issues) or [GitHub Discussions](https://github.com/gauravfs-14/adaptly/discussions) for community support!
+**Still having issues?** Check out our [GitHub Issues](https://github.com/gauravfs-14/adaptly/issues) or [Discussions](https://github.com/gauravfs-14/adaptly/discussions) for community support!

@@ -1,771 +1,571 @@
 ---
 sidebar_position: 6
+title: Advanced Features
+description: Custom loaders, component validation, command bar customization, and advanced hooks usage
 ---
 
-# Advanced Features
+# Advanced Features Guide
 
-Custom loaders, advanced configurations
+This guide covers advanced Adaptly features for power users, including custom loaders, component validation, command bar customization, and advanced hooks usage.
 
-This guide covers advanced features and configurations for Adaptly, including custom loaders, advanced storage, multi-provider setups, and performance optimizations.
+## Custom Loaders
 
-## 🎨 Custom Loaders
+### Default Loading Overlay
 
-### Creating Custom Loaders
-
-Create a custom loading component for AI processing:
+Adaptly includes a built-in loading overlay that appears during AI processing:
 
 ```tsx
-import { CustomLoaderProps } from 'adaptly';
-
-function MyCustomLoader({ isVisible, message, subMessage }: CustomLoaderProps) {
-  if (!isVisible) return null;
-
-  return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white p-8 rounded-lg shadow-xl text-center max-w-md">
-        <div className="relative">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
-          <div className="absolute inset-0 flex items-center justify-center">
-            <div className="w-6 h-6 bg-blue-500 rounded-full animate-pulse"></div>
-          </div>
-        </div>
-        <h3 className="text-xl font-semibold mb-2 text-gray-900">{message}</h3>
-        <p className="text-gray-600 mb-4">{subMessage}</p>
-        <div className="flex justify-center space-x-1">
-          <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce"></div>
-          <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
-          <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-// Use with AdaptlyProvider
 <AdaptlyProvider
   // ... other props
-  customLoader={MyCustomLoader}
+  // Loading overlay is enabled by default
 />
 ```
 
-### Advanced Loader with Progress
+### Custom Loader Component
+
+Create your own loading overlay with the `customLoader` prop:
 
 ```tsx
-function ProgressLoader({ isVisible, message, subMessage }: CustomLoaderProps) {
-  const [progress, setProgress] = useState(0);
-
-  useEffect(() => {
-    if (isVisible) {
-      const interval = setInterval(() => {
-        setProgress(prev => {
-          if (prev >= 100) return 0;
-          return prev + 10;
-        });
-      }, 200);
-
-      return () => clearInterval(interval);
-    }
-  }, [isVisible]);
-
+// Custom loader component
+function MyCustomLoader({ isVisible, message, subMessage }) {
   if (!isVisible) return null;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white p-8 rounded-lg shadow-xl text-center max-w-md">
-        <div className="mb-4">
-          <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
-            <div className="w-8 h-8 bg-blue-500 rounded-full animate-pulse"></div>
-          </div>
-          <h3 className="text-xl font-semibold mb-2 text-gray-900">{message}</h3>
-          <p className="text-gray-600 mb-4">{subMessage}</p>
-        </div>
-        
-        <div className="w-full bg-gray-200 rounded-full h-2 mb-4">
-          <div 
-            className="bg-blue-500 h-2 rounded-full transition-all duration-300"
-            style={{ width: `${progress}%` }}
-          />
-        </div>
-        
-        <p className="text-sm text-gray-500">{progress}% complete</p>
-      </div>
-    </div>
-  );
-}
-```
-
-## 🔄 Multi-Provider Setup
-
-### Dynamic Provider Switching
-
-```tsx
-"use client";
-
-import { useState, useEffect } from 'react';
-import { AdaptlyProvider } from 'adaptly';
-
-function MultiProviderDashboard() {
-  const [provider, setProvider] = useState<'google' | 'openai' | 'anthropic'>('google');
-  const [model, setModel] = useState('gemini-2.0-flash-exp');
-  const [isLoading, setIsLoading] = useState(false);
-
-  const getApiKey = () => {
-    switch (provider) {
-      case 'google':
-        return process.env.NEXT_PUBLIC_GOOGLE_GENERATIVE_AI_API_KEY!;
-      case 'openai':
-        return process.env.NEXT_PUBLIC_OPENAI_API_KEY!;
-      case 'anthropic':
-        return process.env.NEXT_PUBLIC_ANTHROPIC_API_KEY!;
-      default:
-        return '';
-    }
-  };
-
-  const getModelOptions = () => {
-    switch (provider) {
-      case 'google':
-        return [
-          { value: 'gemini-2.0-flash-exp', label: 'Gemini 2.0 Flash (Experimental)' },
-          { value: 'gemini-2.0-flash', label: 'Gemini 2.0 Flash' },
-          { value: 'gemini-1.5-pro', label: 'Gemini 1.5 Pro' },
-          { value: 'gemini-1.5-flash', label: 'Gemini 1.5 Flash' }
-        ];
-      case 'openai':
-        return [
-          { value: 'gpt-4o', label: 'GPT-4o' },
-          { value: 'gpt-4o-mini', label: 'GPT-4o Mini' },
-          { value: 'gpt-4-turbo', label: 'GPT-4 Turbo' },
-          { value: 'gpt-3.5-turbo', label: 'GPT-3.5 Turbo' }
-        ];
-      case 'anthropic':
-        return [
-          { value: 'claude-3-5-sonnet-20241022', label: 'Claude 3.5 Sonnet' },
-          { value: 'claude-3-5-haiku-20241022', label: 'Claude 3.5 Haiku' },
-          { value: 'claude-3-opus-20240229', label: 'Claude 3 Opus' }
-        ];
-      default:
-        return [];
-    }
-  };
-
-  const handleProviderChange = (newProvider: string) => {
-    setProvider(newProvider as any);
-    const options = getModelOptions();
-    if (options.length > 0) {
-      setModel(options[0].value);
-    }
-  };
-
-  return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Provider Selection */}
-      <div className="bg-white border-b p-4">
-        <div className="max-w-7xl mx-auto flex items-center justify-between">
-          <h1 className="text-2xl font-bold">Adaptive Dashboard</h1>
-          
-          <div className="flex items-center space-x-4">
-            <select 
-              value={provider} 
-              onChange={(e) => handleProviderChange(e.target.value)}
-              className="px-3 py-2 border border-gray-300 rounded-md"
-            >
-              <option value="google">Google Gemini</option>
-              <option value="openai">OpenAI GPT</option>
-              <option value="anthropic">Anthropic Claude</option>
-            </select>
-            
-            <select 
-              value={model} 
-              onChange={(e) => setModel(e.target.value)}
-              className="px-3 py-2 border border-gray-300 rounded-md"
-            >
-              {getModelOptions().map((option) => (
-                <option key={option.value} value={option.value}>
-                  {option.label}
-                </option>
-              ))}
-            </select>
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+      <div className="bg-white dark:bg-gray-800 p-8 rounded-lg shadow-lg max-w-md">
+        <div className="flex items-center space-x-4">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+          <div>
+            <h3 className="text-lg font-semibold">{message}</h3>
+            <p className="text-gray-600 dark:text-gray-400">{subMessage}</p>
           </div>
         </div>
       </div>
-
-      {/* AdaptlyProvider */}
-      <AdaptlyProvider
-        apiKey={getApiKey()}
-        provider={provider}
-        model={model}
-        components={{
-          MetricCard,
-          SalesChart,
-          DataTable,
-        }}
-        adaptlyConfig={adaptlyConfig}
-        enableStorage={true}
-        storageKey={`dashboard-${provider}`}
-        storageVersion="1.0.0"
-        className="h-full"
-      />
     </div>
   );
 }
+
+// Use custom loader
+<AdaptlyProvider
+  customLoader={MyCustomLoader}
+  // ... other props
+/>
 ```
 
-### Provider Performance Monitoring
+### Loader Configuration
+
+Customize the loading overlay behavior:
 
 ```tsx
-function ProviderPerformanceMonitor() {
-  const [performance, setPerformance] = useState<Record<string, any>>({});
-  const { currentLLMProvider } = useAdaptiveUI();
+<AdaptlyProvider
+  // ... other props
+  // These props are passed to your custom loader
+  loadingOverlay={{
+    enabled: true,
+    message: "AI is generating your layout...",
+    subMessage: "Creating components and arranging them for you"
+  }}
+/>
+```
 
-  const trackPerformance = async (provider: string, request: string) => {
-    const startTime = Date.now();
-    
-    try {
-      // Make request and measure performance
-      const endTime = Date.now();
-      const responseTime = endTime - startTime;
-      
-      setPerformance(prev => ({
-        ...prev,
-        [provider]: {
-          ...prev[provider],
-          responseTime,
-          requestCount: (prev[provider]?.requestCount || 0) + 1,
-          lastRequest: new Date().toISOString()
-        }
-      }));
-    } catch (error) {
-      console.error('Performance tracking error:', error);
+## Component Validation
+
+### Automatic Validation
+
+Adaptly automatically validates components against your `adaptly.json` schema:
+
+```json
+{
+  "components": {
+    "MetricCard": {
+      "description": "Display key performance indicators",
+      "props": {
+        "title": { "type": "string", "required": true },
+        "value": { "type": "string", "required": true },
+        "change": { "type": "string", "required": false }
+      },
+      "useCases": ["revenue tracking", "user metrics"],
+      "space": { "min": [2, 1], "max": [3, 2], "preferred": [2, 1] }
     }
-  };
-
-  return (
-    <div className="p-4 bg-gray-100 rounded-lg">
-      <h3 className="text-lg font-semibold mb-4">Provider Performance</h3>
-      <div className="space-y-2">
-        {Object.entries(performance).map(([provider, stats]) => (
-          <div key={provider} className="flex justify-between items-center p-2 bg-white rounded">
-            <span className="font-medium">{provider}</span>
-            <div className="text-sm text-gray-600">
-              <span>Avg: {stats.responseTime}ms</span>
-              <span className="ml-2">Requests: {stats.requestCount}</span>
-            </div>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
+  }
 }
 ```
 
-## 💾 Advanced Storage
+### Validation Rules
 
-### Custom Storage Service
+**Required Props:**
 
 ```tsx
-import { StorageService } from 'adaptly';
+// ✅ Valid - has required props
+<MetricCard title="Revenue" value="$45,231" />
 
-class CustomStorageService extends StorageService {
-  constructor(config: StorageConfig) {
-    super(config);
-  }
-
-  // Override save to add compression
-  saveAdaptation(adaptation: UIAdaptation): boolean {
-    try {
-      // Compress data before saving
-      const compressed = this.compressData(adaptation);
-      const storageKey = `${this.config.key}_${this.config.version}`;
-      
-      const dataToStore = {
-        adaptation: compressed,
-        timestamp: Date.now(),
-        version: this.config.version,
-        compressed: true
-      };
-
-      localStorage.setItem(storageKey, JSON.stringify(dataToStore));
-      return true;
-    } catch (error) {
-      console.error('Custom storage save failed:', error);
-      return false;
-    }
-  }
-
-  // Override load to handle compression
-  loadAdaptation(): UIAdaptation | null {
-    try {
-      const storageKey = `${this.config.key}_${this.config.version}`;
-      const storedData = localStorage.getItem(storageKey);
-      
-      if (!storedData) return null;
-      
-      const parsedData = JSON.parse(storedData);
-      
-      if (parsedData.compressed) {
-        // Decompress data
-        return this.decompressData(parsedData.adaptation);
-      }
-      
-      return parsedData.adaptation;
-    } catch (error) {
-      console.error('Custom storage load failed:', error);
-      return null;
-    }
-  }
-
-  private compressData(data: UIAdaptation): string {
-    // Simple compression - in production, use a proper compression library
-    return JSON.stringify(data);
-  }
-
-  private decompressData(compressed: string): UIAdaptation {
-    return JSON.parse(compressed);
-  }
-}
-
-// Use custom storage service
-const customStorage = new CustomStorageService({
-  enabled: true,
-  key: 'my-app-ui',
-  version: '1.0.0'
-});
+// ❌ Invalid - missing required props
+<MetricCard value="$45,231" /> // Missing title
 ```
 
-### Storage Analytics
+**Type Validation:**
 
 ```tsx
-function StorageAnalytics() {
-  const [analytics, setAnalytics] = useState<any>(null);
+// ✅ Valid - correct types
+<MetricCard title="Revenue" value="$45,231" progress={75} />
 
-  useEffect(() => {
-    const analyzeStorage = () => {
-      const storageKey = 'my-app-ui_1.0.0';
-      const storedData = localStorage.getItem(storageKey);
-      
-      if (storedData) {
-        const data = JSON.parse(storedData);
-        const size = new Blob([storedData]).size;
-        
-        setAnalytics({
-          size,
-          componentCount: data.adaptation.components.length,
-          lastUpdated: new Date(data.timestamp),
-          version: data.version,
-          compressionRatio: size / JSON.stringify(data.adaptation).length
-        });
-      }
-    };
-
-    analyzeStorage();
-  }, []);
-
-  if (!analytics) return null;
-
-  return (
-    <div className="p-4 bg-white rounded-lg shadow">
-      <h3 className="text-lg font-semibold mb-4">Storage Analytics</h3>
-      <div className="grid grid-cols-2 gap-4">
-        <div>
-          <p className="text-sm text-gray-600">Storage Size</p>
-          <p className="text-lg font-semibold">{analytics.size} bytes</p>
-        </div>
-        <div>
-          <p className="text-sm text-gray-600">Components</p>
-          <p className="text-lg font-semibold">{analytics.componentCount}</p>
-        </div>
-        <div>
-          <p className="text-sm text-gray-600">Last Updated</p>
-          <p className="text-sm">{analytics.lastUpdated.toLocaleString()}</p>
-        </div>
-        <div>
-          <p className="text-sm text-gray-600">Compression Ratio</p>
-          <p className="text-sm">{(analytics.compressionRatio * 100).toFixed(1)}%</p>
-        </div>
-      </div>
-    </div>
-  );
-}
+// ❌ Invalid - wrong types
+<MetricCard title="Revenue" value="$45,231" progress="75%" /> // progress should be number
 ```
 
-## 🎯 Advanced Component Configuration
-
-### Dynamic Component Registry
+**Allowed Values:**
 
 ```tsx
-function DynamicComponentRegistry() {
-  const [components, setComponents] = useState<Record<string, React.ComponentType<any>>>({});
-  const [adaptlyConfig, setAdaptlyConfig] = useState<AdaptlyJsonConfig>({
-    version: "1.0.0",
-    components: {}
-  });
+// ✅ Valid - allowed value
+<MetricCard changeType="positive" />
 
-  const addComponent = (name: string, component: React.ComponentType<any>, config: ComponentJsonConfig) => {
-    setComponents(prev => ({ ...prev, [name]: component }));
-    setAdaptlyConfig(prev => ({
-      ...prev,
-      components: { ...prev.components, [name]: config }
-    }));
-  };
-
-  const removeComponent = (name: string) => {
-    setComponents(prev => {
-      const newComponents = { ...prev };
-      delete newComponents[name];
-      return newComponents;
-    });
-    setAdaptlyConfig(prev => {
-      const newComponents = { ...prev.components };
-      delete newComponents[name];
-      return { ...prev, components: newComponents };
-    });
-  };
-
-  return (
-    <div>
-      <ComponentManager 
-        onAdd={addComponent}
-        onRemove={removeComponent}
-      />
-      
-      <AdaptlyProvider
-        apiKey={apiKey}
-        provider="google"
-        model="gemini-2.0-flash-exp"
-        components={components}
-        adaptlyConfig={adaptlyConfig}
-        enableStorage={true}
-      />
-    </div>
-  );
-}
+// ❌ Invalid - not in allowed list
+<MetricCard changeType="good" /> // Should be "positive", "negative", or "neutral"
 ```
 
-### Component Validation
+### Validation Errors
+
+Adaptly will log validation errors and filter out invalid components:
 
 ```tsx
-function ComponentValidator() {
-  const validateComponent = (component: UIComponent, config: ComponentJsonConfig): boolean => {
-    // Check required props
-    const requiredProps = Object.entries(config.props)
-      .filter(([_, propConfig]) => propConfig.required)
-      .map(([name, _]) => name);
+// Check console for validation warnings
+console.log("Component validation failed:", component);
+```
 
-    for (const prop of requiredProps) {
-      if (!component.props[prop]) {
-        console.error(`Missing required prop: ${prop}`);
-        return false;
-      }
+## Command Bar Customization
+
+### Custom AI Suggestions
+
+Override the default AI suggestions with your own:
+
+```tsx
+const customSuggestions = [
+  {
+    value: "Create a sales dashboard",
+    label: "📊 Create a sales dashboard",
+    description: "Generate a dashboard with sales metrics and charts"
+  },
+  {
+    value: "Show user analytics",
+    label: "👥 Show user analytics", 
+    description: "Display user engagement and activity metrics"
+  },
+  {
+    value: "Add revenue metrics",
+    label: "💰 Add revenue metrics",
+    description: "Include revenue tracking and financial data"
+  }
+];
+
+<AdaptlyProvider
+  aiSuggestions={customSuggestions}
+  // ... other props
+/>
+```
+
+### Command Bar Options
+
+Customize the command bar behavior:
+
+```tsx
+<AdaptlyProvider
+  showAISuggestions={true}        // Show AI suggestions
+  showUtilityCommands={true}      // Show utility commands (reset, etc.)
+  // ... other props
+/>
+```
+
+### Custom Commands
+
+Add your own utility commands:
+
+```tsx
+const { parseUserInput } = useAdaptiveUI();
+
+// Custom command handler
+const handleCustomCommand = (command: string) => {
+  switch (command) {
+    case "export data":
+      // Export current layout
+      break;
+    case "import data":
+      // Import layout from file
+      break;
+    case "share layout":
+      // Share layout with team
+      break;
+  }
+};
+
+// Use in your component
+<button onClick={() => handleCustomCommand("export data")}>
+  Export Layout
+</button>
+```
+
+## Layout Customization
+
+### Default Layout
+
+Set a default layout for your application:
+
+```tsx
+const defaultLayout = {
+  components: [
+    {
+      id: "welcome-card",
+      type: "EmptyCard",
+      props: {
+        title: "Welcome to Adaptly!",
+        description: "Press ⌘K to describe how you want your dashboard to look."
+      },
+      position: { x: 0, y: 0, w: 6, h: 2 },
+      visible: true
     }
+  ],
+  layout: "grid" as const,
+  spacing: 6,
+  columns: 6
+};
 
-    // Check prop types
-    for (const [propName, propValue] of Object.entries(component.props)) {
-      const propConfig = config.props[propName];
-      if (propConfig) {
-        const expectedType = propConfig.type;
-        const actualType = typeof propValue;
-        
-        if (expectedType === 'array' && !Array.isArray(propValue)) {
-          console.error(`Prop ${propName} should be array`);
-          return false;
-        }
-        
-        if (expectedType !== 'array' && actualType !== expectedType) {
-          console.error(`Prop ${propName} should be ${expectedType}, got ${actualType}`);
-          return false;
-        }
-      }
-    }
-
-    return true;
-  };
-
-  return null; // This is a utility function
-}
+<AdaptlyProvider
+  defaultLayout={defaultLayout}
+  // ... other props
+/>
 ```
 
-## 🚀 Performance Optimizations
+### Grid Configuration
 
-### Memoization
+Customize the grid layout:
 
 ```tsx
-import { useMemo, useCallback } from 'react';
-import { useAdaptiveUI } from 'adaptly';
+const gridConfig = {
+  components: [],
+  layout: "grid" as const,
+  spacing: 8,        // Gap between components
+  columns: 12        // Number of columns
+};
 
-function OptimizedComponent() {
+<AdaptlyProvider
+  defaultLayout={gridConfig}
+  // ... other props
+/>
+```
+
+### Layout Types
+
+Support different layout types:
+
+```tsx
+// Grid layout (default)
+const gridLayout = {
+  layout: "grid" as const,
+  columns: 6,
+  spacing: 6
+};
+
+// Flex layout
+const flexLayout = {
+  layout: "flex" as const,
+  spacing: 6
+};
+
+// Absolute layout
+const absoluteLayout = {
+  layout: "absolute" as const,
+  spacing: 6
+};
+```
+
+## Advanced Hooks Usage
+
+### useAdaptiveUI Hook
+
+Access all Adaptly functionality through the `useAdaptiveUI` hook:
+
+```tsx
+import { useAdaptiveUI } from "adaptly";
+
+function MyComponent() {
   const {
     adaptation,
+    updateAdaptation,
     addComponent,
     removeComponent,
     updateComponent,
-  } = useAdaptiveUI();
-
-  // Memoize expensive calculations
-  const componentCount = useMemo(() => {
-    return adaptation.components.length;
-  }, [adaptation.components]);
-
-  const componentTypes = useMemo(() => {
-    return [...new Set(adaptation.components.map(comp => comp.type))];
-  }, [adaptation.components]);
-
-  // Memoize callbacks
-  const handleAddComponent = useCallback((component: UIComponent) => {
-    addComponent(component);
-  }, [addComponent]);
-
-  const handleRemoveComponent = useCallback((id: string) => {
-    removeComponent(id);
-  }, [removeComponent]);
-
-  return (
-    <div>
-      <p>Total components: {componentCount}</p>
-      <p>Component types: {componentTypes.join(', ')}</p>
-    </div>
-  );
-}
-```
-
-### Debounced Updates
-
-```tsx
-import { useCallback, useRef } from 'react';
-import { useAdaptiveUI } from 'adaptly';
-
-function DebouncedComponent() {
-  const { updateComponent } = useAdaptiveUI();
-  const timeoutRef = useRef<NodeJS.Timeout>();
-
-  const debouncedUpdate = useCallback((id: string, updates: Partial<UIComponent>) => {
-    if (timeoutRef.current) {
-      clearTimeout(timeoutRef.current);
-    }
-    
-    timeoutRef.current = setTimeout(() => {
-      updateComponent(id, updates);
-    }, 300);
-  }, [updateComponent]);
-
-  return (
-    <div>
-      {/* Use debouncedUpdate instead of updateComponent */}
-    </div>
-  );
-}
-```
-
-### Virtual Scrolling
-
-```tsx
-import { useMemo } from 'react';
-import { useAdaptiveUI } from 'adaptly';
-
-function VirtualizedGrid() {
-  const { adaptation } = useAdaptiveUI();
-  
-  const visibleComponents = useMemo(() => {
-    // Implement virtual scrolling logic
-    const viewportHeight = window.innerHeight;
-    const itemHeight = 200; // Estimated component height
-    const visibleCount = Math.ceil(viewportHeight / itemHeight) + 2;
-    
-    return adaptation.components.slice(0, visibleCount);
-  }, [adaptation.components]);
-
-  return (
-    <div className="grid grid-cols-6 gap-6">
-      {visibleComponents.map(component => (
-        <ComponentRenderer key={component.id} component={component} />
-      ))}
-    </div>
-  );
-}
-```
-
-## 🔧 Custom Hooks
-
-### useAdaptiveUI with Custom Logic
-
-```tsx
-function useAdaptiveUIWithAnalytics() {
-  const adaptiveUI = useAdaptiveUI();
-  const [analytics, setAnalytics] = useState({
-    componentAdds: 0,
-    componentRemoves: 0,
-    aiRequests: 0,
-    lastActivity: null as Date | null
-  });
-
-  const addComponentWithAnalytics = useCallback((component: UIComponent) => {
-    adaptiveUI.addComponent(component);
-    setAnalytics(prev => ({
-      ...prev,
-      componentAdds: prev.componentAdds + 1,
-      lastActivity: new Date()
-    }));
-  }, [adaptiveUI]);
-
-  const removeComponentWithAnalytics = useCallback((id: string) => {
-    adaptiveUI.removeComponent(id);
-    setAnalytics(prev => ({
-      ...prev,
-      componentRemoves: prev.componentRemoves + 1,
-      lastActivity: new Date()
-    }));
-  }, [adaptiveUI]);
-
-  const parseUserInputWithAnalytics = useCallback(async (input: string) => {
-    await adaptiveUI.parseUserInputWithLLM(input);
-    setAnalytics(prev => ({
-      ...prev,
-      aiRequests: prev.aiRequests + 1,
-      lastActivity: new Date()
-    }));
-  }, [adaptiveUI]);
-
-  return {
-    ...adaptiveUI,
-    addComponent: addComponentWithAnalytics,
-    removeComponent: removeComponentWithAnalytics,
-    parseUserInputWithLLM: parseUserInputWithAnalytics,
-    analytics
-  };
-}
-```
-
-### useStorage with Custom Logic
-
-```tsx
-function useStorageWithBackup() {
-  const { saveToStorage, loadFromStorage, clearStorage } = useAdaptiveUI();
-  const [backups, setBackups] = useState<any[]>([]);
-
-  const saveWithBackup = useCallback(() => {
-    const success = saveToStorage();
-    if (success) {
-      const backup = {
-        timestamp: Date.now(),
-        data: loadFromStorage()
-      };
-      setBackups(prev => [backup, ...prev.slice(0, 4)]); // Keep last 5 backups
-    }
-    return success;
-  }, [saveToStorage, loadFromStorage]);
-
-  const restoreFromBackup = useCallback((backupIndex: number) => {
-    if (backups[backupIndex]) {
-      const backup = backups[backupIndex];
-      // Restore from backup
-      console.log('Restoring from backup:', backup);
-    }
-  }, [backups]);
-
-  return {
-    saveToStorage: saveWithBackup,
+    parseUserInput,
+    parseUserInputWithLLM,
+    resetToDefault,
+    isLLMProcessing,
+    lastLLMResponse,
+    saveToStorage,
     loadFromStorage,
     clearStorage,
-    backups,
-    restoreFromBackup
-  };
+    hasStoredData,
+    currentLLMProvider
+  } = useAdaptiveUI();
+
+  // Use any of these methods
+  return (
+    <div>
+      <p>Current provider: {currentLLMProvider}</p>
+      <p>Processing: {isLLMProcessing ? "Yes" : "No"}</p>
+      {lastLLMResponse && <p>Last response: {lastLLMResponse}</p>}
+    </div>
+  );
 }
 ```
 
-## 🎨 Advanced Styling
+### Component Management
+
+**Add Components:**
+
+```tsx
+const { addComponent } = useAdaptiveUI();
+
+const newComponent = {
+  id: "metric-1",
+  type: "MetricCard",
+  props: {
+    title: "Revenue",
+    value: "$45,231",
+    change: "+20.1%"
+  },
+  position: { x: 0, y: 0, w: 2, h: 1 },
+  visible: true
+};
+
+addComponent(newComponent);
+```
+
+**Update Components:**
+
+```tsx
+const { updateComponent } = useAdaptiveUI();
+
+// Update component props
+updateComponent("metric-1", {
+  props: {
+    title: "Updated Revenue",
+    value: "$50,000"
+  }
+});
+
+// Update component position
+updateComponent("metric-1", {
+  position: { x: 2, y: 0, w: 2, h: 1 }
+});
+```
+
+**Remove Components:**
+
+```tsx
+const { removeComponent } = useAdaptiveUI();
+
+removeComponent("metric-1");
+```
+
+### Layout Management
+
+**Update Layout:**
+
+```tsx
+const { updateAdaptation } = useAdaptiveUI();
+
+// Change layout type
+updateAdaptation({
+  layout: "flex",
+  spacing: 8
+});
+
+// Update grid columns
+updateAdaptation({
+  columns: 12,
+  spacing: 4
+});
+```
+
+### AI Processing
+
+**Basic Input Parsing:**
+
+```tsx
+const { parseUserInput } = useAdaptiveUI();
+
+// Simple commands without AI
+parseUserInput("reset to default");
+parseUserInput("switch to grid layout");
+```
+
+**LLM-Powered Parsing:**
+
+```tsx
+const { parseUserInputWithLLM } = useAdaptiveUI();
+
+// AI-powered commands
+await parseUserInputWithLLM("Create a sales dashboard with revenue metrics");
+await parseUserInputWithLLM("Add charts and filter by this week");
+```
+
+**Processing Status:**
+
+```tsx
+const { isLLMProcessing, lastLLMResponse } = useAdaptiveUI();
+
+if (isLLMProcessing) {
+  return <div>AI is thinking...</div>;
+}
+
+if (lastLLMResponse) {
+  return <div>AI response: {lastLLMResponse}</div>;
+}
+```
+
+### Storage Management
+
+**Manual Storage Control:**
+
+```tsx
+const { saveToStorage, loadFromStorage, clearStorage, hasStoredData } = useAdaptiveUI();
+
+// Save current state
+const saved = saveToStorage();
+
+// Load saved state
+const savedState = loadFromStorage();
+
+// Clear all data
+const cleared = clearStorage();
+
+// Check if data exists
+if (hasStoredData()) {
+  console.log("Found saved data");
+}
+```
+
+## Real-World Patterns
+
+### Provider Switching
+
+Implement runtime provider switching:
+
+```tsx
+const [selectedProvider, setSelectedProvider] = useState("google");
+const [selectedModel, setSelectedModel] = useState("gemini-2.0-flash-exp");
+
+const getApiKey = () => {
+  switch (selectedProvider) {
+    case "google":
+      return process.env.NEXT_PUBLIC_GOOGLE_GENERATIVE_AI_API_KEY!;
+    case "openai":
+      return process.env.NEXT_PUBLIC_OPENAI_API_KEY!;
+    case "anthropic":
+      return process.env.NEXT_PUBLIC_ANTHROPIC_API_KEY!;
+    default:
+      return "";
+  }
+};
+
+<AdaptlyProvider
+  apiKey={getApiKey()}
+  provider={selectedProvider}
+  model={selectedModel}
+  // ... other props
+/>
+```
 
 ### Theme Integration
 
-```tsx
-function ThemedAdaptlyProvider({ theme }: { theme: 'light' | 'dark' }) {
-  const themeClasses = {
-    light: 'bg-white text-gray-900',
-    dark: 'bg-gray-900 text-white'
-  };
+Integrate with theme systems:
 
-  return (
-    <div className={themeClasses[theme]}>
-      <AdaptlyProvider
-        apiKey={apiKey}
-        provider="google"
-        model="gemini-2.0-flash-exp"
-        components={components}
-        adaptlyConfig={adaptlyConfig}
-        className={`h-full ${themeClasses[theme]}`}
-      />
-    </div>
-  );
-}
+```tsx
+const { adaptation } = useAdaptiveUI();
+
+// Apply theme to components
+const themedComponents = adaptation.components.map(component => ({
+  ...component,
+  props: {
+    ...component.props,
+    theme: currentTheme,
+    darkMode: isDarkMode
+  }
+}));
 ```
 
-### Responsive Design
+### Notification Handling
+
+Handle AI responses and errors:
 
 ```tsx
-function ResponsiveAdaptlyProvider() {
-  const [screenSize, setScreenSize] = useState<'mobile' | 'tablet' | 'desktop'>('desktop');
+const { lastLLMResponse, isLLMProcessing } = useAdaptiveUI();
 
-  useEffect(() => {
-    const handleResize = () => {
-      const width = window.innerWidth;
-      if (width < 768) {
-        setScreenSize('mobile');
-      } else if (width < 1024) {
-        setScreenSize('tablet');
-      } else {
-        setScreenSize('desktop');
-      }
-    };
-
-    handleResize();
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
-
-  const getResponsiveConfig = () => {
-    switch (screenSize) {
-      case 'mobile':
-        return { columns: 2, spacing: 4 };
-      case 'tablet':
-        return { columns: 4, spacing: 5 };
-      case 'desktop':
-        return { columns: 6, spacing: 6 };
+useEffect(() => {
+  if (lastLLMResponse) {
+    if (lastLLMResponse.includes("Error:")) {
+      showErrorNotification(lastLLMResponse);
+    } else {
+      showSuccessNotification("Layout updated successfully");
     }
-  };
-
-  return (
-    <AdaptlyProvider
-      apiKey={apiKey}
-      provider="google"
-      model="gemini-2.0-flash-exp"
-      components={components}
-      adaptlyConfig={adaptlyConfig}
-      defaultLayout={{
-    components: [],
-    layout: "grid",
-    ...getResponsiveConfig()
-  }}
-      className="h-full"
-    />
-  );
-}
+  }
+}, [lastLLMResponse]);
 ```
 
-## 📚 Next Steps
+## Performance Optimization
 
-Now that you understand advanced features:
+### Component Memoization
 
-1. **Read the [Troubleshooting Guide](troubleshooting)** for common issues
-2. **Check out [API Reference](api/core-components)** for complete API documentation
-3. **See the [Demo Application](https://github.com/gauravfs-14/adaptly/tree/main/examples/adaptly-demo/)** for complete examples
-4. **Explore [Component Registry Guide](component-registry)** for advanced component configuration
+Memoize expensive components:
 
-## 🆘 Support
+```tsx
+const MemoizedMetricCard = React.memo(MetricCard);
 
-- **Documentation**: Check other guides in this documentation
-- **Examples**: Look at the demo application in `/examples`
-- **Issues**: [GitHub Issues](https://github.com/gauravfs-14/adaptly/issues)
-- **Discussions**: [GitHub Discussions](https://github.com/gauravfs-14/adaptly/discussions)
+<AdaptlyProvider
+  components={{ MetricCard: MemoizedMetricCard }}
+  // ... other props
+/>
+```
+
+### Lazy Loading
+
+Load components lazily:
+
+```tsx
+const LazyChart = React.lazy(() => import("./components/Chart"));
+
+<AdaptlyProvider
+  components={{ 
+    MetricCard,
+    Chart: LazyChart 
+  }}
+  // ... other props
+/>
+```
+
+### Storage Optimization
+
+Optimize storage usage:
+
+```tsx
+// Use smaller storage keys
+<AdaptlyProvider
+  storageKey="ui" // Instead of "my-application-ui"
+  storageVersion="1.0.0"
+  // ... other props
+/>
+```
+
+## Next Steps
+
+- **[API Reference](api/core-components)** - Complete component documentation
+- **[Troubleshooting Guide](troubleshooting)** - Common issues and solutions
+- **[Demo Application](https://github.com/gauravfs-14/adaptly/tree/main/examples/adaptly-demo)** - Full implementation examples
+
+## Example Implementations
+
+- **[Advanced Demo](https://github.com/gauravfs-14/adaptly/tree/main/examples/adaptly-demo)** - Complete feature implementation
+- **[Component Examples](https://github.com/gauravfs-14/adaptly/tree/main/examples/adaptly-demo/src/components)** - Real React components
+- **[Configuration Examples](https://github.com/gauravfs-14/adaptly/tree/main/examples/adaptly-demo/adaptly.json)** - Full adaptly.json setup
 
 ---
 
-Ready to troubleshoot issues? Check out the [Troubleshooting Guide](troubleshooting)!
+**Ready for the API reference?** Check out the [Core Components API](api/core-components) for complete documentation of all Adaptly components and their props!

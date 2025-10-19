@@ -1,25 +1,23 @@
 ---
 sidebar_position: 3
+title: Component Registry
+description: Learn how to configure your components in adaptly.json for AI understanding
 ---
 
 # Component Registry Guide
 
-Configure your components for AI understanding
+The component registry is the heart of Adaptly's AI understanding. By defining your components in `adaptly.json`, you tell the AI what components are available, how to use them, and when to suggest them.
 
-The component registry is the heart of Adaptly. It tells the AI about your components, their capabilities, and how they should be used. This guide covers everything you need to know about configuring your components for AI understanding.
+## What is adaptly.json?
 
-## 📋 Overview
-
-The component registry is defined in `adaptly.json` and serves as a bridge between your React components and the AI. It provides the AI with:
+`adaptly.json` is a configuration file that describes your components to the AI. It includes:
 
 - **Component descriptions** - What each component does
-- **Property definitions** - What props are available and their types
-- **Use cases** - When and why to use each component
+- **Props definitions** - What properties each component accepts
+- **Use cases** - When the AI should suggest each component
 - **Space requirements** - How much space each component needs
 
-## 🏗️ Registry Structure
-
-### Basic Structure
+## Basic Structure
 
 ```json
 {
@@ -27,610 +25,334 @@ The component registry is defined in `adaptly.json` and serves as a bridge betwe
   "components": {
     "ComponentName": {
       "description": "What this component does",
-      "props": {
-        "propName": {
-          "type": "string",
-          "required": true,
-          "allowed": ["option1", "option2"]
-        }
-      },
-      "useCases": ["use case 1", "use case 2"],
-      "space": {
-        "min": [2, 1],
-        "max": [4, 3],
-        "preferred": [3, 2]
-      }
+      "props": { /* prop definitions */ },
+      "useCases": ["when", "to", "use", "this"],
+      "space": { "min": [width, height], "max": [width, height], "preferred": [width, height] }
     }
   }
 }
 ```
+
+## Minimal Example
+
+Let's start with a simple MetricCard component:
+
+```json
+{
+  "version": "1.0.0",
+  "components": {
+    "MetricCard": {
+      "description": "Display key performance indicators with values, trends, and progress bars",
+      "props": {
+        "title": { "type": "string", "required": true },
+        "value": { "type": "string", "required": true },
+        "change": { "type": "string", "required": false },
+        "changeType": { 
+          "type": "string", 
+          "required": false, 
+          "allowed": ["positive", "negative", "neutral"] 
+        },
+        "progress": { "type": "number", "required": false },
+        "description": { "type": "string", "required": false }
+      },
+      "useCases": ["revenue tracking", "user metrics", "performance indicators", "KPI display"],
+      "space": { "min": [2, 1], "max": [3, 2], "preferred": [2, 1] }
+    }
+  }
+}
+```
+
+## Prop Definitions
+
+Each prop in your component needs to be defined with:
 
 ### Required Fields
 
-Every component definition must include:
+- **`type`**: The data type (`string`, `number`, `boolean`, `array`, `object`)
+- **`required`**: Whether the prop is required (`true`/`false`)
 
-- **`description`** - Human-readable description of what the component does
-- **`props`** - Object defining all available properties
-- **`useCases`** - Array of use cases where this component is appropriate
-- **`space`** - Object defining space requirements (min, max, preferred)
+### Optional Fields
 
-## 🔧 Property Configuration
-
-### Property Types
+- **`allowed`**: Array of allowed values for validation
+- **`default`**: Default value (not used by AI, for documentation)
 
 ```json
 {
-  "props": {
-    "title": {
-      "type": "string",
-      "required": true
-    },
-    "value": {
-      "type": "number",
-      "required": false
-    },
-    "isVisible": {
-      "type": "boolean",
-      "required": false
-    },
-    "items": {
-      "type": "array",
-      "required": false
-    },
-    "config": {
-      "type": "object",
-      "required": false
-    }
-  }
-}
-```
-
-### Supported Types
-
-- **`string`** - Text values
-- **`number`** - Numeric values
-- **`boolean`** - True/false values
-- **`array`** - Lists of items
-- **`object`** - Complex data structures
-
-### Property Options
-
-```json
-{
-  "status": {
-    "type": "string",
-    "required": true,
-    "allowed": ["active", "inactive", "pending"]
+  "title": { "type": "string", "required": true },
+  "value": { "type": "string", "required": true },
+  "change": { "type": "string", "required": false },
+  "changeType": { 
+    "type": "string", 
+    "required": false, 
+    "allowed": ["positive", "negative", "neutral"] 
   },
-  "priority": {
-    "type": "number",
-    "required": false,
-    "min": 1,
-    "max": 10
-  }
+  "progress": { "type": "number", "required": false },
+  "description": { "type": "string", "required": false }
 }
 ```
 
-## 📐 Space Requirements
+## Use Cases
 
-Space requirements tell the AI how much grid space each component needs:
+The `useCases` array tells the AI when to suggest each component. Use descriptive phrases that users might say:
 
 ```json
-{
-  "space": {
-    "min": [2, 1],    // Minimum width, height
-    "max": [4, 3],    // Maximum width, height
-    "preferred": [3, 2] // Preferred width, height
-  }
+"useCases": [
+  "revenue tracking",
+  "user metrics", 
+  "performance indicators",
+  "KPI display",
+  "sales data",
+  "analytics overview"
+]
+```
+
+**Good use cases:**
+
+- "revenue tracking" ✅
+- "user engagement" ✅
+- "system performance" ✅
+
+**Avoid:**
+
+- "card" ❌ (too generic)
+- "component" ❌ (not descriptive)
+- "display" ❌ (too vague)
+
+## Space Requirements
+
+Define how much space each component needs in the grid:
+
+```json
+"space": { 
+  "min": [2, 1],      // Minimum: 2 columns wide, 1 row tall
+  "max": [3, 2],      // Maximum: 3 columns wide, 2 rows tall  
+  "preferred": [2, 1] // Preferred: 2 columns wide, 1 row tall
 }
 ```
 
 ### Space Guidelines
 
-- **Minimum**: The smallest space the component can function in
-- **Maximum**: The largest space the component should occupy
-- **Preferred**: The ideal space for the component
+- **Small components** (buttons, badges): `min: [1,1], max: [2,1], preferred: [1,1]`
+- **Medium components** (cards, metrics): `min: [2,1], max: [3,2], preferred: [2,1]`
+- **Large components** (charts, tables): `min: [3,3], max: [6,4], preferred: [4,3]`
+- **Full-width components**: `min: [4,2], max: [6,4], preferred: [6,3]`
 
-### Common Space Patterns
+## Progressive Examples
 
-```json
-// Small metric card
-"space": { "min": [1, 1], "max": [2, 1], "preferred": [2, 1] }
-
-// Medium chart
-"space": { "min": [3, 2], "max": [6, 4], "preferred": [4, 3] }
-
-// Large table
-"space": { "min": [4, 3], "max": [6, 8], "preferred": [6, 6] }
-
-// Full-width component
-"space": { "min": [6, 2], "max": [6, 4], "preferred": [6, 3] }
-```
-
-## 🎯 Use Cases
-
-Use cases help the AI understand when to use each component:
+### 1. Single Component
 
 ```json
 {
-  "useCases": [
-    "revenue tracking",
-    "user metrics", 
-    "performance indicators",
-    "KPI display",
-    "dashboard summary"
-  ]
-}
-```
-
-### Effective Use Cases
-
-- **Be specific**: "revenue tracking" vs "metrics"
-- **Use common terms**: "dashboard", "analytics", "monitoring"
-- **Include synonyms**: "KPI display", "performance indicators"
-- **Think like a user**: What would someone search for?
-
-## 📝 Complete Examples
-
-### MetricCard Component
-
-```json
-{
-  "MetricCard": {
-    "description": "Display key performance indicators with values, trends, and progress bars",
-    "props": {
-      "title": {
-        "type": "string",
-        "required": true
+  "version": "1.0.0",
+  "components": {
+    "MetricCard": {
+      "description": "Display key performance indicators with values, trends, and progress bars",
+      "props": {
+        "title": { "type": "string", "required": true },
+        "value": { "type": "string", "required": true }
       },
-      "value": {
-        "type": "string",
-        "required": true
-      },
-      "change": {
-        "type": "string",
-        "required": false
-      },
-      "changeType": {
-        "type": "string",
-        "required": false,
-        "allowed": ["positive", "negative", "neutral"]
-      },
-      "progress": {
-        "type": "number",
-        "required": false
-      },
-      "description": {
-        "type": "string",
-        "required": false
-      }
-    },
-    "useCases": [
-      "revenue tracking",
-      "user metrics",
-      "performance indicators",
-      "KPI display",
-      "dashboard summary"
-    ],
-    "space": {
-      "min": [2, 1],
-      "max": [3, 2],
-      "preferred": [2, 1]
+      "useCases": ["revenue tracking", "user metrics", "KPI display"],
+      "space": { "min": [2, 1], "max": [3, 2], "preferred": [2, 1] }
     }
   }
 }
 ```
 
-### SalesChart Component
+### 2. Three Components
 
 ```json
 {
-  "SalesChart": {
-    "description": "Visualize sales data with interactive charts and graphs",
-    "props": {
-      "title": {
-        "type": "string",
-        "required": false
+  "version": "1.0.0",
+  "components": {
+    "MetricCard": {
+      "description": "Display key performance indicators with values, trends, and progress bars",
+      "props": {
+        "title": { "type": "string", "required": true },
+        "value": { "type": "string", "required": true },
+        "change": { "type": "string", "required": false }
       },
-      "description": {
-        "type": "string",
-        "required": false
-      },
-      "timeRange": {
-        "type": "string",
-        "required": false,
-        "allowed": ["7d", "30d", "90d", "1y"]
-      },
-      "metric": {
-        "type": "string",
-        "required": false,
-        "allowed": ["sales", "revenue", "profit", "orders"]
-      },
-      "category": {
-        "type": "string",
-        "required": false
-      },
-      "sortBy": {
-        "type": "string",
-        "required": false,
-        "allowed": ["date", "value", "growth"]
-      },
-      "sortOrder": {
-        "type": "string",
-        "required": false,
-        "allowed": ["asc", "desc"]
-      }
+      "useCases": ["revenue tracking", "user metrics", "KPI display"],
+      "space": { "min": [2, 1], "max": [3, 2], "preferred": [2, 1] }
     },
-    "useCases": [
-      "sales visualization",
-      "trend analysis",
-      "performance charts",
-      "revenue tracking",
-      "data visualization"
-    ],
-    "space": {
-      "min": [3, 3],
-      "max": [6, 5],
-      "preferred": [4, 4]
+    "SalesChart": {
+      "description": "Visualize sales data with interactive charts and graphs",
+      "props": {
+        "title": { "type": "string", "required": false },
+        "timeRange": { 
+          "type": "string", 
+          "required": false, 
+          "allowed": ["7d", "30d", "90d", "1y"] 
+        }
+      },
+      "useCases": ["sales visualization", "trend analysis", "performance charts"],
+      "space": { "min": [3, 3], "max": [6, 5], "preferred": [4, 4] }
+    },
+    "TeamMembers": {
+      "description": "Display team member cards with roles, avatars, and contact information",
+      "props": {
+        "title": { "type": "string", "required": false },
+        "department": { "type": "string", "required": false },
+        "limit": { "type": "number", "required": false }
+      },
+      "useCases": ["team display", "contact information", "user profiles"],
+      "space": { "min": [2, 2], "max": [4, 4], "preferred": [3, 3] }
     }
   }
 }
 ```
 
-### DataTable Component
+### 3. Full Demo Configuration
+
+For a complete example with 10+ components, see the [demo application's adaptly.json](https://github.com/gauravfs-14/adaptly/tree/main/examples/adaptly-demo/adaptly.json).
+
+## Component Naming Conventions
+
+### Good Names
+
+- `MetricCard` ✅
+- `SalesChart` ✅
+- `TeamMembers` ✅
+- `DataTable` ✅
+
+### Avoid
+
+- `Card` ❌ (too generic)
+- `Component` ❌ (not descriptive)
+- `metric-card` ❌ (use PascalCase)
+
+## Validation and Errors
+
+Adaptly validates your `adaptly.json` configuration and will show helpful error messages:
+
+### Common Validation Errors
+
+**Missing required fields:**
 
 ```json
-{
-  "DataTable": {
-    "description": "Display tabular data with filtering, sorting, and pagination",
-    "props": {
-      "title": {
-        "type": "string",
-        "required": true
-      },
-      "data": {
-        "type": "array",
-        "required": true
-      },
-      "columns": {
-        "type": "array",
-        "required": true
-      },
-      "filters": {
-        "type": "object",
-        "required": false
-      },
-      "sortBy": {
-        "type": "string",
-        "required": false
-      },
-      "sortOrder": {
-        "type": "string",
-        "required": false,
-        "allowed": ["asc", "desc"]
-      }
-    },
-    "useCases": [
-      "data display",
-      "tabular information",
-      "sortable lists",
-      "data tables",
-      "information display"
-    ],
-    "space": {
-      "min": [4, 4],
-      "max": [6, 8],
-      "preferred": [6, 6]
-    }
-  }
+// ❌ Error: Component 'MetricCard' must have a description
+"MetricCard": {
+  "props": { /* ... */ }
 }
 ```
 
-## 🎨 Advanced Configuration
-
-### Conditional Properties
+**Invalid prop types:**
 
 ```json
-{
-  "Chart": {
-    "description": "Interactive chart component with multiple chart types",
-    "props": {
-      "type": {
-        "type": "string",
-        "required": true,
-        "allowed": ["line", "bar", "pie", "area"]
-      },
-      "data": {
-        "type": "array",
-        "required": true
-      },
-      "showLegend": {
-        "type": "boolean",
-        "required": false
-      },
-      "animation": {
-        "type": "boolean",
-        "required": false
-      }
-    },
-    "useCases": [
-      "data visualization",
-      "chart display",
-      "analytics",
-      "trend analysis"
-    ],
-    "space": {
-      "min": [3, 3],
-      "max": [6, 6],
-      "preferred": [4, 4]
-    }
-  }
+// ❌ Error: Prop 'progress' must have a valid type
+"progress": { "type": "invalid", "required": false }
+```
+
+**Missing space requirements:**
+
+```json
+// ❌ Error: Component 'MetricCard' must have space requirements
+"MetricCard": {
+  "description": "Display metrics",
+  "props": { /* ... */ }
+  // Missing space field
 }
 ```
 
-### Complex Data Structures
+## Best Practices
+
+### 1. Descriptive Descriptions
 
 ```json
-{
-  "UserProfile": {
-    "description": "Display user information with avatar and contact details",
-    "props": {
-      "user": {
-        "type": "object",
-        "required": true
-      },
-      "showContact": {
-        "type": "boolean",
-        "required": false
-      },
-      "showStatus": {
-        "type": "boolean",
-        "required": false
-      }
-    },
-    "useCases": [
-      "user profiles",
-      "team members",
-      "contact information",
-      "user display"
-    ],
-    "space": {
-      "min": [2, 2],
-      "max": [3, 3],
-      "preferred": [2, 2]
-    }
-  }
-}
-```
-
-## 🔍 Best Practices
-
-### 1. Write Clear Descriptions
-
-```json
-// Good
+// ✅ Good
 "description": "Display key performance indicators with values, trends, and progress bars"
 
-// Bad
-"description": "Shows numbers"
+// ❌ Avoid
+"description": "Shows data"
 ```
 
-### 2. Use Specific Use Cases
+### 2. Comprehensive Use Cases
 
 ```json
-// Good
-"useCases": ["revenue tracking", "user metrics", "performance indicators"]
+// ✅ Good
+"useCases": [
+  "revenue tracking",
+  "user metrics", 
+  "performance indicators",
+  "KPI display",
+  "sales data",
+  "analytics overview"
+]
 
-// Bad
-"useCases": ["data", "info", "stuff"]
+// ❌ Too limited
+"useCases": ["metrics"]
 ```
 
-### 3. Define Realistic Space Requirements
+### 3. Realistic Space Requirements
 
 ```json
-// Good - realistic space requirements
+// ✅ Good - matches actual component size
 "space": { "min": [2, 1], "max": [3, 2], "preferred": [2, 1] }
 
-// Bad - unrealistic requirements
-"space": { "min": [1, 1], "max": [12, 12], "preferred": [6, 6] }
+// ❌ Too restrictive
+"space": { "min": [1, 1], "max": [1, 1], "preferred": [1, 1] }
 ```
 
-### 4. Use Meaningful Property Names
+### 4. Complete Prop Definitions
 
 ```json
-// Good
-"timeRange": { "type": "string", "allowed": ["7d", "30d", "90d"] }
-
-// Bad
-"x": { "type": "string", "allowed": ["a", "b", "c"] }
-```
-
-### 5. Provide Helpful Allowed Values
-
-```json
-// Good
-"status": {
-  "type": "string",
-  "allowed": ["active", "inactive", "pending", "archived"]
-}
-
-// Bad
-"status": {
-  "type": "string",
-  "allowed": ["a", "b", "c"]
-}
-```
-
-## 🚨 Common Mistakes
-
-### 1. Missing Required Fields
-
-```json
-// ❌ Missing description
-{
-  "MyComponent": {
-    "props": { "title": { "type": "string", "required": true } },
-    "useCases": ["display"],
-    "space": { "min": [1, 1], "max": [2, 2], "preferred": [1, 1] }
-  }
-}
-
-// ✅ Complete definition
-{
-  "MyComponent": {
-    "description": "Display component with title",
-    "props": { "title": { "type": "string", "required": true } },
-    "useCases": ["display"],
-    "space": { "min": [1, 1], "max": [2, 2], "preferred": [1, 1] }
+// ✅ Good - all props defined
+"props": {
+  "title": { "type": "string", "required": true },
+  "value": { "type": "string", "required": true },
+  "change": { "type": "string", "required": false },
+  "changeType": { 
+    "type": "string", 
+    "required": false, 
+    "allowed": ["positive", "negative", "neutral"] 
   }
 }
 ```
 
-### 2. Inconsistent Property Types
+## Testing Your Configuration
+
+1. **Validate syntax**: Use a JSON validator to check for syntax errors
+2. **Test with AI**: Try commands like "Create a dashboard" to see if components are suggested
+3. **Check console**: Look for validation warnings in the browser console
+4. **Verify props**: Ensure all required props are provided when components are created
+
+## Advanced Configuration
+
+### Custom Prop Validation
 
 ```json
-// ❌ Inconsistent types
-{
-  "props": {
-    "count": { "type": "string" },  // Should be number
-    "active": { "type": "string" }   // Should be boolean
-  }
-}
-
-// ✅ Correct types
-{
-  "props": {
-    "count": { "type": "number" },
-    "active": { "type": "boolean" }
-  }
+"changeType": { 
+  "type": "string", 
+  "required": false, 
+  "allowed": ["positive", "negative", "neutral"] 
 }
 ```
 
-### 3. Unrealistic Space Requirements
+### Complex Props
 
 ```json
-// ❌ Unrealistic space
-"space": { "min": [1, 1], "max": [12, 12], "preferred": [6, 6] }
-
-// ✅ Realistic space
-"space": { "min": [2, 1], "max": [4, 3], "preferred": [3, 2] }
+"filters": { 
+  "type": "object", 
+  "required": false 
+},
+"columns": { 
+  "type": "array", 
+  "required": true 
+}
 ```
 
-## 🧪 Testing Your Registry
+## Next Steps
 
-### 1. Validation
+- **[LLM Providers Guide](llm-providers)** - Set up AI providers
+- **[Storage Service Guide](storage-service)** - Configure persistence
+- **[Advanced Features Guide](advanced-features)** - Custom validation and loaders
+- **[API Reference](api/core-components)** - Complete component documentation
 
-Adaptly automatically validates your registry. Check the browser console for validation errors:
+## Example Configurations
 
-```bash
-# Common validation errors
-"Component 'MyComponent' must have a description"
-"Component 'MyComponent' must have props defined"
-"Component 'MyComponent' must have useCases array"
-"Component 'MyComponent' must have space requirements"
-```
-
-### 2. Testing with AI
-
-1. **Press `⌘K`** to open the command interface
-2. **Try commands** that should use your components:
-   - "Add a metric card"
-   - "Show me some charts"
-   - "Create a data table"
-3. **Verify** that the AI selects the right components
-
-### 3. Debug Mode
-
-Enable debug logging to see how the AI processes your registry:
-
-```tsx
-<AdaptlyProvider
-  // ... other props
-  logging={{ enabled: true, level: "debug" }}
-/>
-```
-
-## 🔄 Registry Updates
-
-### Adding New Components
-
-1. **Create the component** in your codebase
-2. **Add to registry** in `adaptly.json`
-3. **Register in AdaptlyProvider**:
-
-```tsx
-components={{
-  MetricCard,
-  SalesChart,
-  DataTable,
-  NewComponent, // Add your new component
-}}
-```
-
-### Updating Existing Components
-
-1. **Update the registry** in `adaptly.json`
-2. **Update your component** if needed
-3. **Test with AI** to ensure it still works
-
-### Removing Components
-
-1. **Remove from registry** in `adaptly.json`
-2. **Remove from AdaptlyProvider**:
-
-```tsx
-components={{
-  MetricCard,
-  SalesChart,
-  // DataTable removed
-}}
-```
-
-## 📚 Next Steps
-
-Now that you understand the component registry:
-
-1. **Read the [LLM Providers Guide](llm-providers)** to set up multiple AI providers
-2. **Explore [Storage Service Guide](storage-service)** for persistent state management
-3. **Check out [Advanced Features](advanced-features)** for custom configurations
-4. **See the [Demo Application](https://github.com/gauravfs-14/adaptly/tree/main/examples/adaptly-demo/)** for complete examples
-
-## 🆘 Troubleshooting
-
-### Registry Validation Errors
-
-**Error**: "Component 'MyComponent' must have a description"
-
-- **Solution**: Add a description field to your component definition
-
-**Error**: "Component 'MyComponent' must have props defined"
-
-- **Solution**: Add a props object with at least one property
-
-**Error**: "Component 'MyComponent' must have useCases array"
-
-- **Solution**: Add a useCases array with at least one use case
-
-**Error**: "Component 'MyComponent' must have space requirements"
-
-- **Solution**: Add space object with min, max, and preferred arrays
-
-### AI Not Selecting Components
-
-**Issue**: AI not using your components
-
-- **Solution**: Check that use cases match what users are asking for
-- **Solution**: Ensure descriptions are clear and specific
-- **Solution**: Verify space requirements are realistic
-
-### Component Not Rendering
-
-**Issue**: Component appears in AI response but doesn't render
-
-- **Solution**: Check that component is properly exported
-- **Solution**: Verify component is registered in AdaptlyProvider
-- **Solution**: Ensure component props match the registry definition
+- **[Minimal Setup](https://github.com/gauravfs-14/adaptly/tree/main/examples/adaptly-demo/adaptly.json)** - 1-2 components
+- **[Full Demo](https://github.com/gauravfs-14/adaptly/tree/main/examples/adaptly-demo/adaptly.json)** - 10+ components
+- **[Component Examples](https://github.com/gauravfs-14/adaptly/tree/main/examples/adaptly-demo/src/components)** - Real React components
 
 ---
 
-Ready to set up multiple AI providers? Check out the [LLM Providers Guide](llm-providers)!
+**Ready to add more components?** Check out the [LLM Providers Guide](llm-providers) to set up multiple AI providers for even better results!

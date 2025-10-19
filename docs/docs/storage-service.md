@@ -1,191 +1,63 @@
 ---
 sidebar_position: 5
+title: Storage Service
+description: Configure persistent state management with localStorage in Adaptly
 ---
 
 # Storage Service Guide
 
-Persistent UI state management
+Adaptly automatically saves and restores your UI state across browser sessions using localStorage. This guide covers how to configure, customize, and manage persistent storage in your Adaptly applications.
 
-Adaptly's storage service provides automatic persistence of your UI state, ensuring that user customizations are saved and restored across sessions. This guide covers everything you need to know about storage configuration and management.
+## How Storage Works
 
-## 📋 Overview
+Adaptly's storage service automatically:
 
-The storage service automatically:
+- **Saves** UI changes when components are added, removed, or updated
+- **Loads** saved state when the application starts
+- **Validates** stored data against current version
+- **Migrates** data when version changes
 
-- **Saves UI state** to localStorage when changes occur
-- **Restores UI state** when the page loads
-- **Handles version control** to manage configuration changes
-- **Provides manual controls** for advanced use cases
-
-## 🚀 Basic Setup
+## Basic Configuration
 
 ### Enable Storage
 
+Storage is enabled by default, but you can configure it explicitly:
+
 ```tsx
 <AdaptlyProvider
-  // ... other props
+  apiKey={apiKey}
+  provider="google"
+  model="gemini-2.0-flash-exp"
+  components={components}
+  adaptlyConfig={adaptlyConfig}
   enableStorage={true}
-  storageKey="my-app-ui"
+  storageKey="my-dashboard"
   storageVersion="1.0.0"
 />
 ```
 
-### Storage Configuration
+### Storage Props
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `enableStorage` | `boolean` | `true` | Enable/disable storage |
+| `storageKey` | `string` | `"adaptly-ui"` | Key prefix for localStorage |
+| `storageVersion` | `string` | `"1.0.0"` | Version for data migration |
+
+## Storage Key Naming
+
+Adaptly creates storage keys using the pattern: `{storageKey}_{storageVersion}`
 
 ```tsx
-<AdaptlyProvider
-  // ... other props
-  enableStorage={true}
-  storageKey="my-dashboard-ui"        // Unique key for your app
-  storageVersion="2.0.0"              // Version for compatibility
-/>
+// Example configurations
+storageKey="my-dashboard"     // → "my-dashboard_1.0.0"
+storageKey="analytics-app"    // → "analytics-app_1.0.0"
+storageKey="user-preferences" // → "user-preferences_1.0.0"
 ```
 
-## 🔧 Storage Options
+## Data Structure
 
-### Basic Configuration
-
-```tsx
-<AdaptlyProvider
-  // ... other props
-  enableStorage={true}                // Enable/disable storage
-  storageKey="my-app-ui"              // localStorage key
-  storageVersion="1.0.0"              // Version for compatibility
-/>
-```
-
-### Advanced Configuration
-
-```tsx
-<AdaptlyProvider
-  // ... other props
-  enableStorage={true}
-  storageKey="my-app-ui"
-  storageVersion="2.0.0"
-  // Custom storage configuration
-  storageConfig={{
-    enabled: true,
-    key: "my-app-ui",
-    version: "2.0.0",
-    autoSave: true,
-    maxRetries: 3,
-    retryDelay: 1000,
-  }}
-/>
-```
-
-## 📱 Manual Storage Control
-
-### Using the useAdaptiveUI Hook
-
-```tsx
-import { useAdaptiveUI } from 'adaptly';
-
-function MyComponent() {
-  const {
-    saveToStorage,
-    loadFromStorage,
-    clearStorage,
-    hasStoredData,
-  } = useAdaptiveUI();
-
-  const handleSave = () => {
-    const success = saveToStorage();
-    if (success) {
-      console.log('UI state saved successfully');
-    }
-  };
-
-  const handleLoad = () => {
-    const savedState = loadFromStorage();
-    if (savedState) {
-      console.log('UI state loaded:', savedState);
-    }
-  };
-
-  const handleClear = () => {
-    const success = clearStorage();
-    if (success) {
-      console.log('Storage cleared');
-    }
-  };
-
-  return (
-    <div>
-      <button onClick={handleSave}>Save State</button>
-      <button onClick={handleLoad}>Load State</button>
-      <button onClick={handleClear}>Clear Storage</button>
-      <p>Has stored data: {hasStoredData() ? 'Yes' : 'No'}</p>
-    </div>
-  );
-}
-```
-
-### Storage Methods
-
-```tsx
-const {
-  // Storage methods
-  saveToStorage,      // Save current state to localStorage
-  loadFromStorage,    // Load saved state from localStorage
-  clearStorage,       // Clear saved state
-  hasStoredData,      // Check if stored data exists
-  
-  // UI state
-  adaptation,         // Current UI state
-  updateAdaptation,   // Update UI state
-} = useAdaptiveUI();
-```
-
-## 🔄 Automatic Storage
-
-### Auto-Save Behavior
-
-Adaptly automatically saves your UI state when:
-
-- **Components are added** - New components are saved immediately
-- **Components are removed** - Changes are saved immediately
-- **Components are updated** - Updates are saved immediately
-- **Layout changes** - Layout modifications are saved immediately
-
-### Auto-Load Behavior
-
-Adaptly automatically loads saved state when:
-
-- **Page loads** - Saved state is restored on initialization
-- **Component mounts** - State is loaded when AdaptlyProvider mounts
-- **Storage is available** - Only loads if localStorage is accessible
-
-## 🏷️ Storage Keys
-
-### Key Structure
-
-Storage keys follow this pattern:
-
-```
-{storageKey}_{storageVersion}
-```
-
-Examples:
-
-- `my-app-ui_1.0.0`
-- `dashboard-ui_2.0.0`
-- `admin-panel_1.5.0`
-
-### Custom Keys
-
-```tsx
-<AdaptlyProvider
-  // ... other props
-  storageKey="my-custom-dashboard"
-  storageVersion="1.0.0"
-  // Results in localStorage key: "my-custom-dashboard_1.0.0"
-/>
-```
-
-## 📊 Storage Data Structure
-
-### Stored Data Format
+Adaptly stores the complete UI adaptation in localStorage:
 
 ```json
 {
@@ -197,8 +69,7 @@ Examples:
         "props": {
           "title": "Revenue",
           "value": "$45,231",
-          "change": "+20.1%",
-          "changeType": "positive"
+          "change": "+20.1%"
         },
         "position": { "x": 0, "y": 0, "w": 2, "h": 1 },
         "visible": true
@@ -213,321 +84,339 @@ Examples:
 }
 ```
 
-### Data Validation
+## Version Control
 
-The storage service validates:
+### Automatic Versioning
 
-- **Version compatibility** - Ensures stored data matches current version
-- **Component structure** - Validates component definitions
-- **Layout integrity** - Checks layout configuration
-- **Data freshness** - Handles stale data gracefully
+When you update `storageVersion`, Adaptly automatically:
 
-## 🔄 Version Control
-
-### Version Management
+- Detects version mismatch
+- Clears old data
+- Starts fresh with new version
 
 ```tsx
 // Version 1.0.0
+<AdaptlyProvider storageVersion="1.0.0" />
+
+// Version 2.0.0 - old data cleared automatically
+<AdaptlyProvider storageVersion="2.0.0" />
+```
+
+### Manual Version Management
+
+```tsx
+// Check if stored data exists
+const { hasStoredData } = useAdaptiveUI();
+
+if (hasStoredData()) {
+  console.log("Found saved UI state");
+} else {
+  console.log("No saved state found");
+}
+```
+
+## Manual Storage Controls
+
+### Save to Storage
+
+```tsx
+const { saveToStorage } = useAdaptiveUI();
+
+// Manually save current state
+const saved = saveToStorage();
+if (saved) {
+  console.log("UI state saved successfully");
+}
+```
+
+### Load from Storage
+
+```tsx
+const { loadFromStorage } = useAdaptiveUI();
+
+// Manually load saved state
+const savedState = loadFromStorage();
+if (savedState) {
+  console.log("Loaded saved state:", savedState);
+}
+```
+
+### Clear Storage
+
+```tsx
+const { clearStorage } = useAdaptiveUI();
+
+// Clear all saved data
+const cleared = clearStorage();
+if (cleared) {
+  console.log("Storage cleared successfully");
+}
+```
+
+### Check Storage Status
+
+```tsx
+const { hasStoredData } = useAdaptiveUI();
+
+// Check if data exists
+if (hasStoredData()) {
+  console.log("Storage contains saved data");
+} else {
+  console.log("Storage is empty");
+}
+```
+
+## Advanced Storage Patterns
+
+### Multiple Storage Keys
+
+Use different storage keys for different parts of your app:
+
+```tsx
+// Dashboard storage
 <AdaptlyProvider
+  storageKey="dashboard-ui"
   storageVersion="1.0.0"
   // ... other props
 />
 
-// Version 2.0.0 (breaking changes)
+// Analytics storage
 <AdaptlyProvider
-  storageVersion="2.0.0"
-  // ... other props
-/>
-```
-
-### Version Compatibility
-
-- **Same version** - Data is loaded normally
-- **Different version** - Data is cleared and fresh state is used
-- **Missing version** - Data is cleared and fresh state is used
-
-### Migration Handling
-
-```tsx
-// Handle version changes
-const handleVersionChange = (oldVersion: string, newVersion: string) => {
-  console.log(`Migrating from ${oldVersion} to ${newVersion}`);
-  // Custom migration logic here
-};
-
-<AdaptlyProvider
-  storageVersion="2.0.0"
-  onVersionChange={handleVersionChange}
-  // ... other props
-/>
-```
-
-## 🎯 Use Cases
-
-### Dashboard Persistence
-
-```tsx
-// Save user's dashboard layout
-<AdaptlyProvider
-  enableStorage={true}
-  storageKey="user-dashboard"
+  storageKey="analytics-ui"
   storageVersion="1.0.0"
   // ... other props
 />
 ```
 
-### Multi-User Support
+### Conditional Storage
 
 ```tsx
-// Different storage for different users
-const userId = getCurrentUserId();
+const [enableStorage, setEnableStorage] = useState(true);
 
 <AdaptlyProvider
-  enableStorage={true}
-  storageKey={`dashboard-${userId}`}
+  enableStorage={enableStorage}
+  storageKey="my-app"
+  // ... other props
+/>
+
+// Toggle storage on/off
+<button onClick={() => setEnableStorage(!enableStorage)}>
+  {enableStorage ? "Disable" : "Enable"} Storage
+</button>
+```
+
+### Storage with User Authentication
+
+```tsx
+const [userId, setUserId] = useState(null);
+
+<AdaptlyProvider
+  storageKey={userId ? `user-${userId}-ui` : "guest-ui"}
   storageVersion="1.0.0"
   // ... other props
 />
 ```
 
-### Environment-Specific Storage
+## Browser Compatibility
+
+### Supported Browsers
+
+- **Chrome**: 4+ (localStorage support)
+- **Firefox**: 3.5+ (localStorage support)
+- **Safari**: 4+ (localStorage support)
+- **Edge**: 12+ (localStorage support)
+
+### Storage Limits
+
+- **Chrome/Firefox**: ~10MB per domain
+- **Safari**: ~5MB per domain
+- **Mobile**: Varies by device
+
+### Fallback Behavior
+
+If localStorage is not available, Adaptly gracefully degrades:
 
 ```tsx
-// Different storage for different environments
-const environment = process.env.NODE_ENV;
-
+// Storage will be disabled automatically
 <AdaptlyProvider
-  enableStorage={true}
-  storageKey={`dashboard-${environment}`}
-  storageVersion="1.0.0"
+  enableStorage={true} // Will be ignored if localStorage unavailable
   // ... other props
 />
 ```
 
-## 🔧 Advanced Configuration
+## Privacy Considerations
 
-### Custom Storage Service
+### Data Storage
+
+- Data is stored locally in the user's browser
+- No data is sent to external servers
+- Users can clear data through browser settings
+
+### Sensitive Data
+
+Avoid storing sensitive information in component props:
 
 ```tsx
-import { StorageService } from 'adaptly';
-
-// Create custom storage service
-const customStorage = new StorageService({
-  enabled: true,
-  key: 'my-custom-key',
-  version: '1.0.0',
-});
-
-// Use with AdaptlyProvider
-<AdaptlyProvider
-  // ... other props
-  storageService={customStorage}
+// ❌ Don't store sensitive data
+<MetricCard
+  title="User Revenue"
+  value="$45,231"
+  apiKey="secret-key" // ❌ Never store API keys
 />
+
+// ✅ Store only display data
+<MetricCard
+  title="User Revenue"
+  value="$45,231"
+  change="+20.1%"
+/>
+```
+
+### Data Retention
+
+- Data persists until manually cleared
+- Users can clear data through browser settings
+- Consider implementing data expiration
+
+## Debugging Storage
+
+### Enable Debug Logging
+
+```tsx
+import { adaptlyLogger } from "adaptly";
+
+// Enable debug logging
+adaptlyLogger.setConfig({ enabled: true, level: "debug" });
+```
+
+### Check Storage Contents
+
+```tsx
+// Inspect localStorage directly
+const storageKey = "my-dashboard_1.0.0";
+const storedData = localStorage.getItem(storageKey);
+console.log("Stored data:", JSON.parse(storedData));
 ```
 
 ### Storage Events
 
 ```tsx
-const handleStorageChange = (event: StorageEvent) => {
-  if (event.key === 'my-app-ui_1.0.0') {
-    console.log('Storage changed:', event.newValue);
+// Listen for storage changes
+window.addEventListener("storage", (e) => {
+  if (e.key === "my-dashboard_1.0.0") {
+    console.log("Storage changed:", e.newValue);
   }
-};
-
-useEffect(() => {
-  window.addEventListener('storage', handleStorageChange);
-  return () => window.removeEventListener('storage', handleStorageChange);
-}, []);
+});
 ```
 
-### Storage Quotas
+## Common Issues
+
+### Storage Not Persisting
+
+**Check enableStorage prop:**
 
 ```tsx
-// Check storage quota
-const checkStorageQuota = () => {
-  if ('storage' in navigator && 'estimate' in navigator.storage) {
-    navigator.storage.estimate().then((estimate) => {
-      console.log('Storage quota:', estimate.quota);
-      console.log('Storage usage:', estimate.usage);
-    });
+// ✅ Storage enabled
+<AdaptlyProvider enableStorage={true} />
+
+// ❌ Storage disabled
+<AdaptlyProvider enableStorage={false} />
+```
+
+**Check storage key:**
+
+```tsx
+// ✅ Valid key
+<AdaptlyProvider storageKey="my-app" />
+
+// ❌ Empty key
+<AdaptlyProvider storageKey="" />
+```
+
+### Version Mismatch
+
+**Update storage version:**
+
+```tsx
+// Old version
+<AdaptlyProvider storageVersion="1.0.0" />
+
+// New version - old data cleared
+<AdaptlyProvider storageVersion="2.0.0" />
+```
+
+### Data Not Loading
+
+**Check localStorage availability:**
+
+```tsx
+if (typeof window !== "undefined" && window.localStorage) {
+  // localStorage is available
+} else {
+  // localStorage not available
+}
+```
+
+## Best Practices
+
+### 1. Use Descriptive Storage Keys
+
+```tsx
+// ✅ Good
+storageKey="dashboard-ui"
+storageKey="analytics-dashboard"
+storageKey="user-preferences"
+
+// ❌ Avoid
+storageKey="ui"
+storageKey="data"
+storageKey="app"
+```
+
+### 2. Version Your Storage
+
+```tsx
+// ✅ Good - versioned
+storageVersion="1.0.0"
+storageVersion="2.0.0"
+
+// ❌ Avoid - no versioning
+storageVersion="1"
+storageVersion="latest"
+```
+
+### 3. Handle Storage Errors
+
+```tsx
+try {
+  const saved = saveToStorage();
+  if (!saved) {
+    console.warn("Failed to save UI state");
   }
-};
+} catch (error) {
+  console.error("Storage error:", error);
+}
 ```
 
-## 🚨 Common Issues
-
-### Storage Not Working
-
-**Issue**: Changes not being saved
-
-- **Solution**: Check that `enableStorage={true}` is set
-- **Solution**: Verify localStorage is available
-- **Solution**: Check browser storage permissions
-
-**Issue**: Data not loading on page refresh
-
-- **Solution**: Ensure storage key is consistent
-- **Solution**: Check version compatibility
-- **Solution**: Verify data format is correct
-
-### Version Conflicts
-
-**Issue**: "Version mismatch" error
-
-- **Solution**: Update storage version to match current version
-- **Solution**: Clear storage and start fresh
-- **Solution**: Implement migration logic
-
-**Issue**: Data lost after version update
-
-- **Solution**: This is expected behavior for breaking changes
-- **Solution**: Implement data migration
-- **Solution**: Backup data before version updates
-
-### Storage Quota Exceeded
-
-**Issue**: "Storage quota exceeded" error
-
-- **Solution**: Clear old storage data
-- **Solution**: Reduce stored data size
-- **Solution**: Implement data compression
-
-## 🔍 Debugging Storage
-
-### Enable Debug Logging
+### 4. Clean Up Old Data
 
 ```tsx
-<AdaptlyProvider
-  // ... other props
-  logging={{ enabled: true, level: 'debug' }}
-/>
+// Clear old storage keys
+const oldKeys = ["my-app_1.0.0", "my-app_1.1.0"];
+oldKeys.forEach(key => localStorage.removeItem(key));
 ```
 
-### Storage Inspection
+## Next Steps
 
-```tsx
-// Inspect stored data
-const inspectStorage = () => {
-  const storageKey = 'my-app-ui_1.0.0';
-  const storedData = localStorage.getItem(storageKey);
-  console.log('Stored data:', JSON.parse(storedData || '{}'));
-};
+- **[Advanced Features Guide](advanced-features)** - Custom loaders and validation
+- **[API Reference](api/core-components)** - Complete component documentation
+- **[Troubleshooting Guide](troubleshooting)** - Common issues and solutions
 
-// Clear specific storage
-const clearStorage = () => {
-  const storageKey = 'my-app-ui_1.0.0';
-  localStorage.removeItem(storageKey);
-};
-```
+## Example Implementations
 
-### Storage Testing
-
-```tsx
-// Test storage functionality
-const testStorage = async () => {
-  const { saveToStorage, loadFromStorage, clearStorage } = useAdaptiveUI();
-  
-  // Test save
-  const saveResult = saveToStorage();
-  console.log('Save result:', saveResult);
-  
-  // Test load
-  const loadResult = loadFromStorage();
-  console.log('Load result:', loadResult);
-  
-  // Test clear
-  const clearResult = clearStorage();
-  console.log('Clear result:', clearResult);
-};
-```
-
-## 📊 Storage Analytics
-
-### Track Storage Usage
-
-```tsx
-const trackStorageUsage = () => {
-  const storageKey = 'my-app-ui_1.0.0';
-  const storedData = localStorage.getItem(storageKey);
-  
-  if (storedData) {
-    const data = JSON.parse(storedData);
-    const size = new Blob([storedData]).size;
-    
-    console.log('Storage size:', size, 'bytes');
-    console.log('Component count:', data.adaptation.components.length);
-    console.log('Last updated:', new Date(data.timestamp));
-  }
-};
-```
-
-### Storage Metrics
-
-```tsx
-const getStorageMetrics = () => {
-  const metrics = {
-    totalSize: 0,
-    componentCount: 0,
-    lastUpdated: null,
-  };
-  
-  // Calculate metrics
-  for (let i = 0; i < localStorage.length; i++) {
-    const key = localStorage.key(i);
-    if (key?.startsWith('my-app-ui_')) {
-      const data = localStorage.getItem(key);
-      if (data) {
-        const parsed = JSON.parse(data);
-        metrics.totalSize += new Blob([data]).size;
-        metrics.componentCount += parsed.adaptation.components.length;
-        if (!metrics.lastUpdated || parsed.timestamp > metrics.lastUpdated) {
-          metrics.lastUpdated = parsed.timestamp;
-        }
-      }
-    }
-  }
-  
-  return metrics;
-};
-```
-
-## 🔒 Security Considerations
-
-### Data Privacy
-
-- **Local storage only** - Data never leaves the user's browser
-- **No external transmission** - Storage is completely local
-- **User control** - Users can clear storage at any time
-
-### Data Validation
-
-```tsx
-// Validate stored data before loading
-const validateStoredData = (data: any) => {
-  if (!data || typeof data !== 'object') return false;
-  if (!data.adaptation || !Array.isArray(data.adaptation.components)) return false;
-  if (!data.version || !data.timestamp) return false;
-  
-  return true;
-};
-```
-
-## 📚 Next Steps
-
-Now that you understand storage service:
-
-1. **Read the [Advanced Features Guide](advanced-features)** for custom configurations
-2. **Check out [Troubleshooting Guide](troubleshooting)** for common issues
-3. **Explore [API Reference](api/services)** for complete API documentation
-4. **See the [Demo Application](https://github.com/gauravfs-14/adaptly/tree/main/examples/adaptly-demo/)** for complete examples
-
-## 🆘 Support
-
-- **Documentation**: Check other guides in this documentation
-- **Examples**: Look at the demo application in `/examples`
-- **Issues**: [GitHub Issues](https://github.com/gauravfs-14/adaptly/issues)
-- **Discussions**: [GitHub Discussions](https://github.com/gauravfs-14/adaptly/discussions)
+- **[Demo App](https://github.com/gauravfs-14/adaptly/tree/main/examples/adaptly-demo)** - Full storage implementation
+- **[Component Examples](https://github.com/gauravfs-14/adaptly/tree/main/examples/adaptly-demo/src/components)** - Real React components
 
 ---
 
-Ready to explore advanced features? Check out the [Advanced Features Guide](advanced-features)!
+**Ready for advanced features?** Check out the [Advanced Features Guide](advanced-features) to learn about custom loaders, component validation, and advanced hooks usage!
