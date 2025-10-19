@@ -11,6 +11,8 @@
 It's a TypeScript-first library that lets your UI *understand what users mean*, not just what they click.
 With a single `Cmd + K`, users can describe their goal or need in plain English, and Adaptly uses an **LLM-driven planner** to dynamically recompose your React interface using your existing components.
 
+> 🚨 **v0.0.5 Critical Update**: Fixed React peer dependency issues with Next.js 15+ and React 19+. Update now for seamless installation!
+
 > "Show me billing and analytics."
 > "Create a sales dashboard with revenue metrics."
 > "Add some charts and filter by this week."

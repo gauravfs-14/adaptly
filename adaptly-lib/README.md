@@ -4,20 +4,20 @@ The core TypeScript library that powers Adaptly's AI-driven adaptive UI framewor
 
 ## 📦 Package Information
 
-- **Version**: 0.0.4
+- **Version**: 0.0.5
 - **License**: MIT
 - **TypeScript**: Full support with type definitions
 - **Dependencies**: AI SDK 5.0.76, @ai-sdk/google 2.0.23, @ai-sdk/openai 2.0.52, @ai-sdk/anthropic 2.0.33, @radix-ui/react-dialog 1.1.15, cmdk 1.1.1, lucide-react 0.546.0
-- **No Peer Dependencies**: All dependencies bundled automatically (v0.0.4+)
+- **React Peer Dependencies**: Properly externalized React for compatibility with Next.js 15+ and React 19+ (v0.0.5+)
 
 ## 🚀 Installation
 
 ```bash
-# Install Adaptly (no peer dependencies required!)
+# Install Adaptly (React peer dependencies properly handled!)
 npm install adaptly
 ```
 
-**Note**: All dependencies including AI SDKs and UI components are bundled automatically. No peer dependencies required!
+**Note**: React and React-DOM are peer dependencies (properly externalized). All other dependencies are bundled automatically for seamless installation!
 
 ## 🧩 Core Components
 

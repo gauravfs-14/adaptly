@@ -15,6 +15,12 @@ export default [
       format: "cjs",
       sourcemap: true,
     },
+    external: [
+      "react",
+      "react-dom",
+      "react/jsx-runtime",
+      "react/jsx-dev-runtime"
+    ],
     plugins: [
       peerDepsExternal(),
       resolve({
@@ -45,6 +51,12 @@ export default [
       format: "esm",
       sourcemap: true,
     },
+    external: [
+      "react",
+      "react-dom",
+      "react/jsx-runtime",
+      "react/jsx-dev-runtime"
+    ],
     plugins: [
       peerDepsExternal(),
       resolve({
@@ -72,6 +84,12 @@ export default [
     input: "core/index.ts",
     output: { file: packageJson.types },
     plugins: [dts.default()],
-    external: [/\.css$/],
+    external: [
+      "react",
+      "react-dom",
+      "react/jsx-runtime",
+      "react/jsx-dev-runtime",
+      /\.css$/
+    ],
   },
 ];

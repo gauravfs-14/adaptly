@@ -2,6 +2,41 @@
 
 This guide helps you diagnose and resolve common issues with Adaptly. If you're experiencing problems, check this guide first before seeking additional help.
 
+## 🚨 Critical Issues (v0.0.5+)
+
+### React Peer Dependency Issues ✅ **FIXED in v0.0.5**
+
+**Problem**: Getting peer dependency errors when installing Adaptly in Next.js 15+ applications.
+
+**Symptoms**:
+- `npm install adaptly` fails with peer dependency conflicts
+- "Mismatching versions of React and the renderer" errors
+- "More than one copy of React" warnings
+- Installation fails with React version conflicts
+
+**Solution**: **Update to v0.0.5+** - This issue has been completely resolved!
+
+```bash
+# Update to the latest version
+npm update adaptly
+# or
+npm install adaptly@latest
+```
+
+**What was fixed**:
+- ✅ React is now properly externalized instead of bundled
+- ✅ Peer dependencies support React 18+ and 19+
+- ✅ Full compatibility with Next.js 15+ and React 19+
+- ✅ No more duplicate React instances
+- ✅ Clean installation without warnings
+
+**Verification**:
+```bash
+# Check that React is externalized
+npm ls react
+# Should show only one React version
+```
+
 ## 🚨 Common Issues
 
 ### 1. Component Not Found Errors

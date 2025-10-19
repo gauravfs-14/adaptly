@@ -5,6 +5,41 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.0.5] - December 19, 2024
+
+### 🔧 Critical Bug Fixes
+
+#### React Peer Dependency Resolution
+
+- **Fixed React Version Conflicts**: Resolved "mismatching versions of React and the renderer" errors
+- **Eliminated Duplicate React Instances**: Fixed "more than one copy of React" issues
+- **Next.js 15+ Compatibility**: Full support for Next.js 15.5.6 and React 19.2.0
+- **Proper React Externalization**: React is now properly externalized instead of bundled
+- **Peer Dependency Updates**: Updated peer dependencies to support React >=18.0.0 (compatible with React 19+)
+
+#### Build System Improvements
+
+- **Enhanced Rollup Configuration**: Added explicit React externalization for both CJS and ESM builds
+- **Node.js Engine Requirements**: Added Node.js >=18.0.0 engine requirements
+- **Package Structure**: Improved package.json with proper peer dependency metadata
+- **Build Reliability**: Eliminated all React bundling issues
+
+### 📦 Technical Details
+
+- **React Externalization**: React and React-DOM are now properly externalized in all builds
+- **Peer Dependency Support**: Compatible with React 18+ and 19+
+- **Next.js 15+ Support**: Full compatibility with latest Next.js versions
+- **No Version Conflicts**: Eliminated all React version mismatch errors
+- **Clean Installation**: No more peer dependency warnings during installation
+
+### 🎯 Key Improvements
+
+- **Seamless Installation**: Package installs without peer dependency errors
+- **Latest Framework Support**: Works with Next.js 15+ and React 19+
+- **Version Flexibility**: Compatible with React 18+ and 19+
+- **No Duplicate Dependencies**: Single React instance per application
+- **Enhanced Developer Experience**: Smooth installation and usage
+
 ## [0.0.4] - October 19, 2025
 
 ### 🔧 Bug Fixes

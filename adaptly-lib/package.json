@@ -1,6 +1,6 @@
 {
   "name": "adaptly",
-  "version": "0.0.3",
+  "version": "0.0.5",
   "description": "AI-powered adaptive UI framework for React applications",
   "license": "MIT",
   "author": "Gaurab Chhetri",
@@ -47,6 +47,21 @@
     "lucide-react": "^0.546.0",
     "tailwind-merge": "^3.3.1",
     "tslib": "^2.8.1"
+  },
+  "peerDependencies": {
+    "react": ">=18.0.0",
+    "react-dom": ">=18.0.0"
+  },
+  "peerDependenciesMeta": {
+    "react": {
+      "optional": false
+    },
+    "react-dom": {
+      "optional": false
+    }
+  },
+  "engines": {
+    "node": ">=18.0.0"
   },
   "devDependencies": {
     "@rollup/plugin-commonjs": "^28.0.8",
