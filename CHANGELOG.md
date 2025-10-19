@@ -5,6 +5,38 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.0.4] - October 19, 2025
+
+### 🔧 Bug Fixes
+
+#### Package Dependencies
+
+- **Removed Peer Dependencies**: Eliminated React and React-DOM peer dependencies to resolve build issues
+- **Simplified Installation**: No longer requires manual peer dependency installation
+- **Build Process**: Fixed dependency resolution errors during package building
+- **Rollup Configuration**: Enhanced with `rollup-plugin-peer-deps-external` for automatic peer dependency handling
+
+#### Documentation Improvements
+
+- **Consolidated Guides**: Merged similar installation and quick-start documentation
+- **Reduced Duplication**: Eliminated repetitive content across documentation files
+- **Streamlined Structure**: Improved documentation organization and navigation
+- **Version Consistency**: Updated all version references to v0.0.4
+
+### 📦 Technical Details
+
+- **Package Configuration**: Removed peer dependencies from package.json
+- **Build System**: Enhanced Rollup configuration with peer dependency plugin
+- **Documentation**: Consolidated installation and quick-start guides
+- **Version Update**: Package version updated to v0.0.4
+
+### 🎯 Key Improvements
+
+- **Simplified Installation**: No more peer dependency warnings or manual installation steps
+- **Better Build Process**: Automatic peer dependency handling during build
+- **Cleaner Documentation**: Reduced duplication and improved navigation
+- **Enhanced Developer Experience**: Streamlined setup process
+
 ## [0.0.3] - October 19, 2025
 
 ### 🔧 Bug Fixes

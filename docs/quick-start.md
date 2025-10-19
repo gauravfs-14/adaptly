@@ -1,42 +1,90 @@
 # Quick Start Guide
 
-Get up and running with Adaptly in just a few minutes! This guide will walk you through creating your first AI-powered adaptive UI.
+Get up and running with Adaptly in just a few minutes! This guide will walk you through installing Adaptly and creating your first AI-powered adaptive UI.
 
 ## 🎯 What We'll Build
 
 We'll create a simple dashboard that responds to natural language commands. Users can press `⌘K` and describe what they want, and the AI will dynamically arrange components.
 
+## 📋 Prerequisites
+
+Before getting started, ensure you have:
+
+- **Node.js**: Version 18 or higher
+- **React**: Version 18 or 19
+- **TypeScript**: Version 5.0 or higher (recommended)
+- **Package Manager**: npm, yarn, pnpm, or bun
+
 ## ⚡ 5-Minute Setup
 
-> **Prerequisites**: Make sure you have Node.js 18+ and React 18+ installed. For detailed installation instructions, see the [Installation Guide](./installation.md).
-
 ### Step 1: Create Your Project
+
+Choose your preferred framework:
+
+**For Next.js (Recommended):**
 
 ```bash
 # Create a new Next.js project
 npx create-next-app@latest my-adaptly-dashboard --typescript --tailwind --eslint
 cd my-adaptly-dashboard
+```
 
-# Install Adaptly
+**For React:**
+
+```bash
+# Create a new React project
+npx create-react-app my-adaptly-app --template typescript
+cd my-adaptly-app
+
+# Install Tailwind CSS (recommended)
+npm install -D tailwindcss postcss autoprefixer
+npx tailwindcss init -p
+```
+
+### Step 2: Install Adaptly
+
+```bash
+# Install Adaptly (no peer dependencies required!)
 npm install adaptly
 
-# Install shadcn/ui (optional but recommended)
+# Install shadcn/ui (optional but recommended for Next.js)
 npx shadcn@latest init
 npx shadcn@latest add card button
 ```
 
-### Step 2: Set Up Environment Variables
+> **Note**: Adaptly v0.0.4+ no longer requires manual peer dependency installation. All dependencies are bundled automatically!
 
-Create a `.env.local` file:
+### Step 3: Set Up Environment Variables
+
+Adaptly requires an API key from at least one LLM provider. Choose your preferred provider:
+
+**Google Gemini (Recommended for beginners):**
 
 ```bash
+# .env.local (Next.js) or .env (React)
 # Get your API key from https://makersuite.google.com/app/apikey
 NEXT_PUBLIC_GOOGLE_GENERATIVE_AI_API_KEY=your_api_key_here
 ```
 
+**OpenAI GPT:**
+
+```bash
+# .env.local (Next.js) or .env (React)
+# Get your API key from https://platform.openai.com/api-keys
+NEXT_PUBLIC_OPENAI_API_KEY=your_api_key_here
+```
+
+**Anthropic Claude:**
+
+```bash
+# .env.local (Next.js) or .env (React)
+# Get your API key from https://console.anthropic.com/
+NEXT_PUBLIC_ANTHROPIC_API_KEY=your_api_key_here
+```
+
 > **Note**: For detailed API key setup and multiple provider configuration, see the [LLM Providers Guide](./llm-providers.md).
 
-### Step 3: Create adaptly.json
+### Step 4: Create adaptly.json
 
 Create `adaptly.json` in your project root. For detailed component registry configuration, see the [Component Registry Guide](./component-registry.md).
 
@@ -82,7 +130,7 @@ Create `adaptly.json` in your project root. For detailed component registry conf
 }
 ```
 
-### Step 4: Create Your Components
+### Step 5: Create Your Components
 
 Create `src/components/MetricCard.tsx`:
 

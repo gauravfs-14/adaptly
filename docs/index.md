@@ -10,8 +10,7 @@ This documentation is designed to help you understand, implement, and master Ada
 
 ### Getting Started
 
-- **[Installation Guide](./installation.md)** - Set up Adaptly in your project
-- **[Quick Start Guide](./quick-start.md)** - Build your first adaptive UI in minutes
+- **[Quick Start Guide](./quick-start.md)** - Install Adaptly and build your first adaptive UI in minutes
 - **[Component Registry](./component-registry.md)** - Configure your components for AI understanding
 
 ### Core Features
@@ -146,4 +145,4 @@ This project is licensed under the MIT License - see the [LICENSE](../LICENSE) f
 
 ---
 
-Ready to get started? Check out the [Installation Guide](./installation.md) to set up Adaptly in your project!
+Ready to get started? Check out the [Quick Start Guide](./quick-start.md) to install Adaptly and build your first adaptive UI!

@@ -589,8 +589,7 @@ function ErrorRecovery() {
 
 ### 1. Check Documentation
 
-- **[Installation Guide](./installation.md)** - Setup issues
-- **[Quick Start Guide](./quick-start.md)** - Basic usage
+- **[Quick Start Guide](./quick-start.md)** - Setup and basic usage
 - **[Component Registry Guide](./component-registry.md)** - Component configuration
 - **[LLM Providers Guide](./llm-providers.md)** - AI provider issues
 - **[Storage Service Guide](./storage-service.md)** - Storage issues
