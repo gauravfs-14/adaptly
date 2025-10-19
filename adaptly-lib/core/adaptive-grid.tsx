@@ -75,6 +75,16 @@ export function AdaptiveGridCore({
             // For other objects, convert to string
             safeProps[key] = JSON.stringify(value);
           }
+        } else if (Array.isArray(value)) {
+          // Handle arrays - check if they contain objects that need special handling
+          const hasObjects = value.some(
+            (item) =>
+              typeof item === "object" && item !== null && !Array.isArray(item)
+          );
+          if (hasObjects) {
+            // For arrays with objects, convert to string
+            safeProps[key] = JSON.stringify(value);
+          }
         }
       });
 

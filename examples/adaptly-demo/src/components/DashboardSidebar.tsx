@@ -97,7 +97,7 @@ export function DashboardSidebar({
 
       <SidebarContent className="p-4">
         {sections.map((section, sectionIndex) => (
-          <SidebarGroup key={sectionIndex}>
+          <SidebarGroup key={section.label}>
             <SidebarGroupLabel>{section.label}</SidebarGroupLabel>
             <SidebarMenu>
               {section.items.map((item) => (

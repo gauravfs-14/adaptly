@@ -269,7 +269,7 @@ export function AdaptiveCommand({
               const Icon = suggestion.icon || Wand2;
               return (
                 <CommandItem
-                  key={index}
+                  key={`ai-suggestion-${suggestion.value}-${index}`}
                   value={suggestion.value}
                   onSelect={() => handleSelect(suggestion.value)}
                   className={index === 0 ? "text-blue-600" : ""}

@@ -180,7 +180,7 @@ export function TeamMembers({
       <CardContent>
         <div className="space-y-4">
           {teamMembers.map((member, index) => (
-            <div key={index}>
+            <div key={`${member.name}-${member.role}-${index}`}>
               {showHoverCard ? (
                 <HoverCard>
                   <HoverCardTrigger asChild>
