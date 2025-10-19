@@ -11,40 +11,91 @@
 It's a TypeScript-first library that lets your UI *understand what users mean*, not just what they click.
 With a single `Cmd + K`, users can describe their goal or need in plain English, and Adaptly uses an **LLM-driven planner** to dynamically recompose your React interface using your existing components.
 
-> "I can't see blue."
 > "Show me billing and analytics."
-> "Focus this dashboard on user retention."
+> "Create a sales dashboard with revenue metrics."
+> "Add some charts and filter by this week."
 
-Adaptly turns those statements into live UI transformations — changing colors, scaling text, and rearranging relevant components instantly.
+Adaptly turns those statements into live UI transformations — rearranging components, filtering data, and configuring display options instantly.
+
+## 🎯 Key Features
+
+- **Multi-LLM Support**: Choose from Google Gemini, OpenAI GPT-4, or Anthropic Claude
+- **Persistent Storage**: Automatically saves and restores UI state across sessions
+- **Component Registry**: Define your components in `adaptly.json` for AI understanding
+- **Built-in Command Bar**: Cmd + K interface with AI suggestions
+- **Data Filtering**: LLM can filter and configure existing data, not pass new data
+- **TypeScript First**: Full type safety with comprehensive interfaces
+- **Next.js Ready**: Seamless integration with App Router
 
 ## 🚀 Quick Start
 
 ```bash
+# Install Adaptly
 npm install adaptly
+
+# Install peer dependencies (if not already installed)
+npm install react react-dom
 ```
 
-**Note**: All dependencies are included automatically - no additional packages needed!
+**Note**: All AI SDKs and UI dependencies are bundled automatically. You only need React and React-DOM as peer dependencies.
+
+### 1. Create your `adaptly.json` configuration
+
+```json
+{
+  "version": "1.0.0",
+  "components": {
+    "MetricCard": {
+      "description": "Display key performance indicators with values, trends, and progress bars",
+      "props": {
+        "title": { "type": "string", "required": true },
+        "value": { "type": "string", "required": true },
+        "change": { "type": "string", "required": false },
+        "changeType": { "type": "string", "required": false, "allowed": ["positive", "negative", "neutral"] },
+        "progress": { "type": "number", "required": false },
+        "description": { "type": "string", "required": false }
+      },
+      "useCases": ["revenue tracking", "user metrics", "performance indicators", "KPI display"],
+      "space": { "min": [2, 1], "max": [3, 2], "preferred": [2, 1] }
+    }
+  }
+}
+```
+
+### 2. Set up your components
 
 ```tsx
-import { AdaptlyProvider, AdaptiveLayout, AdaptiveCommand } from 'adaptly';
+import { AdaptlyProvider } from 'adaptly';
+import adaptlyConfig from './adaptly.json';
+import { MetricCard, SalesChart, TeamMembers } from './components';
 
 function App() {
   return (
     <AdaptlyProvider
       apiKey="your-api-key"
-      provider="openai" // or "anthropic" or "google"
-      model="gpt-4" // or "claude-3-5-sonnet-20241022" or "gemini-2.0-flash-exp"
-      components={{ MetricCard, SalesChart, DataTable }}
-      adaptlyConfig={adaptlyConfig}
-      enableStorage={true} // NEW: Persistent storage
-      storageKey="my-app-ui" // NEW: Custom storage key
-    >
-      <AdaptiveCommand />
-      <AdaptiveLayout />
-    </AdaptlyProvider>
+      provider="google" // or "openai" or "anthropic"
+      model="gemini-2.0-flash-exp" // or "gpt-4o" or "claude-3-5-sonnet-20241022"
+      components={{ 
+        MetricCard, 
+        SalesChart, 
+        TeamMembers,
+        DataTable: OrdersTable,
+        EmptyCard,
+        ActivityFeed,
+        NotificationCenter,
+        WeatherWidget,
+        QuickStats,
+        ResourceMonitor
+      }}
+      adaptlyConfig={adaptlyConfig} // REQUIRED: adaptly.json configuration
+      enableStorage={true}
+      storageKey="my-app-ui"
+    />
   );
 }
 ```
+
+### 3. Start using AI commands
 
 Press `⌘K` and describe what you want: "Create a sales dashboard" or "Add revenue metrics"
 
@@ -54,52 +105,58 @@ Press `⌘K` and describe what you want: "Create a sales dashboard" or "Add reve
 
 | Category                   | Feature                              | Description                                                                                                                                 |
 | -------------------------- | ------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------- |
-| **AI-Driven Planning**     | Natural-language → structured layout | Sends user goals and your component registry to an LLM that returns a JSON layout plan with selected components and accessibility settings. |
-| **Multi-LLM Support**      | OpenAI, Anthropic, Google providers  | Choose from GPT-4, Claude 3.5 Sonnet, or Gemini 2.0 Flash for different AI capabilities and cost optimization.                           |
+| **AI-Driven Planning**     | Natural-language → structured layout | Sends user goals and your component registry to an LLM that returns a JSON layout plan with selected components and display configurations. |
+| **Multi-LLM Support**      | OpenAI, Anthropic, Google providers  | Choose from GPT-4, Claude 3.5 Sonnet, or Gemini 2.0 Flash with model selection for different AI capabilities and cost optimization.       |
 | **Persistent Storage**     | localStorage state management        | Automatically saves and restores your UI state across page refreshes with version control and manual controls.                            |
 | **Command Bar**            | Cmd + K interface                    | Built using shadcn's Command & Dialog components for smooth in-app natural-language input.                                                  |
 | **Adaptive Layout Engine** | Dynamic Tailwind grid                | Re-renders the UI based on the LLM's plan: which components to show, in what order, with what styling.                                      |
-| **Accessibility Layer**    | Color & text adaptation              | Applies color substitution (e.g., avoid blue hues) and font scaling through CSS variables and Tailwind utilities.                           |
-| **Developer Registry**     | JSON-based component context         | You declare what your app can show — Adaptly uses that context to decide how to respond to user intent.                                     |
+| **Data Filtering Only**    | LLM filters existing data            | LLM can only filter and configure existing data, not pass new data. Components use predefined sample data.                                  |
+| **Built-in Features**      | All-in-one provider                  | Includes layout engine, command interface, loading overlay, and storage management in a single component.                                 |
 | **Next.js Integration**    | App Router native                    | Ships React Provider, API route, and hooks that plug directly into a Next.js project with minimal setup.                                    |
+| **Component Registry**     | adaptly.json configuration          | Define your components with descriptions, props, use cases, and space requirements for AI understanding.                                |
+| **TypeScript Support**     | Full type safety                     | Comprehensive TypeScript interfaces for all components, configurations, and API responses.                                                 |
 
 ---
 
 ## 🏗️ Architecture
 
-```
+```text
 <App>
  └── <AdaptlyProvider apiKey={key} components={components} adaptlyConfig={config}>
-       ├── <AdaptiveCommand />   // Cmd + K
-       └── <AdaptiveLayout />    // Dynamic layout from AI plan
+       ├── <AdaptiveLayout />    // Renders components dynamically
+       ├── <AdaptiveCommand />   // Cmd + K interface
+       └── <LoadingOverlay />    // AI processing indicator
      </AdaptlyProvider>
 ```
 
 ### Core Modules
 
 1. **AdaptlyProvider**
-   Main provider that wraps your app and provides AI-powered adaptive functionality.
+   Main provider that wraps your app and provides AI-powered adaptive functionality. Includes built-in command bar and loading overlay.
 
-2. **AdaptiveCommand**
-   Opens a shadcn Command dialog for natural language input.
+2. **AdaptiveLayout**
+   Renders your registered React components in a dynamic, AI-driven layout based on user commands.
 
-3. **AdaptiveLayout**
-   Renders your registered React components in a dynamic, AI-driven layout.
+3. **AdaptiveCommand**
+   Built-in command bar (Cmd + K) for natural language input with AI suggestions.
 
-4. **LLM Service**
-   Handles communication with multiple LLM providers (OpenAI, Anthropic, Google) for natural language processing.
+4. **LoadingOverlay**
+   Built-in loading indicator with dark overlay and animations during AI processing.
 
-5. **Storage Service**
-   Manages persistent storage with localStorage for saving and restoring UI state.
+5. **EnhancedLLMService**
+   Handles communication with multiple LLM providers (OpenAI, Anthropic, Google) for natural language processing with advanced features.
 
-6. **Registry Service**
-   Manages component registry and metadata processing.
+6. **StorageService**
+   Manages persistent storage with localStorage for saving and restoring UI state with version control.
+
+7. **RegistryService**
+   Manages component registry and provides AI with component metadata for intelligent selection.
 
 ---
 
 ## 🧩 Component Registry Schema
 
-Each app using Adaptly defines a registry file describing components and their semantics.
+Each app using Adaptly defines a registry file describing components and their semantics. The LLM can only filter and configure display options, not pass new data.
 
 `adaptly.json`
 
@@ -108,24 +165,43 @@ Each app using Adaptly defines a registry file describing components and their s
   "version": "1.0.0",
   "components": {
     "MetricCard": {
-      "description": "Display key performance indicators with values and trends",
+      "description": "Display key performance indicators with values, trends, and progress bars",
       "props": {
         "title": { "type": "string", "required": true },
         "value": { "type": "string", "required": true },
         "change": { "type": "string", "required": false },
-        "changeType": { "type": "string", "required": false, "allowed": ["positive", "negative", "neutral"] }
+        "changeType": { "type": "string", "required": false, "allowed": ["positive", "negative", "neutral"] },
+        "progress": { "type": "number", "required": false },
+        "description": { "type": "string", "required": false }
       },
-      "useCases": ["dashboard", "analytics", "KPI display"],
+      "useCases": ["revenue tracking", "user metrics", "performance indicators", "KPI display"],
       "space": { "min": [2, 1], "max": [3, 2], "preferred": [2, 1] }
     },
     "SalesChart": {
       "description": "Visualize sales data with interactive charts and graphs",
       "props": {
         "title": { "type": "string", "required": false },
-        "timeRange": { "type": "string", "required": false, "allowed": ["7d", "30d", "90d", "1y"] }
+        "description": { "type": "string", "required": false },
+        "height": { "type": "number", "required": false },
+        "timeRange": { "type": "string", "required": false, "allowed": ["7d", "30d", "90d", "1y"] },
+        "metric": { "type": "string", "required": false, "allowed": ["sales", "revenue", "profit", "orders"] },
+        "category": { "type": "string", "required": false },
+        "sortBy": { "type": "string", "required": false, "allowed": ["date", "value", "growth"] },
+        "sortOrder": { "type": "string", "required": false, "allowed": ["asc", "desc"] }
       },
-      "useCases": ["sales visualization", "trend analysis"],
+      "useCases": ["sales visualization", "trend analysis", "performance charts"],
       "space": { "min": [3, 3], "max": [6, 5], "preferred": [4, 4] }
+    },
+    "ActivityFeed": {
+      "description": "Display recent user activities, system events, and real-time updates in a timeline format. Uses predefined sample data - LLM can only filter and configure display options.",
+      "props": {
+        "title": { "type": "string", "required": false },
+        "description": { "type": "string", "required": false },
+        "maxItems": { "type": "number", "required": false },
+        "showAvatars": { "type": "boolean", "required": false }
+      },
+      "useCases": ["user activity tracking", "system monitoring", "real-time updates", "audit logs"],
+      "space": { "min": [3, 3], "max": [6, 6], "preferred": [4, 4] }
     }
   }
 }
@@ -135,74 +211,97 @@ Each app using Adaptly defines a registry file describing components and their s
 
 ## ⚙️ AI Integration
 
-Adaptly supports multiple LLM providers for natural language processing. Choose the best provider for your needs:
+Adaptly supports multiple LLM providers with model selection. Choose the best provider and model for your needs:
 
-- **OpenAI GPT-4**: Advanced reasoning and complex task handling
-- **Anthropic Claude 3.5 Sonnet**: Excellent for nuanced understanding and safety
-- **Google Gemini 2.0 Flash**: Fast responses and cost-effective processing
+### Supported Providers & Models
 
-The AI service handles:
+**Google Gemini:**
+
+- `gemini-2.0-flash-exp` (experimental)
+- `gemini-2.0-flash` (stable)
+- `gemini-1.5-pro`
+- `gemini-1.5-flash`
+- `gemini-1.0-pro`
+
+**OpenAI GPT:**
+
+- `gpt-4o` (latest)
+- `gpt-4o-mini` (cost-effective)
+- `gpt-4-turbo`
+- `gpt-4`
+- `gpt-3.5-turbo`
+
+**Anthropic Claude:**
+
+- `claude-3-5-sonnet-20241022` (latest)
+- `claude-3-5-haiku-20241022` (fast)
+- `claude-3-opus-20240229`
+- `claude-3-sonnet-20240229`
+
+### AI Capabilities
 
 - **Natural Language Understanding**: Parsing user commands and intent
 - **Component Selection**: Choosing appropriate components based on user needs
 - **Layout Planning**: Determining optimal component arrangement
-- **Accessibility Adaptation**: Adjusting colors, fonts, and layout for accessibility needs
+- **Data Filtering**: LLM can only filter existing data and configure display options
+- **Model Selection**: Choose from multiple models per provider for different capabilities
+- **Persistent Storage**: AI decisions are saved and restored across sessions
+- **Component Registry Integration**: AI understands your components through adaptly.json
 
 ---
 
 ## 🔧 Example Next.js Integration
 
 ```tsx
-import { AdaptlyProvider, AdaptiveLayout, AdaptiveCommand, useAdaptiveUI } from "adaptly";
+import { AdaptlyProvider, useAdaptiveUI } from "adaptly";
 import adaptlyConfig from "./adaptly.json";
-import { MetricCard } from "@/components/MetricCard";
-import { SalesChart } from "@/components/SalesChart";
-
-const components = {
-  MetricCard,
-  SalesChart
-};
+import { MetricCard, SalesChart, TeamMembers } from "@/components";
 
 export default function Dashboard() {
   return (
     <AdaptlyProvider
-      apiKey="your-api-key"
-      provider="openai" // or "anthropic" or "google"
-      model="gpt-4" // or "claude-3-5-sonnet-20241022" or "gemini-2.0-flash-exp"
-      components={components}
-      adaptlyConfig={adaptlyConfig}
+      apiKey={process.env.NEXT_PUBLIC_GOOGLE_GENERATIVE_AI_API_KEY}
+      provider="google"
+      model="gemini-2.0-flash-exp"
+      components={{
+        MetricCard,
+        SalesChart,
+        TeamMembers,
+        DataTable: OrdersTable,
+        EmptyCard,
+        ActivityFeed,
+        NotificationCenter,
+        WeatherWidget,
+        QuickStats,
+        ResourceMonitor
+      }}
+      adaptlyConfig={adaptlyConfig} // REQUIRED
       enableStorage={true}
       storageKey="my-dashboard"
-      storageVersion="1.0.0"
-    >
-      <AdaptiveCommand />
-      <AdaptiveLayout />
-      <StorageControls />
-    </AdaptlyProvider>
+      storageVersion="2.0.0"
+    />
   );
 }
 
-// Access storage methods
-function StorageControls() {
-  const { saveToStorage, loadFromStorage, clearStorage, hasStoredData } = useAdaptiveUI();
+// Access adaptive UI methods
+function AdaptiveContent() {
+  const { currentLLMProvider } = useAdaptiveUI();
   
   return (
     <div>
-      <button onClick={saveToStorage}>Save State</button>
-      <button onClick={loadFromStorage}>Load State</button>
-      <button onClick={clearStorage}>Clear State</button>
-      <span>Has data: {hasStoredData() ? 'Yes' : 'No'}</span>
+      <p>Current LLM Provider: {currentLLMProvider}</p>
     </div>
   );
 }
 ```
 
-**User Flow**
+### User Flow
 
 1. Press **Cmd + K**
-2. Type: "Show me billing and analytics. I can't see blue."
+2. Type: "Show me billing and analytics" or "Create a sales dashboard"
 3. The planner calls the LLM → returns structured JSON.
-4. `AdaptiveGrid` re-renders those components with adjusted color palette.
+4. `AdaptiveLayout` re-renders those components with filtered data and configuration.
+5. UI state is automatically saved and restored on page refresh.
 
 ---
 
@@ -221,6 +320,8 @@ function StorageControls() {
 | State Management  | React Context                 |
 | Packaging         | Rollup                        |
 | Deployment        | Vercel or any Node-based host |
+| Component Registry | adaptly.json configuration   |
+| Data Visualization | Recharts 2.15.4              |
 
 ---
 
@@ -230,6 +331,8 @@ function StorageControls() {
 - No analytics or telemetry are collected by Adaptly.
 - Developers must provide their own LLM API key.
 - Results are deterministic through schema validation and temperature control.
+- All UI state is stored locally in localStorage with version control.
+- No external data is transmitted except to your chosen LLM provider.
 
 ---
 
@@ -241,17 +344,22 @@ function StorageControls() {
 - **Advanced storage options** with cloud sync capabilities
 - **Component marketplace** for sharing and discovering components
 - **Real-time collaboration** features for team environments
+- **Advanced AI features** with context-aware suggestions
+- **Component templates** for common use cases
+- **Export/Import** functionality for UI configurations
 
 ---
 
 ## 📚 Documentation
 
 - **[Full Documentation](./docs/README.md)** - Comprehensive developer guide
-- **[Migration Guide](./MIGRATION_GUIDE.md)** - v1.x to v2.0 migration
 - **[LLM Providers](./docs/llm-providers.md)** - Multiple AI provider setup
 - **[Storage Service](./docs/storage-service.md)** - Persistent storage guide
+- **[Component Registry](./docs/component-registry.md)** - adaptly.json configuration guide
 - **[API Reference](./docs/api/)** - Complete API documentation
 - **[Examples](./examples/)** - Working examples and demos
+- **[Advanced Features](./docs/advanced-features.md)** - Advanced usage patterns
+- **[Troubleshooting](./docs/troubleshooting.md)** - Common issues and solutions
 
 ## 📄 License
 
@@ -275,3 +383,12 @@ Please report security vulnerabilities responsibly. See our [Security Policy](SE
 Instead of navigating menus or switching dashboards, users just *tell* the interface what they want — and the LLM rewrites the layout in real time.
 
 It's not a chat assistant overlay. It's an AI that lives *inside* your app's design system.
+
+### Key Benefits
+
+- **Faster Development**: Build dashboards in minutes, not hours
+- **Better UX**: Users describe what they want in plain English
+- **Flexible**: Works with any React components and design system
+- **Persistent**: UI state is saved and restored automatically
+- **Multi-LLM**: Choose the best AI provider for your needs
+- **TypeScript**: Full type safety and IntelliSense support

@@ -1,26 +1,24 @@
 # Hooks API Reference
 
-This document provides comprehensive API reference for Adaptly's React hooks, which allow you to interact with the adaptive UI system programmatically.
+This document provides comprehensive API reference for Adaptly's React hooks and their usage.
 
 ## 🎣 useAdaptiveUI
 
-The primary hook for accessing and controlling the adaptive UI system.
+The primary hook that provides access to the adaptive UI context and all related functionality.
 
 ### Signature
 
-```typescript
+```tsx
 function useAdaptiveUI(): AdaptiveUIContextType
 ```
 
 ### Return Value
 
-```typescript
+```tsx
 interface AdaptiveUIContextType {
-  // Layout state
+  // UI state
   adaptation: UIAdaptation;
   updateAdaptation: (adaptation: Partial<UIAdaptation>) => void;
-  
-  // Component management
   addComponent: (component: UIComponent) => void;
   removeComponent: (id: string) => void;
   updateComponent: (id: string, updates: Partial<UIComponent>) => void;
@@ -29,11 +27,20 @@ interface AdaptiveUIContextType {
   parseUserInput: (input: string) => void;
   parseUserInputWithLLM: (input: string) => Promise<void>;
   resetToDefault: () => void;
-  
-  // State
   isLLMProcessing: boolean;
   lastLLMResponse?: string;
+  
+  // Configuration
   config?: AdaptlyConfig;
+  
+  // Storage methods
+  saveToStorage: () => boolean;
+  loadFromStorage: () => UIAdaptation | null;
+  clearStorage: () => boolean;
+  hasStoredData: () => boolean;
+  
+  // LLM provider info
+  currentLLMProvider?: string;
 }
 ```
 
@@ -45,149 +52,87 @@ import { useAdaptiveUI } from 'adaptly';
 function MyComponent() {
   const {
     adaptation,
-    updateAdaptation,
     addComponent,
     removeComponent,
-    updateComponent,
-    parseUserInput,
     parseUserInputWithLLM,
-    resetToDefault,
     isLLMProcessing,
-    lastLLMResponse
   } = useAdaptiveUI();
 
   return (
     <div>
-      {/* Your component content */}
-    </div>
-  );
-}
-```
-
-### Layout Management
-
-#### Getting Current Layout
-
-```tsx
-function LayoutViewer() {
-  const { adaptation } = useAdaptiveUI();
-  
-  return (
-    <div>
-      <h3>Current Layout</h3>
-      <p>Layout Type: {adaptation.layout}</p>
-      <p>Columns: {adaptation.columns}</p>
-      <p>Spacing: {adaptation.spacing}</p>
       <p>Components: {adaptation.components.length}</p>
+      <button onClick={() => addComponent(newComponent)}>
+        Add Component
+      </button>
     </div>
   );
 }
 ```
 
-#### Updating Layout
+### UI State Management
 
 ```tsx
-function LayoutController() {
-  const { updateAdaptation } = useAdaptiveUI();
-  
-  const switchToGrid = () => {
-    updateAdaptation({
-      layout: 'grid',
-      columns: 6,
-      spacing: 6
-    });
+function UIStateExample() {
+  const {
+    adaptation,
+    updateAdaptation,
+    addComponent,
+    removeComponent,
+    updateComponent,
+  } = useAdaptiveUI();
+
+  // Update entire adaptation
+  const handleLayoutChange = (newLayout: string) => {
+    updateAdaptation({ layout: newLayout });
   };
-  
-  const switchToFlex = () => {
-    updateAdaptation({
-      layout: 'flex',
-      spacing: 4
-    });
-  };
-  
-  return (
-    <div>
-      <button onClick={switchToGrid}>Grid Layout</button>
-      <button onClick={switchToFlex}>Flex Layout</button>
-    </div>
-  );
-}
-```
 
-### Component Management
-
-#### Adding Components
-
-```tsx
-function ComponentAdder() {
-  const { addComponent } = useAdaptiveUI();
-  
-  const addMetricCard = () => {
-    addComponent({
-      id: 'metric-' + Date.now(),
+  // Add new component
+  const handleAddComponent = () => {
+    const newComponent: UIComponent = {
+      id: 'metric-1',
       type: 'MetricCard',
       props: {
-        title: 'New Metric',
-        value: '123',
-        change: '+5%',
+        title: 'Revenue',
+        value: '$45,231',
+        change: '+20.1%',
         changeType: 'positive'
       },
       position: { x: 0, y: 0, w: 2, h: 1 },
       visible: true
-    });
+    };
+    
+    addComponent(newComponent);
   };
-  
-  return (
-    <button onClick={addMetricCard}>
-      Add Metric Card
-    </button>
-  );
-}
-```
 
-#### Removing Components
-
-```tsx
-function ComponentRemover({ componentId }: { componentId: string }) {
-  const { removeComponent } = useAdaptiveUI();
-  
-  const handleRemove = () => {
-    removeComponent(componentId);
+  // Remove component
+  const handleRemoveComponent = (id: string) => {
+    removeComponent(id);
   };
-  
-  return (
-    <button onClick={handleRemove}>
-      Remove Component
-    </button>
-  );
-}
-```
 
-#### Updating Components
-
-```tsx
-function ComponentUpdater({ componentId }: { componentId: string }) {
-  const { updateComponent } = useAdaptiveUI();
-  
-  const updatePosition = () => {
-    updateComponent(componentId, {
-      position: { x: 2, y: 1, w: 3, h: 2 }
-    });
-  };
-  
-  const updateProps = () => {
-    updateComponent(componentId, {
+  // Update component
+  const handleUpdateComponent = (id: string) => {
+    updateComponent(id, {
       props: {
-        title: 'Updated Title',
-        value: 'Updated Value'
+        title: 'Updated Revenue',
+        value: '$50,000'
       }
     });
   };
-  
+
   return (
     <div>
-      <button onClick={updatePosition}>Update Position</button>
-      <button onClick={updateProps}>Update Props</button>
+      <button onClick={() => handleLayoutChange('flex')}>
+        Switch to Flex Layout
+      </button>
+      <button onClick={handleAddComponent}>
+        Add Metric Card
+      </button>
+      <button onClick={() => handleRemoveComponent('metric-1')}>
+        Remove Component
+      </button>
+      <button onClick={() => handleUpdateComponent('metric-1')}>
+        Update Component
+      </button>
     </div>
   );
 }
@@ -195,38 +140,22 @@ function ComponentUpdater({ componentId }: { componentId: string }) {
 
 ### AI Processing
 
-#### Basic Input Processing
-
 ```tsx
-function BasicInputProcessor() {
-  const { parseUserInput } = useAdaptiveUI();
-  
-  const handleInput = (input: string) => {
+function AIProcessingExample() {
+  const {
+    parseUserInput,
+    parseUserInputWithLLM,
+    resetToDefault,
+    isLLMProcessing,
+    lastLLMResponse,
+  } = useAdaptiveUI();
+
+  // Basic parsing (fallback)
+  const handleBasicInput = (input: string) => {
     parseUserInput(input);
   };
-  
-  return (
-    <div>
-      <input 
-        placeholder="Enter command..."
-        onKeyDown={(e) => {
-          if (e.key === 'Enter') {
-            handleInput(e.currentTarget.value);
-            e.currentTarget.value = '';
-          }
-        }}
-      />
-    </div>
-  );
-}
-```
 
-#### LLM-Powered Processing
-
-```tsx
-function LLMInputProcessor() {
-  const { parseUserInputWithLLM, isLLMProcessing, lastLLMResponse } = useAdaptiveUI();
-  
+  // LLM-powered parsing
   const handleLLMInput = async (input: string) => {
     try {
       await parseUserInputWithLLM(input);
@@ -234,241 +163,41 @@ function LLMInputProcessor() {
       console.error('LLM processing failed:', error);
     }
   };
-  
+
+  // Reset to default
+  const handleReset = () => {
+    resetToDefault();
+  };
+
   return (
     <div>
       <input 
+        type="text" 
         placeholder="Describe what you want..."
-        onKeyDown={async (e) => {
+        onKeyPress={(e) => {
           if (e.key === 'Enter') {
-            await handleLLMInput(e.currentTarget.value);
+            handleLLMInput(e.currentTarget.value);
             e.currentTarget.value = '';
           }
         }}
       />
       
-      {isLLMProcessing && (
-        <div className="text-blue-600">AI is thinking...</div>
-      )}
+      <button 
+        onClick={() => handleLLMInput('Add a revenue metric')}
+        disabled={isLLMProcessing}
+      >
+        {isLLMProcessing ? 'Processing...' : 'Add Revenue Metric'}
+      </button>
+      
+      <button onClick={handleReset}>
+        Reset to Default
+      </button>
       
       {lastLLMResponse && (
-        <div className="text-gray-600">{lastLLMResponse}</div>
-      )}
-    </div>
-  );
-}
-```
-
-#### Resetting Layout
-
-```tsx
-function LayoutReset() {
-  const { resetToDefault } = useAdaptiveUI();
-  
-  return (
-    <button onClick={resetToDefault}>
-      Reset to Default Layout
-    </button>
-  );
-}
-```
-
-### Advanced Usage Patterns
-
-#### Custom Component Factory
-
-```tsx
-function ComponentFactory() {
-  const { addComponent } = useAdaptiveUI();
-  
-  const createMetricCard = (title: string, value: string, change?: string) => {
-    addComponent({
-      id: `metric-${title.toLowerCase().replace(/\s+/g, '-')}`,
-      type: 'MetricCard',
-      props: {
-        title,
-        value,
-        change,
-        changeType: change?.startsWith('+') ? 'positive' : 'negative'
-      },
-      position: { x: 0, y: 0, w: 2, h: 1 },
-      visible: true
-    });
-  };
-  
-  return (
-    <div>
-      <button onClick={() => createMetricCard('Revenue', '$45,231', '+20.1%')}>
-        Add Revenue Metric
-      </button>
-      <button onClick={() => createMetricCard('Users', '1,234', '+5.2%')}>
-        Add Users Metric
-      </button>
-    </div>
-  );
-}
-```
-
-#### Layout Persistence
-
-```tsx
-function LayoutPersistence() {
-  const { adaptation, updateAdaptation } = useAdaptiveUI();
-  
-  // Save layout to localStorage
-  const saveLayout = () => {
-    localStorage.setItem('adaptly-layout', JSON.stringify(adaptation));
-  };
-  
-  // Load layout from localStorage
-  const loadLayout = () => {
-    const saved = localStorage.getItem('adaptly-layout');
-    if (saved) {
-      try {
-        const parsed = JSON.parse(saved);
-        updateAdaptation(parsed);
-      } catch (error) {
-        console.error('Failed to load layout:', error);
-      }
-    }
-  };
-  
-  return (
-    <div>
-      <button onClick={saveLayout}>Save Layout</button>
-      <button onClick={loadLayout}>Load Layout</button>
-    </div>
-  );
-}
-```
-
-#### Conditional Component Rendering
-
-```tsx
-function ConditionalRenderer() {
-  const { adaptation } = useAdaptiveUI();
-  const userRole = useUserRole(); // Your custom hook
-  
-  const filteredComponents = adaptation.components.filter(component => {
-    // Hide admin components for non-admin users
-    if (component.type === 'AdminPanel' && userRole !== 'admin') {
-      return false;
-    }
-    
-    // Hide sensitive components for non-privileged users
-    if (component.type === 'SensitiveData' && !userRole.includes('privileged')) {
-      return false;
-    }
-    
-    return true;
-  });
-  
-  return (
-    <div className="grid gap-4">
-      {filteredComponents.map(component => (
-        <ComponentRenderer key={component.id} component={component} />
-      ))}
-    </div>
-  );
-}
-```
-
-## 🔧 useAdaptiveCommand
-
-Hook for managing the command interface programmatically.
-
-### Signature
-
-```typescript
-function useAdaptiveCommand(
-  handler: CommandHandler,
-  config?: CommandConfig
-): AdaptiveCommandReturn
-```
-
-### Parameters
-
-```typescript
-interface CommandHandler {
-  parseUserInput: (input: string) => void;
-  parseUserInputWithLLM?: (input: string) => Promise<void>;
-  resetToDefault: () => void;
-  isLLMProcessing?: boolean;
-  lastLLMResponse?: string;
-}
-
-interface CommandConfig {
-  keyPress?: string;
-  commands?: Command[];
-  enableLLM?: boolean;
-  placeholder?: string;
-  emptyMessage?: string;
-}
-```
-
-### Return Value
-
-```typescript
-interface AdaptiveCommandReturn {
-  open: boolean;
-  setOpen: (open: boolean) => void;
-  input: string;
-  setInput: (input: string) => void;
-  handleSelect: (value: string) => Promise<void>;
-  handleKeyDown: (e: React.KeyboardEvent) => void;
-  getCommands: () => Command[];
-  getFilteredCommands: () => Command[];
-}
-```
-
-### Basic Usage
-
-```tsx
-import { useAdaptiveCommand } from 'adaptly';
-
-function CustomCommandInterface() {
-  const {
-    parseUserInput,
-    parseUserInputWithLLM,
-    resetToDefault,
-    isLLMProcessing,
-    lastLLMResponse
-  } = useAdaptiveUI();
-  
-  const {
-    open,
-    setOpen,
-    input,
-    setInput,
-    handleSelect,
-    handleKeyDown,
-    getCommands
-  } = useAdaptiveCommand({
-    parseUserInput,
-    parseUserInputWithLLM,
-    resetToDefault,
-    isLLMProcessing,
-    lastLLMResponse
-  });
-  
-  return (
-    <div>
-      <button onClick={() => setOpen(true)}>
-        Open Command Interface
-      </button>
-      
-      {open && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center">
-          <div className="bg-white p-6 rounded-lg">
-            <input
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              onKeyDown={handleKeyDown}
-              placeholder="Enter command..."
-              className="w-full p-2 border rounded"
-            />
-            <button onClick={() => setOpen(false)}>Close</button>
-          </div>
+        <div className="mt-4 p-3 bg-blue-50 rounded">
+          <p className="text-sm text-blue-800">
+            AI Response: {lastLLMResponse}
+          </p>
         </div>
       )}
     </div>
@@ -476,297 +205,413 @@ function CustomCommandInterface() {
 }
 ```
 
-### Advanced Usage
+### Storage Management
 
 ```tsx
-function AdvancedCommandInterface() {
-  const adaptiveUI = useAdaptiveUI();
-  
+function StorageExample() {
   const {
-    open,
-    setOpen,
-    input,
-    setInput,
-    handleSelect,
-    getCommands,
-    getFilteredCommands
-  } = useAdaptiveCommand(adaptiveUI, {
-    keyPress: 'k',
-    placeholder: 'Describe what you want to create...',
-    emptyMessage: 'Try describing your ideal dashboard',
-    commands: [
-      {
-        id: 'custom-reset',
-        label: 'Custom Reset',
-        description: 'Reset with custom logic',
-        icon: RotateCcw,
-        action: 'custom-reset',
-        category: 'utility'
-      }
-    ]
-  });
-  
-  const commands = getCommands();
-  const filteredCommands = getFilteredCommands();
-  
+    saveToStorage,
+    loadFromStorage,
+    clearStorage,
+    hasStoredData,
+  } = useAdaptiveUI();
+
+  const handleSave = () => {
+    const success = saveToStorage();
+    if (success) {
+      console.log('UI state saved successfully');
+    } else {
+      console.error('Failed to save UI state');
+    }
+  };
+
+  const handleLoad = () => {
+    const savedState = loadFromStorage();
+    if (savedState) {
+      console.log('UI state loaded:', savedState);
+    } else {
+      console.log('No saved state found');
+    }
+  };
+
+  const handleClear = () => {
+    const success = clearStorage();
+    if (success) {
+      console.log('Storage cleared');
+    } else {
+      console.error('Failed to clear storage');
+    }
+  };
+
   return (
     <div>
-      {/* Your custom command interface */}
+      <button onClick={handleSave}>Save State</button>
+      <button onClick={handleLoad}>Load State</button>
+      <button onClick={handleClear}>Clear Storage</button>
+      <p>Has stored data: {hasStoredData() ? 'Yes' : 'No'}</p>
     </div>
   );
 }
 ```
 
-## 🎨 Custom Hooks
-
-### useComponentRegistry
+### Configuration Access
 
 ```tsx
-function useComponentRegistry() {
-  const { config } = useAdaptiveUI();
-  
-  const getComponentMetadata = (componentName: string) => {
-    return config?.adaptlyJson?.components[componentName];
-  };
-  
-  const getComponentsByCategory = (category: string) => {
-    const components = config?.adaptlyJson?.components || {};
-    return Object.entries(components)
-      .filter(([_, metadata]) => metadata.category === category)
-      .map(([name, metadata]) => ({ name, ...metadata }));
-  };
-  
-  const getComponentsByUseCase = (useCase: string) => {
-    const components = config?.adaptlyJson?.components || {};
-    return Object.entries(components)
-      .filter(([_, metadata]) => metadata.useCases.includes(useCase))
-      .map(([name, metadata]) => ({ name, ...metadata }));
-  };
-  
-  return {
-    getComponentMetadata,
-    getComponentsByCategory,
-    getComponentsByUseCase
-  };
+function ConfigExample() {
+  const { config, currentLLMProvider } = useAdaptiveUI();
+
+  return (
+    <div>
+      <p>LLM Provider: {currentLLMProvider}</p>
+      <p>Storage Enabled: {config?.storage?.enabled ? 'Yes' : 'No'}</p>
+      <p>Storage Key: {config?.storage?.key}</p>
+      <p>Storage Version: {config?.storage?.version}</p>
+    </div>
+  );
 }
 ```
 
-### useLayoutHistory
+## 🔧 Advanced Usage Patterns
+
+### Component Lifecycle Management
 
 ```tsx
-function useLayoutHistory() {
-  const { adaptation, updateAdaptation } = useAdaptiveUI();
-  const [history, setHistory] = useState<UIAdaptation[]>([]);
-  const [currentIndex, setCurrentIndex] = useState(-1);
-  
-  const saveLayout = () => {
-    const newHistory = history.slice(0, currentIndex + 1);
-    newHistory.push(adaptation);
-    setHistory(newHistory);
-    setCurrentIndex(newHistory.length - 1);
-  };
-  
-  const undo = () => {
-    if (currentIndex > 0) {
-      const newIndex = currentIndex - 1;
-      setCurrentIndex(newIndex);
-      updateAdaptation(history[newIndex]);
+function ComponentLifecycleExample() {
+  const {
+    adaptation,
+    addComponent,
+    removeComponent,
+    updateComponent,
+  } = useAdaptiveUI();
+
+  // Track component changes
+  useEffect(() => {
+    console.log('Components changed:', adaptation.components.length);
+  }, [adaptation.components]);
+
+  // Auto-save on component changes
+  useEffect(() => {
+    if (adaptation.components.length > 0) {
+      // Auto-save logic here
+      console.log('Auto-saving due to component changes');
     }
-  };
-  
-  const redo = () => {
-    if (currentIndex < history.length - 1) {
-      const newIndex = currentIndex + 1;
-      setCurrentIndex(newIndex);
-      updateAdaptation(history[newIndex]);
-    }
-  };
-  
-  return {
-    saveLayout,
-    undo,
-    redo,
-    canUndo: currentIndex > 0,
-    canRedo: currentIndex < history.length - 1
-  };
+  }, [adaptation.components]);
+
+  return (
+    <div>
+      <p>Total components: {adaptation.components.length}</p>
+      <p>Layout: {adaptation.layout}</p>
+      <p>Spacing: {adaptation.spacing}</p>
+      <p>Columns: {adaptation.columns}</p>
+    </div>
+  );
 }
 ```
 
-### useComponentValidation
+### Error Handling
 
 ```tsx
-function useComponentValidation() {
-  const { adaptation } = useAdaptiveUI();
-  const { getComponentMetadata } = useComponentRegistry();
-  
-  const validateComponent = (component: UIComponent) => {
-    const metadata = getComponentMetadata(component.type);
-    if (!metadata) {
-      return { valid: false, error: 'Component not found in registry' };
+function ErrorHandlingExample() {
+  const {
+    parseUserInputWithLLM,
+    isLLMProcessing,
+    lastLLMResponse,
+  } = useAdaptiveUI();
+
+  const handleAIRequest = async (input: string) => {
+    try {
+      await parseUserInputWithLLM(input);
+    } catch (error) {
+      console.error('AI request failed:', error);
+      // Handle error (show toast, etc.)
+    }
+  };
+
+  return (
+    <div>
+      <button 
+        onClick={() => handleAIRequest('Add a metric')}
+        disabled={isLLMProcessing}
+      >
+        {isLLMProcessing ? 'Processing...' : 'Ask AI'}
+      </button>
+      
+      {lastLLMResponse && (
+        <div className={`p-3 rounded ${
+          lastLLMResponse.startsWith('Error:') 
+            ? 'bg-red-50 text-red-800' 
+            : 'bg-green-50 text-green-800'
+        }`}>
+          {lastLLMResponse}
+        </div>
+      )}
+    </div>
+  );
+}
+```
+
+### Custom Component Management
+
+```tsx
+function CustomComponentManagement() {
+  const {
+    adaptation,
+    addComponent,
+    removeComponent,
+    updateComponent,
+  } = useAdaptiveUI();
+
+  // Create component with validation
+  const createValidatedComponent = (type: string, props: any) => {
+    const component: UIComponent = {
+      id: `component-${Date.now()}`,
+      type,
+      props,
+      position: { x: 0, y: 0, w: 2, h: 1 },
+      visible: true
+    };
+    
+    // Validate component before adding
+    if (component.type && component.props) {
+      addComponent(component);
+      return component.id;
     }
     
-    // Validate required props
-    const requiredProps = Object.entries(metadata.props)
-      .filter(([_, prop]) => prop.required)
-      .map(([name, _]) => name);
-    
-    const missingProps = requiredProps.filter(prop => !(prop in component.props));
-    if (missingProps.length > 0) {
-      return { 
-        valid: false, 
-        error: `Missing required props: ${missingProps.join(', ')}` 
-      };
-    }
-    
-    // Validate prop types
-    for (const [propName, propValue] of Object.entries(component.props)) {
-      const propDef = metadata.props[propName];
-      if (propDef) {
-        const expectedType = propDef.type;
-        const actualType = typeof propValue;
-        
-        if (expectedType === 'array' && !Array.isArray(propValue)) {
-          return { 
-            valid: false, 
-            error: `Prop ${propName} should be an array` 
-          };
-        }
-        
-        if (expectedType === 'object' && (actualType !== 'object' || Array.isArray(propValue))) {
-          return { 
-            valid: false, 
-            error: `Prop ${propName} should be an object` 
-          };
+    return null;
+  };
+
+  // Batch component operations
+  const batchAddComponents = (components: UIComponent[]) => {
+    components.forEach(component => {
+      addComponent(component);
+    });
+  };
+
+  // Find component by type
+  const findComponentsByType = (type: string) => {
+    return adaptation.components.filter(comp => comp.type === type);
+  };
+
+  return (
+    <div>
+      <button onClick={() => createValidatedComponent('MetricCard', {
+        title: 'Revenue',
+        value: '$45,231'
+      })}>
+        Add Metric Card
+      </button>
+      
+      <button onClick={() => {
+        const metricCards = findComponentsByType('MetricCard');
+        console.log('Found metric cards:', metricCards.length);
+      }}>
+        Count Metric Cards
+      </button>
+    </div>
+  );
+}
+```
+
+### Performance Optimization
+
+```tsx
+function PerformanceOptimizedExample() {
+  const {
+    adaptation,
+    addComponent,
+    removeComponent,
+    updateComponent,
+  } = useAdaptiveUI();
+
+  // Memoize expensive operations
+  const componentCount = useMemo(() => {
+    return adaptation.components.length;
+  }, [adaptation.components]);
+
+  const componentTypes = useMemo(() => {
+    return [...new Set(adaptation.components.map(comp => comp.type))];
+  }, [adaptation.components]);
+
+  // Debounce component updates
+  const debouncedUpdateComponent = useCallback(
+    debounce((id: string, updates: Partial<UIComponent>) => {
+      updateComponent(id, updates);
+    }, 300),
+    [updateComponent]
+  );
+
+  return (
+    <div>
+      <p>Total components: {componentCount}</p>
+      <p>Component types: {componentTypes.join(', ')}</p>
+    </div>
+  );
+}
+```
+
+## 🚨 Error Handling
+
+### Common Errors
+
+```tsx
+function ErrorHandlingExample() {
+  const {
+    parseUserInputWithLLM,
+    isLLMProcessing,
+    lastLLMResponse,
+  } = useAdaptiveUI();
+
+  // Handle different error types
+  const handleAIRequest = async (input: string) => {
+    try {
+      await parseUserInputWithLLM(input);
+    } catch (error) {
+      if (error instanceof Error) {
+        if (error.message.includes('API key')) {
+          console.error('API key issue:', error.message);
+        } else if (error.message.includes('rate limit')) {
+          console.error('Rate limit exceeded:', error.message);
+        } else {
+          console.error('Unknown error:', error.message);
         }
       }
     }
-    
-    return { valid: true };
   };
-  
-  const validateAllComponents = () => {
-    return adaptation.components.map(component => ({
-      component,
-      validation: validateComponent(component)
-    }));
-  };
-  
-  return {
-    validateComponent,
-    validateAllComponents
-  };
+
+  return (
+    <div>
+      <button onClick={() => handleAIRequest('Add a metric')}>
+        Test AI Request
+      </button>
+      
+      {lastLLMResponse && (
+        <div className={`p-3 rounded ${
+          lastLLMResponse.startsWith('Error:') 
+            ? 'bg-red-50 text-red-800' 
+            : 'bg-green-50 text-green-800'
+        }`}>
+          {lastLLMResponse}
+        </div>
+      )}
+    </div>
+  );
 }
 ```
 
-## 🧪 Testing Hooks
-
-### Testing useAdaptiveUI
+### Validation
 
 ```tsx
-import { renderHook, act } from '@testing-library/react';
-import { AdaptlyProvider } from 'adaptly';
-import { useAdaptiveUI } from 'adaptly';
+function ValidationExample() {
+  const { addComponent } = useAdaptiveUI();
 
-const wrapper = ({ children }: { children: React.ReactNode }) => (
-  <AdaptlyProvider
-    apiKey="test-key"
-    components={{}}
-    adaptlyConfig={testConfig}
-  >
-    {children}
-  </AdaptlyProvider>
-);
+  const addValidatedComponent = (component: UIComponent) => {
+    // Validate required fields
+    if (!component.id || !component.type) {
+      console.error('Component missing required fields');
+      return false;
+    }
 
-test('useAdaptiveUI returns correct initial state', () => {
-  const { result } = renderHook(() => useAdaptiveUI(), { wrapper });
-  
-  expect(result.current.adaptation).toBeDefined();
-  expect(result.current.isLLMProcessing).toBe(false);
-  expect(result.current.lastLLMResponse).toBeUndefined();
-});
+    // Validate component type
+    const validTypes = ['MetricCard', 'SalesChart', 'DataTable'];
+    if (!validTypes.includes(component.type)) {
+      console.error('Invalid component type:', component.type);
+      return false;
+    }
 
-test('addComponent adds component to layout', () => {
-  const { result } = renderHook(() => useAdaptiveUI(), { wrapper });
-  
-  act(() => {
-    result.current.addComponent({
-      id: 'test-component',
-      type: 'TestComponent',
-      props: { title: 'Test' },
-      position: { x: 0, y: 0, w: 1, h: 1 },
-      visible: true
-    });
-  });
-  
-  expect(result.current.adaptation.components).toHaveLength(1);
-  expect(result.current.adaptation.components[0].id).toBe('test-component');
-});
-```
-
-### Testing useAdaptiveCommand
-
-```tsx
-test('useAdaptiveCommand handles command selection', async () => {
-  const mockHandler = {
-    parseUserInput: jest.fn(),
-    parseUserInputWithLLM: jest.fn(),
-    resetToDefault: jest.fn(),
-    isLLMProcessing: false,
-    lastLLMResponse: undefined
+    // Add component
+    addComponent(component);
+    return true;
   };
-  
-  const { result } = renderHook(() => useAdaptiveCommand(mockHandler));
-  
-  await act(async () => {
-    await result.current.handleSelect('test command');
-  });
-  
-  expect(mockHandler.parseUserInput).toHaveBeenCalledWith('test command');
-});
+
+  return (
+    <div>
+      <button onClick={() => addValidatedComponent({
+        id: 'test-1',
+        type: 'MetricCard',
+        props: { title: 'Test', value: '$100' },
+        position: { x: 0, y: 0, w: 2, h: 1 },
+        visible: true
+      })}>
+        Add Validated Component
+      </button>
+    </div>
+  );
+}
 ```
 
-## 🆘 Troubleshooting
+## 🔍 Debugging
 
-### Common Issues
-
-**Hook not working:**
-
-- Ensure component is wrapped in `AdaptlyProvider`
-- Check that the hook is called within the provider context
-- Verify the hook is imported correctly
-
-**State not updating:**
-
-- Check that state updates are wrapped in `act()`
-- Verify the component is re-rendering
-- Check for console errors
-
-**LLM processing not working:**
-
-- Verify API key is provided
-- Check network connectivity
-- Ensure LLM service is properly configured
-
-### Debug Tools
+### Debug Information
 
 ```tsx
-// Enable debug logging
-const { adaptation, isLLMProcessing, lastLLMResponse } = useAdaptiveUI();
+function DebugExample() {
+  const {
+    adaptation,
+    config,
+    currentLLMProvider,
+    isLLMProcessing,
+    lastLLMResponse,
+  } = useAdaptiveUI();
 
-console.log('Current adaptation:', adaptation);
-console.log('LLM processing:', isLLMProcessing);
-console.log('Last response:', lastLLMResponse);
+  const debugInfo = {
+    componentCount: adaptation.components.length,
+    layout: adaptation.layout,
+    spacing: adaptation.spacing,
+    columns: adaptation.columns,
+    llmProvider: currentLLMProvider,
+    isProcessing: isLLMProcessing,
+    lastResponse: lastLLMResponse,
+    storageEnabled: config?.storage?.enabled,
+    storageKey: config?.storage?.key,
+    storageVersion: config?.storage?.version,
+  };
+
+  return (
+    <div className="p-4 bg-gray-100 rounded">
+      <h3>Debug Information</h3>
+      <pre className="text-sm">{JSON.stringify(debugInfo, null, 2)}</pre>
+    </div>
+  );
+}
 ```
 
-## 📚 Next Steps
+### Logging
 
-Now that you understand the hooks API:
+```tsx
+function LoggingExample() {
+  const {
+    adaptation,
+    addComponent,
+    removeComponent,
+    updateComponent,
+  } = useAdaptiveUI();
 
-1. **Read the [Core Components API](./core-components.md)** - Learn about the main components
-2. **Check out the [Services API](./services.md)** - Understand the underlying services
-3. **Explore [Custom Components](./custom-components.md)** - Build your own components
-4. **Try the [Basic Dashboard Tutorial](../tutorials/basic-dashboard.md)** - Build a complete dashboard
+  // Log component changes
+  useEffect(() => {
+    console.log('Components updated:', adaptation.components);
+  }, [adaptation.components]);
+
+  // Log layout changes
+  useEffect(() => {
+    console.log('Layout updated:', {
+      layout: adaptation.layout,
+      spacing: adaptation.spacing,
+      columns: adaptation.columns
+    });
+  }, [adaptation.layout, adaptation.spacing, adaptation.columns]);
+
+  return <div>Check console for logs</div>;
+}
+```
+
+## 📚 Related Documentation
+
+- **[Core Components API](./core-components.md)** - Component documentation
+- **[Types API](./types.md)** - Type definitions
+- **[Services API](./services.md)** - Service layer documentation
+- **[Component Registry Guide](../component-registry.md)** - Component configuration
+- **[Storage Service Guide](../storage-service.md)** - Storage configuration
 
 ---
 
-**Ready to dive deeper?** Check out the [Services API](./services.md) to understand the underlying services!
+Ready to learn about types? Check out the [Types API](./types.md)!

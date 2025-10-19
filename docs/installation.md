@@ -1,354 +1,377 @@
-# Installation & Setup
+# Installation Guide
 
-This guide will walk you through installing and setting up Adaptly in your React or Next.js application.
+This guide will help you install and set up Adaptly in your React or Next.js project.
 
 ## 📋 Prerequisites
 
 Before installing Adaptly, ensure you have:
 
-- **Node.js 18+** - Download from [nodejs.org](https://nodejs.org/)
-- **npm, yarn, pnpm, or bun** - Package manager
-- **React 19+** - Core framework dependency
-- **TypeScript** (recommended) - For type safety
-- **Google Gemini API key** (optional) - For AI functionality
+- **Node.js**: Version 18 or higher
+- **React**: Version 18 or 19
+- **TypeScript**: Version 5.0 or higher (recommended)
+- **Package Manager**: npm, yarn, pnpm, or bun
 
 ## 🚀 Installation
 
-### Using npm
+### Step 1: Install Adaptly
+
+Choose your preferred package manager:
 
 ```bash
+# Using npm
 npm install adaptly
-```
 
-### Using yarn
-
-```bash
+# Using yarn
 yarn add adaptly
-```
 
-### Using pnpm
-
-```bash
+# Using pnpm
 pnpm add adaptly
-```
 
-### Using bun
-
-```bash
+# Using bun
 bun add adaptly
 ```
 
-## 🔧 Basic Setup
+### Step 2: Install Peer Dependencies
 
-### 1. Install Adaptly
+Adaptly requires React and React-DOM as peer dependencies. If you don't have them installed:
 
-Adaptly includes all necessary dependencies. Simply install the package:
+```bash
+# Using npm
+npm install react react-dom
+
+# Using yarn
+yarn add react react-dom
+
+# Using pnpm
+pnpm add react react-dom
+
+# Using bun
+bun add react react-dom
+```
+
+**Note**: All AI SDKs and UI dependencies are bundled automatically. You only need React and React-DOM as peer dependencies.
+
+## 🔧 Project Setup
+
+### For Next.js Projects
+
+1. **Create a new Next.js project** (if starting fresh):
+
+```bash
+npx create-next-app@latest my-adaptly-app --typescript --tailwind --eslint
+cd my-adaptly-app
+```
+
+2. **Install Adaptly**:
 
 ```bash
 npm install adaptly
 ```
 
-**Note**: All dependencies (React, AI SDK, UI components, etc.) are included automatically.
+3. **Install additional dependencies** (if using shadcn/ui):
 
-### 2. Environment Variables
-
-Create a `.env.local` file in your project root:
-
-```env
-# Google Gemini API Key (required for AI features)
-NEXT_PUBLIC_GOOGLE_GENERATIVE_AI_API_KEY=your_api_key_here
-# or
-NEXT_PUBLIC_GEMINI_API_KEY=your_api_key_here
+```bash
+npx shadcn@latest init
+npx shadcn@latest add command dialog
 ```
 
-**Getting a Gemini API Key:**
+### For React Projects
 
-1. Visit [Google AI Studio](https://aistudio.google.com/)
-2. Create a new project
-3. Generate an API key
-4. Copy the key to your environment variables
+1. **Create a new React project** (if starting fresh):
 
-### 3. Component Registry
-
-Create an `adaptly.json` file in your project root:
-
-```json
-{
-  "version": "1.0.0",
-  "components": {
-    "MetricCard": {
-      "description": "Display key performance indicators with values and trends",
-      "props": {
-        "title": { "type": "string", "required": true },
-        "value": { "type": "string", "required": true },
-        "change": { "type": "string", "required": false },
-        "changeType": { "type": "string", "required": false, "allowed": ["positive", "negative", "neutral"] }
-      },
-      "useCases": ["dashboard", "analytics", "KPI display"],
-      "space": { "min": [2, 1], "max": [3, 2], "preferred": [2, 1] }
-    },
-    "DataTable": {
-      "description": "Display tabular data with filtering and sorting",
-      "props": {
-        "title": { "type": "string", "required": true },
-        "data": { "type": "array", "required": true },
-        "columns": { "type": "array", "required": true }
-      },
-      "useCases": ["data display", "tabular information"],
-      "space": { "min": [4, 4], "max": [6, 8], "preferred": [6, 6] }
-    }
-  }
-}
+```bash
+npx create-react-app my-adaptly-app --template typescript
+cd my-adaptly-app
 ```
 
-### 4. Basic Implementation
+2. **Install Adaptly**:
 
-```tsx
-// app/page.tsx or your main component
-import { AdaptlyProvider, AdaptiveLayout, AdaptiveCommand } from 'adaptly';
-import adaptlyConfig from '../adaptly.json';
-
-// Your components
-import { MetricCard } from '@/components/MetricCard';
-import { DataTable } from '@/components/DataTable';
-
-export default function App() {
-  return (
-    <AdaptlyProvider
-      apiKey={process.env.NEXT_PUBLIC_GOOGLE_GENERATIVE_AI_API_KEY}
-      components={{
-        MetricCard,
-        DataTable,
-      }}
-      adaptlyConfig={adaptlyConfig}
-    >
-      <AdaptiveCommand />
-      <AdaptiveLayout />
-    </AdaptlyProvider>
-  );
-}
+```bash
+npm install adaptly
 ```
 
-## 🎨 Styling Setup
-
-### Tailwind CSS (Recommended)
-
-1. **Install Tailwind CSS:**
+3. **Install Tailwind CSS** (recommended):
 
 ```bash
 npm install -D tailwindcss postcss autoprefixer
 npx tailwindcss init -p
 ```
 
-2. **Configure tailwind.config.js:**
+## 🔑 API Key Setup
 
-```javascript
-/** @type {import('tailwindcss').Config} */
-module.exports = {
-  content: [
-    "./src/**/*.{js,ts,jsx,tsx,mdx}",
-    "./node_modules/adaptly/**/*.{js,ts,jsx,tsx}",
-  ],
-  theme: {
-    extend: {},
-  },
-  plugins: [],
-}
-```
+Adaptly requires an API key from at least one LLM provider. You can use:
 
-3. **Add to your CSS:**
+- **Google Gemini** (recommended for beginners)
+- **OpenAI GPT**
+- **Anthropic Claude**
 
-```css
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-```
+### Google Gemini Setup
 
-### shadcn/ui (Optional but Recommended)
+1. **Get your API key**:
+   - Go to [Google AI Studio](https://makersuite.google.com/app/apikey)
+   - Create a new API key
+   - Copy the key
 
-1. **Initialize shadcn/ui:**
+2. **Add to environment variables**:
 
 ```bash
-npx shadcn-ui@latest init
+# .env.local (Next.js)
+NEXT_PUBLIC_GOOGLE_GENERATIVE_AI_API_KEY=your_api_key_here
+
+# .env (React)
+REACT_APP_GOOGLE_GENERATIVE_AI_API_KEY=your_api_key_here
 ```
 
-2. **Install required components:**
+### OpenAI Setup
+
+1. **Get your API key**:
+   - Go to [OpenAI Platform](https://platform.openai.com/api-keys)
+   - Create a new API key
+   - Copy the key
+
+2. **Add to environment variables**:
 
 ```bash
-npx shadcn-ui@latest add command dialog
+# .env.local (Next.js)
+NEXT_PUBLIC_OPENAI_API_KEY=your_api_key_here
+
+# .env (React)
+REACT_APP_OPENAI_API_KEY=your_api_key_here
 ```
 
-## 🔧 Advanced Configuration
+### Anthropic Setup
 
-### TypeScript Setup
+1. **Get your API key**:
+   - Go to [Anthropic Console](https://console.anthropic.com/)
+   - Create a new API key
+   - Copy the key
 
-If using TypeScript, create a `types/adaptly.d.ts` file:
+2. **Add to environment variables**:
 
-```typescript
-declare module 'adaptly' {
-  export * from 'adaptly/dist/index';
-}
+```bash
+# .env.local (Next.js)
+NEXT_PUBLIC_ANTHROPIC_API_KEY=your_api_key_here
+
+# .env (React)
+REACT_APP_ANTHROPIC_API_KEY=your_api_key_here
 ```
 
-### Next.js App Router Setup
+## 📁 Project Structure
 
-For Next.js 13+ with App Router:
+After installation, your project should look like this:
 
-```tsx
-// app/layout.tsx
-import { ThemeProvider } from '@/components/theme-provider';
-
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
-  return (
-    <html lang="en" suppressHydrationWarning>
-      <body>
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="system"
-          enableSystem
-          disableTransitionOnChange
-        >
-          {children}
-        </ThemeProvider>
-      </body>
-    </html>
-  );
-}
+```
+my-adaptly-app/
+├── src/
+│   ├── app/ (Next.js) or src/ (React)
+│   │   ├── layout.tsx (Next.js)
+│   │   ├── page.tsx
+│   │   └── globals.css
+│   ├── components/
+│   │   ├── ui/ (shadcn/ui components)
+│   │   ├── MetricCard.tsx
+│   │   ├── SalesChart.tsx
+│   │   └── ...
+│   └── adaptly.json
+├── .env.local (Next.js) or .env (React)
+├── package.json
+└── tailwind.config.js
 ```
 
-### Pages Router Setup
+## 🎯 Basic Setup
 
-For Next.js with Pages Router:
+### 1. Create adaptly.json
 
-```tsx
-// pages/_app.tsx
-import { AdaptlyProvider } from 'adaptly';
-import adaptlyConfig from '../adaptly.json';
-
-function MyApp({ Component, pageProps }) {
-  return (
-    <AdaptlyProvider
-      apiKey={process.env.NEXT_PUBLIC_GOOGLE_GENERATIVE_AI_API_KEY}
-      components={{}}
-      adaptlyConfig={adaptlyConfig}
-    >
-      <Component {...pageProps} />
-    </AdaptlyProvider>
-  );
-}
-
-export default MyApp;
-```
-
-## 🧪 Testing Your Setup
-
-### 1. Create a Test Component
-
-```tsx
-// components/TestComponent.tsx
-export function TestComponent({ title, value }: { title: string; value: string }) {
-  return (
-    <div className="p-4 border rounded-lg">
-      <h3 className="font-semibold">{title}</h3>
-      <p className="text-2xl">{value}</p>
-    </div>
-  );
-}
-```
-
-### 2. Register the Component
-
-Add to your `adaptly.json`:
+Create a `adaptly.json` file in your project root:
 
 ```json
 {
+  "version": "1.0.0",
   "components": {
-    "TestComponent": {
-      "description": "A simple test component",
+    "MetricCard": {
+      "description": "Display key performance indicators with values, trends, and progress bars",
       "props": {
         "title": { "type": "string", "required": true },
-        "value": { "type": "string", "required": true }
+        "value": { "type": "string", "required": true },
+        "change": { "type": "string", "required": false },
+        "changeType": { "type": "string", "required": false, "allowed": ["positive", "negative", "neutral"] },
+        "progress": { "type": "number", "required": false },
+        "description": { "type": "string", "required": false }
       },
-      "useCases": ["testing", "demo"],
-      "space": { "min": [2, 2], "max": [4, 4], "preferred": [3, 3] }
+      "useCases": ["revenue tracking", "user metrics", "performance indicators", "KPI display"],
+      "space": { "min": [2, 1], "max": [3, 2], "preferred": [2, 1] }
     }
   }
 }
 ```
 
-### 3. Test the Command Interface
+### 2. Create Your First Component
 
-1. Run your application
-2. Press `⌘K` (or `Ctrl+K`)
-3. Type: "Add a test component"
-4. Watch the AI generate the layout
+Create a simple component in `src/components/MetricCard.tsx`:
 
-## 🚨 Troubleshooting
+```tsx
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
-### Common Issues
+interface MetricCardProps {
+  title: string;
+  value: string;
+  change?: string;
+  changeType?: "positive" | "negative" | "neutral";
+  progress?: number;
+  description?: string;
+}
 
-**1. "Module not found" errors:**
+export function MetricCard({
+  title,
+  value,
+  change,
+  changeType = "neutral",
+  progress,
+  description,
+}: MetricCardProps) {
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>{title}</CardTitle>
+      </CardHeader>
+      <CardContent>
+        <div className="text-2xl font-bold">{value}</div>
+        {change && (
+          <p className={`text-sm ${
+            changeType === "positive" ? "text-green-600" : 
+            changeType === "negative" ? "text-red-600" : 
+            "text-gray-600"
+          }`}>
+            {change}
+          </p>
+        )}
+        {description && <p className="text-sm text-gray-600">{description}</p>}
+        {progress !== undefined && (
+          <div className="w-full bg-gray-200 rounded-full h-2 mt-2">
+            <div 
+              className="bg-blue-600 h-2 rounded-full" 
+              style={{ width: `${progress}%` }}
+            />
+          </div>
+        )}
+      </CardContent>
+    </Card>
+  );
+}
+```
 
-- Ensure all peer dependencies are installed
-- Check your import paths
-- Verify TypeScript configuration
+### 3. Set Up AdaptlyProvider
 
-**2. "API key not found" warnings:**
+In your main page component (`src/app/page.tsx` for Next.js or `src/App.tsx` for React):
 
-- Check your environment variables
-- Ensure the key is prefixed with `NEXT_PUBLIC_`
-- Restart your development server
+```tsx
+import { AdaptlyProvider } from 'adaptly';
+import adaptlyConfig from '../adaptly.json';
+import { MetricCard } from '@/components/MetricCard';
 
-**3. Components not rendering:**
+export default function Home() {
+  return (
+    <AdaptlyProvider
+      apiKey={process.env.NEXT_PUBLIC_GOOGLE_GENERATIVE_AI_API_KEY!}
+      provider="google"
+      model="gemini-2.0-flash-exp"
+      components={{ MetricCard }}
+      adaptlyConfig={adaptlyConfig}
+      enableStorage={true}
+      storageKey="my-app-ui"
+    />
+  );
+}
+```
 
-- Verify component registration in `adaptly.json`
-- Check component props match the registry
-- Ensure components are passed to `AdaptlyProvider`
+## 🧪 Testing Your Installation
 
-**4. Styling issues:**
+1. **Start your development server**:
 
-- Ensure Tailwind CSS is properly configured
-- Check CSS imports
-- Verify Tailwind content paths include Adaptly
+```bash
+# Next.js
+npm run dev
 
-### Debug Mode
+# React
+npm start
+```
 
-Enable debug logging:
+2. **Open your browser** and navigate to your app
+
+3. **Press `⌘K`** (or `Ctrl+K` on Windows/Linux) to open the command interface
+
+4. **Try a command** like "Add a metric card" or "Create a dashboard"
+
+5. **Watch the AI work** - it should dynamically add and arrange components
+
+## 🔧 Configuration Options
+
+### AdaptlyProvider Props
 
 ```tsx
 <AdaptlyProvider
-  // ... other props
-  logging={{
-    enabled: true,
-    level: "debug"
+  // Required
+  apiKey="your-api-key"
+  components={{ MetricCard, SalesChart }}
+  adaptlyConfig={adaptlyConfig}
+  
+  // Optional
+  provider="google" // or "openai" or "anthropic"
+  model="gemini-2.0-flash-exp"
+  enableStorage={true}
+  storageKey="my-app-ui"
+  storageVersion="1.0.0"
+  defaultLayout={{
+    components: [],
+    layout: "grid",
+    spacing: 6,
+    columns: 6
   }}
->
-  {/* Your app */}
-</AdaptlyProvider>
+  className="h-full"
+  style={{}}
+  aiSuggestions={[
+    { value: "Add metrics", label: "📊 Add metrics" }
+  ]}
+  showAISuggestions={true}
+  showUtilityCommands={true}
+  customLoader={MyCustomLoader}
+/>
 ```
+
+## 🚨 Common Issues
+
+### Issue: "Component not found" error
+
+**Solution**: Make sure your component is properly registered in the `components` prop and defined in `adaptly.json`.
+
+### Issue: "API key not found" error
+
+**Solution**: Check that your environment variable is correctly set and prefixed with `NEXT_PUBLIC_` (Next.js) or `REACT_APP_` (React).
+
+### Issue: "adaptly.json validation failed"
+
+**Solution**: Ensure your `adaptly.json` file has the correct structure with required fields: `description`, `props`, `useCases`, and `space`.
+
+### Issue: Components not rendering
+
+**Solution**: Check that your components are properly exported and imported, and that they match the types defined in `adaptly.json`.
 
 ## 📚 Next Steps
 
-Once you have Adaptly installed and configured:
+Now that you have Adaptly installed and configured:
 
-1. **Read the [Quick Start Guide](./quick-start.md)** - Learn the basics
-2. **Explore the [Component Registry](./component-registry.md)** - Understand component registration
-3. **Check out [Examples](./examples.md)** - See real-world implementations
-4. **Follow the [Basic Dashboard Tutorial](./tutorials/basic-dashboard.md)** - Build your first adaptive dashboard
+1. **Read the [Quick Start Guide](./quick-start.md)** to build your first adaptive UI
+2. **Learn about [Component Registry](./component-registry.md)** to configure more components
+3. **Explore [LLM Providers](./llm-providers.md)** to set up multiple AI providers
+4. **Check out the [Demo Application](../examples/adaptly-demo/)** for a complete example
 
 ## 🆘 Need Help?
 
-If you're still having issues:
-
-- **Check the [Troubleshooting Guide](./troubleshooting.md)**
-- **Search [GitHub Issues](https://github.com/gauravfs-14/adaptly/issues)**
-- **Join our [Discord Community](https://discord.gg/adaptly)** (coming soon)
-- **Read the [FAQ](./faq.md)**
+- **Documentation**: Check other guides in this documentation
+- **Examples**: Look at the demo application in `/examples`
+- **Issues**: [GitHub Issues](https://github.com/gauravfs-14/adaptly/issues)
+- **Discussions**: [GitHub Discussions](https://github.com/gauravfs-14/adaptly/discussions)
 
 ---
 
-**Ready to start building?** Check out the [Quick Start Guide](./quick-start.md) next!
+Ready to build your first adaptive UI? Check out the [Quick Start Guide](./quick-start.md)!

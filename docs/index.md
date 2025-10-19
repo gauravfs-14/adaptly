@@ -9,30 +9,25 @@ This documentation is designed to help you understand, implement, and master Ada
 ## 🚀 Quick Navigation
 
 ### Getting Started
-
 - **[Installation Guide](./installation.md)** - Set up Adaptly in your project
 - **[Quick Start Guide](./quick-start.md)** - Build your first adaptive UI in minutes
 - **[Component Registry](./component-registry.md)** - Configure your components for AI understanding
 
 ### Core Features
-
 - **[LLM Providers](./llm-providers.md)** - Configure multiple AI providers
 - **[Storage Service](./storage-service.md)** - Persistent UI state management
 - **[Advanced Features](./advanced-features.md)** - Custom loaders, advanced configurations
 
 ### API Reference
-
 - **[Core Components](./api/core-components.md)** - AdaptlyProvider, hooks, and utilities
 - **[Hooks](./api/hooks.md)** - useAdaptiveUI and other React hooks
 - **[Types](./api/types.md)** - TypeScript interfaces and types
 
 ### Tutorials & Examples
-
 - **[Basic Dashboard Tutorial](./tutorials/basic-dashboard.md)** - Step-by-step dashboard creation
 - **[Demo Application](../examples/adaptly-demo/)** - Full-featured example application
 
 ### Troubleshooting
-
 - **[Troubleshooting Guide](./troubleshooting.md)** - Common issues and solutions
 
 ## 🎯 What is Adaptly?
