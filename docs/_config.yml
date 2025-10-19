@@ -24,13 +24,13 @@ kramdown:
   parse_block_html: true
   parse_span_html: true
 
-# Disable Liquid processing for all markdown files
+# Enable Liquid processing for theme functionality
 defaults:
   - scope:
       path: ""
       type: "pages"
     values:
-      render_with_liquid: false
+      layout: "default"
 
 # SEO
 author: Adaptly Team
@@ -43,32 +43,7 @@ social:
   github: gauravfs-14/adaptly
   twitter: adaptly_ui
 
-# Navigation
-nav:
-  - title: Getting Started
-    url: /
-  - title: Quick Start
-    url: quick-start.html
-  - title: Component Registry
-    url: component-registry.html
-  - title: LLM Providers
-    url: llm-providers.html
-  - title: Storage Service
-    url: storage-service.html
-  - title: Advanced Features
-    url: advanced-features.html
-  - title: API Reference
-    children:
-      - title: Core Components
-        url: api/core-components.html
-      - title: Hooks
-        url: api/hooks.html
-      - title: Services
-        url: api/services.html
-      - title: Types
-        url: api/types.html
-  - title: Troubleshooting
-    url: troubleshooting.html
+# Minima theme will auto-generate navigation from your pages
 
 # Exclude files from processing
 exclude:
