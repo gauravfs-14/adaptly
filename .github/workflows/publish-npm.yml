@@ -12,6 +12,8 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -27,9 +29,27 @@ jobs:
       - name: Update package.json version from release tag
         run: |
           cd adaptly-lib
-          # Get the release tag from GitHub release
-          RELEASE_TAG="${{ github.event.release.tag_name }}"
+          # Get the release tag from GitHub release or use current tag
+          if [ -n "${{ github.event.release.tag_name }}" ]; then
+            RELEASE_TAG="${{ github.event.release.tag_name }}"
+            echo "Using release tag: $RELEASE_TAG"
+          else
+            # Fallback: get the latest tag from git
+            RELEASE_TAG=$(git describe --tags --abbrev=0)
+            echo "Using latest git tag: $RELEASE_TAG"
+          fi
+
+          # Extract version (remove 'v' prefix if present)
           VERSION=${RELEASE_TAG#v}
+          echo "Version: $VERSION"
+
+          # Validate version is not empty
+          if [ -z "$VERSION" ]; then
+            echo "Error: Version is empty. Release tag: $RELEASE_TAG"
+            echo "Available tags:"
+            git tag --list
+            exit 1
+          fi
 
           # Update package.json version
           npm version $VERSION --no-git-tag-version
