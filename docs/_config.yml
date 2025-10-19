@@ -1,50 +1,17 @@
-theme: minima
-plugins:
-  - jekyll-feed
-  - jekyll-sitemap
-  - jekyll-seo-tag
+theme: jekyll-theme-cayman
 
+# Basic site configuration
 title: Adaptly Documentation
 description: AI-Adaptive UI Library for React & Next.js
+author: Adaptly Team
 
-# Minima theme configuration
-
-# Markdown processing
-markdown: kramdown
-highlighter: rouge
-kramdown:
-  input: GFM
-  syntax_highlighter: rouge
-  syntax_highlighter_opts:
-    css_class: "highlight"
-    span:
-      line_numbers: false
-    block:
-      line_numbers: false
-  parse_block_html: true
-  parse_span_html: true
-
-# Disable Liquid processing for markdown content to avoid conflicts
+# Disable Liquid processing to avoid conflicts with JavaScript code
 defaults:
   - scope:
       path: ""
       type: "pages"
     values:
-      layout: "default"
       render_with_liquid: false
-
-# SEO
-author: Adaptly Team
-twitter:
-  username: adaptly_ui
-  card: summary_large_image
-
-# Social links
-social:
-  github: gauravfs-14/adaptly
-  twitter: adaptly_ui
-
-# Minima theme will auto-generate navigation from your pages
 
 # Exclude files from processing
 exclude:
