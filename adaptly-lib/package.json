@@ -1,6 +1,6 @@
 {
   "name": "adaptly",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "AI-powered adaptive UI framework for React applications",
   "license": "MIT",
   "author": "Gaurab Chhetri",
