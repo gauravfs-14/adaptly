@@ -71,6 +71,8 @@ Create `adaptly.json` in your project root:
 }
 ```
 
+**Note**: The `version` field in adaptly.json is for your component registry version, not the Adaptly package version.
+
 ### Step 4: Create Your Components
 
 Create `components/MetricCard.tsx`:

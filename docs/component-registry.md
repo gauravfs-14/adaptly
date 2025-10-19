@@ -40,6 +40,8 @@ The Component Registry is a JSON configuration file (`adaptly.json`) that define
 }
 ```
 
+**Note**: The `version` field in adaptly.json is for your component registry version, not the Adaptly package version.
+
 ### Complete Example
 
 ```json

@@ -40,25 +40,15 @@ bun add adaptly
 
 ## 🔧 Basic Setup
 
-### 1. Install Dependencies
+### 1. Install Adaptly
 
-Adaptly requires several peer dependencies. Install them alongside Adaptly:
+Adaptly includes all necessary dependencies. Simply install the package:
 
 ```bash
-# Core dependencies
-npm install react react-dom
-
-# UI dependencies (if using shadcn/ui)
-npm install @radix-ui/react-dialog @radix-ui/react-command
-npm install cmdk lucide-react
-
-# Styling (if using Tailwind CSS)
-npm install tailwindcss @tailwindcss/typography
-npm install clsx tailwind-merge
-
-# AI dependencies (if using AI features)
-npm install @ai-sdk/google ai
+npm install adaptly
 ```
+
+**Note**: All dependencies (React, AI SDK, UI components, etc.) are included automatically.
 
 ### 2. Environment Variables
 

@@ -47,8 +47,6 @@ A comprehensive Next.js demonstration of the Adaptly AI-powered adaptive UI fram
 
    ```env
    NEXT_PUBLIC_GOOGLE_GENERATIVE_AI_API_KEY=your_api_key_here
-   # or
-   NEXT_PUBLIC_GEMINI_API_KEY=your_api_key_here
    ```
 
 4. **Run the development server**

@@ -16,6 +16,8 @@ Adaptly turns those statements into live UI transformations — changing colors,
 npm install adaptly
 ```
 
+**Note**: All dependencies are included automatically - no additional packages needed!
+
 ```tsx
 import { AdaptlyProvider, AdaptiveLayout, AdaptiveCommand } from 'adaptly';
 
@@ -54,28 +56,28 @@ Press `⌘K` and describe what you want: "Create a sales dashboard" or "Add reve
 
 ```
 <App>
- └── <AdaptiveUIProvider registry={registry}>
+ └── <AdaptlyProvider apiKey={key} components={components} adaptlyConfig={config}>
        ├── <AdaptiveCommand />   // Cmd + K
-       └── <AdaptiveGrid />      // Dynamic layout from AI plan
-     </AdaptiveUIProvider>
+       └── <AdaptiveLayout />    // Dynamic layout from AI plan
+     </AdaptlyProvider>
 ```
 
 ### Core Modules
 
-1. **AdaptiveUIProvider**
-   Provides context: registry, layout state, and preferences returned by the planner.
+1. **AdaptlyProvider**
+   Main provider that wraps your app and provides AI-powered adaptive functionality.
 
 2. **AdaptiveCommand**
-   Opens a shadcn Command dialog. Submits goals to the `/api/adaptly/plan` endpoint.
+   Opens a shadcn Command dialog for natural language input.
 
-3. **AdaptiveGrid**
-   Reads the layout plan and renders your registered React components in a responsive Tailwind grid.
+3. **AdaptiveLayout**
+   Renders your registered React components in a dynamic, AI-driven layout.
 
-4. **Planner API (LLM-only)**
-   A Next.js route that calls Google's Gemini API to parse user intent and return a JSON layout plan.
+4. **LLM Service**
+   Handles communication with Google Gemini API for natural language processing.
 
-5. **Adapters**
-   Runtime utilities that modify Tailwind classes or CSS variables for color blindness and font scaling.
+5. **Registry Service**
+   Manages component registry and metadata processing.
 
 ---
 
@@ -83,99 +85,72 @@ Press `⌘K` and describe what you want: "Create a sales dashboard" or "Add reve
 
 Each app using Adaptly defines a registry file describing components and their semantics.
 
-`adaptive.registry.json`
+`adaptly.json`
 
 ```json
 {
-  "appName": "Cloud Console Demo",
-  "version": "1.0",
-  "components": [
-    {
-      "id": "user-metrics",
-      "displayName": "User Metrics",
-      "tags": ["analytics", "users", "kpi"],
-      "description": "Displays DAU and growth",
-      "sizeHints": { "w": 2, "h": 1 },
-      "priority": 0.9
+  "version": "1.0.0",
+  "components": {
+    "MetricCard": {
+      "description": "Display key performance indicators with values and trends",
+      "props": {
+        "title": { "type": "string", "required": true },
+        "value": { "type": "string", "required": true },
+        "change": { "type": "string", "required": false },
+        "changeType": { "type": "string", "required": false, "allowed": ["positive", "negative", "neutral"] }
+      },
+      "useCases": ["dashboard", "analytics", "KPI display"],
+      "space": { "min": [2, 1], "max": [3, 2], "preferred": [2, 1] }
     },
-    {
-      "id": "billing-table",
-      "displayName": "Billing Overview",
-      "tags": ["billing", "finance"],
-      "description": "Shows invoices and credits",
-      "sizeHints": { "w": 4, "h": 2 },
-      "priority": 0.8
+    "SalesChart": {
+      "description": "Visualize sales data with interactive charts and graphs",
+      "props": {
+        "title": { "type": "string", "required": false },
+        "timeRange": { "type": "string", "required": false, "allowed": ["7d", "30d", "90d", "1y"] }
+      },
+      "useCases": ["sales visualization", "trend analysis"],
+      "space": { "min": [3, 3], "max": [6, 5], "preferred": [4, 4] }
     }
-  ]
+  }
 }
 ```
 
 ---
 
-## ⚙️ Planner API (LLM-Only)
+## ⚙️ AI Integration
 
-`app/api/adaptly/plan/route.ts`
+Adaptly uses Google Gemini 2.0 Flash for natural language processing. The AI service is built into the library and handles:
 
-```ts
-import { GoogleGenerativeAI } from "@google/generative-ai";
-import { NextResponse } from "next/server";
-import { z } from "zod";
-
-const schema = z.object({
-  avoidColors: z.array(z.string()).optional(),
-  fontScale: z.number().optional(),
-  selected: z.array(z.object({
-    componentId: z.string(),
-    w: z.number(),
-    h: z.number()
-  }))
-});
-
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
-
-export async function POST(req: Request) {
-  const { goal, registry } = await req.json();
-
-  const prompt = `
-  You are a UI planner.
-  Given a goal and a registry of components, select which ones to show,
-  their approximate sizes, and any accessibility preferences.
-  Respond only with valid JSON matching this schema: ${schema.toString()}
-  Goal: ${goal}
-  Registry: ${JSON.stringify(registry.components)}
-  `;
-
-  const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
-  const result = await model.generateContent(prompt);
-  const response = await result.response;
-  const text = response.text();
-
-  const plan = schema.parse(JSON.parse(text));
-  return NextResponse.json(plan);
-}
-```
+- **Natural Language Understanding**: Parsing user commands and intent
+- **Component Selection**: Choosing appropriate components based on user needs
+- **Layout Planning**: Determining optimal component arrangement
+- **Accessibility Adaptation**: Adjusting colors, fonts, and layout for accessibility needs
 
 ---
 
 ## 🔧 Example Next.js Integration
 
 ```tsx
-import { AdaptiveUIProvider, AdaptiveGrid, AdaptiveCommand } from "adaptly";
-import registry from "./adaptive.registry.json";
-import { UserMetrics } from "@/components/UserMetrics";
-import { BillingTable } from "@/components/BillingTable";
+import { AdaptlyProvider, AdaptiveLayout, AdaptiveCommand } from "adaptly";
+import adaptlyConfig from "./adaptly.json";
+import { MetricCard } from "@/components/MetricCard";
+import { SalesChart } from "@/components/SalesChart";
 
 const components = {
-  "user-metrics": UserMetrics,
-  "billing-table": BillingTable
+  MetricCard,
+  SalesChart
 };
 
 export default function Dashboard() {
   return (
-    <AdaptiveUIProvider registry={registry}>
+    <AdaptlyProvider
+      apiKey="your-gemini-api-key"
+      components={components}
+      adaptlyConfig={adaptlyConfig}
+    >
       <AdaptiveCommand />
-      <AdaptiveGrid components={components} />
-    </AdaptiveUIProvider>
+      <AdaptiveLayout />
+    </AdaptlyProvider>
   );
 }
 ```
@@ -193,33 +168,35 @@ export default function Dashboard() {
 
 | Layer             | Technology                    |
 | ----------------- | ----------------------------- |
-| Framework         | Next.js 15 (App Router)       |
-| Language          | TypeScript                    |
+| Framework         | React 19+ / Next.js 15        |
+| Language          | TypeScript 5.9+              |
 | Styling           | Tailwind CSS + shadcn UI      |
-| AI Engine         | Google Gemini (gemini-2.5-flash) |
-| Schema Validation | zod                           |
+| AI Engine         | Google Gemini 2.0 Flash      |
+| AI SDK            | @ai-sdk/google 2.0.23         |
+| Command Interface | cmdk 1.1.1                    |
+| Icons             | Lucide React 0.546.0          |
 | State Management  | React Context                 |
-| Packaging         | tsup                          |
+| Packaging         | Rollup                        |
 | Deployment        | Vercel or any Node-based host |
 
 ---
 
 ## 🔐 Privacy Model
 
-* The registry and user goal are the only data sent to the LLM.
-* No analytics or telemetry are collected by Adaptly.
-* Developers must provide their own LLM API key.
-* Results are deterministic through schema validation and temperature control.
+- The registry and user goal are the only data sent to the LLM.
+- No analytics or telemetry are collected by Adaptly.
+- Developers must provide their own LLM API key.
+- Results are deterministic through schema validation and temperature control.
 
 ---
 
-## 🧭 Roadmap After v1.0
+## 🧭 Roadmap
 
-* **Layout persistence** (per-user memory in localStorage or Supabase)
-* **Visual editing** with drag-and-drop grid adjustments
-* **Role-aware planning** (different layouts per user type)
-* **Automatic prompt caching** to reduce token cost
-* **Multi-LLM support** with adapters for OpenAI, Anthropic, and Mistral APIs
+- **Custom CLI** for project scaffolding and adaptly.json validation
+- **Layout persistence** (per-user memory in localStorage)
+- **Multi-LLM support** with adapters for OpenAI, Anthropic, and Mistral APIs
+- **Enhanced customization** with more layout options
+- **Performance optimizations** for faster AI responses
 
 ---
 

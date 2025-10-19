@@ -7,7 +7,7 @@ The core TypeScript library that powers Adaptly's AI-driven adaptive UI framewor
 - **Version**: 0.0.1
 - **License**: MIT
 - **TypeScript**: Full support with type definitions
-- **Dependencies**: React 19+, AI SDK, Radix UI, Lucide React
+- **Dependencies**: React 19.2.0, AI SDK 5.0.76, @ai-sdk/google 2.0.23, @radix-ui/react-dialog 1.1.15, cmdk 1.1.1, lucide-react 0.546.0
 
 ## 🚀 Installation
 
