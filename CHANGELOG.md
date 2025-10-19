@@ -5,6 +5,31 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.0.3] - October 19, 2025
+
+### 🔧 Bug Fixes
+
+#### Rollup Build Configuration
+
+- **Peer Dependencies Resolution**: Added `rollup-plugin-peer-deps-external` for proper peer dependency handling
+- **Build Process**: Fixed dependency resolution errors with React and React-DOM peer dependencies
+- **Automatic Externalization**: Peer dependencies are now automatically externalized based on `package.json` configuration
+- **Cleaner Builds**: Removed manual external dependency declarations in favor of automatic detection
+
+#### Build Improvements
+
+- **Enhanced Rollup Config**: Updated Rollup configuration to use peer dependencies plugin
+- **Dependency Management**: Improved handling of peer dependencies in both CJS and ESM builds
+- **Build Reliability**: Eliminated dependency resolution errors during package building
+- **Future-Proof**: Automatic handling of any new peer dependencies added to the project
+
+### 📦 Technical Details
+
+- **Plugin Integration**: Added `rollup-plugin-peer-deps-external` to build pipeline
+- **Automatic Detection**: Build system now automatically detects and externalizes peer dependencies
+- **Version Update**: Package version updated to v0.0.3
+- **Build Process**: Enhanced build process for better dependency resolution
+
 ## [0.0.2] - October 19, 2025
 
 ### 🚀 New Features
