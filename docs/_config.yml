@@ -24,12 +24,13 @@ kramdown:
   parse_block_html: true
   parse_span_html: true
 
-# Disable Liquid processing to avoid conflicts with JavaScript code
+# Disable Liquid processing for markdown content to avoid conflicts
 defaults:
   - scope:
       path: ""
       type: "pages"
     values:
+      layout: "default"
       render_with_liquid: false
 
 # SEO
