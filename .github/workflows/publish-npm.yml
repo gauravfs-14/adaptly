@@ -65,7 +65,9 @@ jobs:
           git commit -m "Update version to $VERSION for release $RELEASE_TAG"
 
           # Push the version update back to the main branch
-          git push origin main
+          # Create a new branch from the current commit and push it
+          git checkout -b version-update-$VERSION
+          git push origin version-update-$VERSION
 
       - name: Build package
         run: |
