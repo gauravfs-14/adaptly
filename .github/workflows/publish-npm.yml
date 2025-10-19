@@ -3,6 +3,12 @@ name: Publish NPM Package
 on:
   release:
     types: [published]
+  workflow_dispatch:
+    inputs:
+      branch:
+        description: "Branch to publish to"
+        required: true
+        default: "main"
 
 jobs:
   publish:
