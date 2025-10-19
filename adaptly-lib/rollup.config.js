@@ -3,6 +3,7 @@ import commonjs from "@rollup/plugin-commonjs";
 import dts from "rollup-plugin-dts";
 import terser from "@rollup/plugin-terser";
 import ts from "@rollup/plugin-typescript";
+import peerDepsExternal from "rollup-plugin-peer-deps-external";
 const packageJson = require("./package.json");
 
 export default [
@@ -15,6 +16,7 @@ export default [
       sourcemap: true,
     },
     plugins: [
+      peerDepsExternal(),
       resolve({
         preferBuiltins: false,
         browser: true
@@ -27,7 +29,6 @@ export default [
       }),
       terser(),
     ],
-    external: ["react", "react-dom"],
     onwarn(warning, warn) {
       // Ignore "use client" directive warnings and circular dependency warnings
       if (warning.code === 'MODULE_LEVEL_DIRECTIVE' || warning.code === 'CIRCULAR_DEPENDENCY') {
@@ -45,6 +46,7 @@ export default [
       sourcemap: true,
     },
     plugins: [
+      peerDepsExternal(),
       resolve({
         preferBuiltins: false,
         browser: true
@@ -57,7 +59,6 @@ export default [
       }),
       terser(),
     ],
-    external: ["react", "react-dom"],
     onwarn(warning, warn) {
       // Ignore "use client" directive warnings and circular dependency warnings
       if (warning.code === 'MODULE_LEVEL_DIRECTIVE' || warning.code === 'CIRCULAR_DEPENDENCY') {
