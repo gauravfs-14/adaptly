@@ -1,0 +1,22 @@
+{
+    "version": "1.0.0",
+    "components": {
+      "MetricCard": {
+        "description": "Display key performance indicators with values, trends, and progress bars",
+        "props": {
+          "title": { "type": "string", "required": true },
+          "value": { "type": "string", "required": true },
+          "change": { "type": "string", "required": false },
+          "changeType": { 
+            "type": "string", 
+            "required": false, 
+            "allowed": ["positive", "negative", "neutral"] 
+          },
+          "progress": { "type": "number", "required": false },
+          "description": { "type": "string", "required": false }
+        },
+        "useCases": ["revenue tracking", "user metrics", "performance indicators", "KPI display"],
+        "space": { "min": [2, 1], "max": [3, 2], "preferred": [2, 1] }
+      }
+    }
+  }

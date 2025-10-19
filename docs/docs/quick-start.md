@@ -42,7 +42,13 @@ Create a `.env.local` file in your project root:
 NEXT_PUBLIC_GOOGLE_GENERATIVE_AI_API_KEY=your_api_key_here
 ```
 
-## Step 4: Create Your Component
+## Step 4: Install ShadCN Components
+
+```bash
+npx shadcn@latest add command button card kbd
+```
+
+## Step 5: Create Your Component
 
 Create a simple `MetricCard` component:
 
@@ -106,7 +112,7 @@ export function MetricCard({
 }
 ```
 
-## Step 5: Create Your adaptly.json Configuration
+## Step 6: Create Your adaptly.json Configuration
 
 Create `adaptly.json` in your project root:
 
@@ -135,7 +141,7 @@ Create `adaptly.json` in your project root:
 }
 ```
 
-## Step 6: Set Up AdaptlyProvider
+## Step 7: Set Up AdaptlyProvider
 
 Update your main page (`src/app/page.tsx`):
 
@@ -145,15 +151,20 @@ Update your main page (`src/app/page.tsx`):
 import { AdaptlyProvider } from "adaptly";
 import { MetricCard } from "@/components/MetricCard";
 import adaptlyConfig from "../../adaptly.json";
+import { Kbd } from "@/components/ui/kbd";
 
 export default function Home() {
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-8">
       <div className="max-w-7xl mx-auto">
-        <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-8">
+        <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">
           My Adaptive Dashboard
         </h1>
-        
+        <p className="text-sm text-gray-500 dark:text-gray-400 mb-8">
+          Press<Kbd>⌘ K</Kbd> to to open the command bar. Use natural language
+          to describe what you want to see.
+        </p>
+
         <AdaptlyProvider
           apiKey={process.env.NEXT_PUBLIC_GOOGLE_GENERATIVE_AI_API_KEY!}
           provider="google"
@@ -170,7 +181,7 @@ export default function Home() {
 }
 ```
 
-## Step 7: Run Your Application
+## Step 8: Run Your Application
 
 ```bash
 npm run dev
