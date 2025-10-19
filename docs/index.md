@@ -3,6 +3,7 @@ layout: default
 title: Adaptly Documentation
 description: AI-Adaptive UI Library for React & Next.js
 nav_order: 1
+render_with_liquid: false
 ---
 
 Build intelligent, adaptive user interfaces with AI-powered component generation and natural language commands.

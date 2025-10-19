@@ -2,6 +2,7 @@
 layout: default
 title: Quick Start Guide
 description: Get up and running with Adaptly in just a few minutes
+render_with_liquid: false
 ---
 
 Get up and running with Adaptly in just a few minutes! This guide will walk you through installing Adaptly and creating your first AI-powered adaptive UI.

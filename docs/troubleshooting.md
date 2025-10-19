@@ -2,6 +2,7 @@
 layout: default
 title: Troubleshooting Guide
 description: Common issues and solutions
+render_with_liquid: false
 ---
 
 This guide helps you diagnose and resolve common issues with Adaptly. If you're experiencing problems, check this guide first before seeking additional help.

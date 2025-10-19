@@ -2,6 +2,7 @@
 layout: default
 title: Hooks API
 description: useAdaptiveUI and other React hooks
+render_with_liquid: false
 ---
 
 This document provides comprehensive API reference for Adaptly's React hooks and their usage.

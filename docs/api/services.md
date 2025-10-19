@@ -2,6 +2,7 @@
 layout: default
 title: Services API
 description: Storage, LLM, and registry services
+render_with_liquid: false
 ---
 
 This document provides comprehensive API reference for Adaptly's service layer and internal services.

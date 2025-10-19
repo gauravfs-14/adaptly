@@ -2,6 +2,7 @@
 layout: default
 title: Component Registry Guide
 description: Configure your components for AI understanding
+render_with_liquid: false
 ---
 
 The component registry is the heart of Adaptly. It tells the AI about your components, their capabilities, and how they should be used. This guide covers everything you need to know about configuring your components for AI understanding.

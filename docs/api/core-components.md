@@ -2,6 +2,7 @@
 layout: default
 title: Core Components API
 description: AdaptlyProvider, hooks, and utilities
+render_with_liquid: false
 ---
 
 This document provides comprehensive API reference for Adaptly's core components and their usage.
