@@ -1,14 +1,39 @@
-# 🧠 Adaptly — The AI-Adaptive UI Library for Next.js
+# Adaptly — The AI-Adaptive UI Library for React & Next.js
 
-**Adaptly** brings intelligence to modern web dashboards.
+**Adaptly** brings intelligence to modern web dashboards and applications.
 It's a TypeScript-first library that lets your UI *understand what users mean*, not just what they click.
-With a single `Cmd + K`, users can describe their goal or need in plain English, and Adaptly uses an **LLM-driven planner** to dynamically recompose your Next.js interface using your existing React components.
+With a single `Cmd + K`, users can describe their goal or need in plain English, and Adaptly uses an **LLM-driven planner** to dynamically recompose your React interface using your existing components.
 
 > "I can't see blue."
 > "Show me billing and analytics."
 > "Focus this dashboard on user retention."
 
 Adaptly turns those statements into live UI transformations — changing colors, scaling text, and rearranging relevant components instantly.
+
+## 🚀 Quick Start
+
+```bash
+npm install adaptly
+```
+
+```tsx
+import { AdaptlyProvider, AdaptiveLayout, AdaptiveCommand } from 'adaptly';
+
+function App() {
+  return (
+    <AdaptlyProvider
+      apiKey="your-gemini-api-key"
+      components={{ MetricCard, SalesChart, DataTable }}
+      adaptlyConfig={adaptlyConfig}
+    >
+      <AdaptiveCommand />
+      <AdaptiveLayout />
+    </AdaptlyProvider>
+  );
+}
+```
+
+Press `⌘K` and describe what you want: "Create a sales dashboard" or "Add revenue metrics"
 
 ---
 
