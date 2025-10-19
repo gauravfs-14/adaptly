@@ -1,0 +1,32 @@
+# Source files
+src/
+core/
+*.ts
+*.tsx
+!*.d.ts
+
+# Development files
+rollup.config.js
+tsconfig.json
+package-lock.json
+node_modules/
+
+# Build artifacts (except dist)
+*.log
+.DS_Store
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Test files
+__tests__/
+*.test.*
+*.spec.*
+
+# Documentation
+README.md
+CHANGELOG.md
+docs/
