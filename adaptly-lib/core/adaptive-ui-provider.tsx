@@ -136,30 +136,69 @@ export function AdaptiveUIProvider({
     [storageService, config?.storage?.enabled]
   );
 
-  const addComponent = useCallback((component: UIComponent) => {
-    setAdaptation((prev) => ({
-      ...prev,
-      components: [...prev.components, component],
-    }));
-  }, []);
+  const addComponent = useCallback(
+    (component: UIComponent) => {
+      setAdaptation((prev) => {
+        const newAdaptation = {
+          ...prev,
+          components: [...prev.components, component],
+        };
+        // Auto-save to storage if enabled
+        if (storageService && config?.storage?.enabled) {
+          adaptlyLogger.debug(
+            "Saving adaptation after adding component:",
+            newAdaptation
+          );
+          storageService.saveAdaptation(newAdaptation);
+        }
+        return newAdaptation;
+      });
+    },
+    [storageService, config?.storage?.enabled]
+  );
 
-  const removeComponent = useCallback((id: string) => {
-    setAdaptation((prev) => ({
-      ...prev,
-      components: prev.components.filter((comp) => comp.id !== id),
-    }));
-  }, []);
+  const removeComponent = useCallback(
+    (id: string) => {
+      setAdaptation((prev) => {
+        const newAdaptation = {
+          ...prev,
+          components: prev.components.filter((comp) => comp.id !== id),
+        };
+        // Auto-save to storage if enabled
+        if (storageService && config?.storage?.enabled) {
+          adaptlyLogger.debug(
+            "Saving adaptation after removing component:",
+            newAdaptation
+          );
+          storageService.saveAdaptation(newAdaptation);
+        }
+        return newAdaptation;
+      });
+    },
+    [storageService, config?.storage?.enabled]
+  );
 
   const updateComponent = useCallback(
     (id: string, updates: Partial<UIComponent>) => {
-      setAdaptation((prev) => ({
-        ...prev,
-        components: prev.components.map((comp) =>
-          comp.id === id ? { ...comp, ...updates } : comp
-        ),
-      }));
+      setAdaptation((prev) => {
+        const newAdaptation = {
+          ...prev,
+          components: prev.components.map((comp) =>
+            comp.id === id ? { ...comp, ...updates } : comp
+          ),
+        };
+        // Auto-save to storage if enabled
+        if (storageService && config?.storage?.enabled) {
+          adaptlyLogger.debug(
+            "Saving adaptation after updating component:",
+            newAdaptation
+          );
+          storageService.saveAdaptation(newAdaptation);
+        }
+        return newAdaptation;
+      });
     },
-    []
+    [storageService, config?.storage?.enabled]
   );
 
   // Basic parsing without LLM (fallback)
@@ -232,12 +271,23 @@ export function AdaptiveUIProvider({
             result.newAdaptation
           );
           // Replace the entire adaptation with LLM-generated content
-          setAdaptation((prev) => ({
-            ...prev,
-            ...result.newAdaptation,
-            // Ensure components array is completely replaced, not merged
-            components: result.newAdaptation?.components || [],
-          }));
+          setAdaptation((prev) => {
+            const newAdaptation = {
+              ...prev,
+              ...result.newAdaptation,
+              // Ensure components array is completely replaced, not merged
+              components: result.newAdaptation?.components || [],
+            };
+            // Auto-save to storage if enabled
+            if (storageService && config?.storage?.enabled) {
+              adaptlyLogger.debug(
+                "Saving adaptation after LLM processing:",
+                newAdaptation
+              );
+              storageService.saveAdaptation(newAdaptation);
+            }
+            return newAdaptation;
+          });
         }
 
         if (result.reasoning) {
@@ -315,7 +365,9 @@ export function AdaptiveUIProvider({
     if (storageService) {
       const savedAdaptation = storageService.loadAdaptation();
       if (savedAdaptation) {
+        // Don't trigger storage save when loading from storage
         setAdaptation(savedAdaptation);
+        adaptlyLogger.debug("Loaded adaptation from storage:", savedAdaptation);
       }
       return savedAdaptation;
     }
