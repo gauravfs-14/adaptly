@@ -3,17 +3,6 @@ name: Publish NPM Package
 on:
   release:
     types: [published]
-  workflow_dispatch:
-    inputs:
-      version_type:
-        description: "Version bump type"
-        required: true
-        default: "patch"
-        type: choice
-        options:
-          - patch
-          - minor
-          - major
 
 jobs:
   publish:
@@ -34,19 +23,21 @@ jobs:
           cd adaptly-lib
           npm ci
 
-      - name: Bump version (manual trigger only)
-        if: github.event_name == 'workflow_dispatch'
+      - name: Update package.json version from release tag
         run: |
           cd adaptly-lib
-          npm version ${{ github.event.inputs.version_type }} --no-git-tag-version
+          # Extract version from release tag (remove 'v' prefix if present)
+          RELEASE_TAG="${{ github.event.release.tag_name }}"
+          VERSION=${RELEASE_TAG#v}
 
-      - name: Commit version changes (manual trigger only)
-        if: github.event_name == 'workflow_dispatch'
-        run: |
+          # Update package.json version
+          npm version $VERSION --no-git-tag-version
+
+          # Commit the version change
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
-          git add adaptly-lib/package.json
-          git commit -m "Bump version to ${{ github.event.inputs.version_type }}"
+          git add package.json
+          git commit -m "Update version to $VERSION for release $RELEASE_TAG"
           git push
 
       - name: Build package
@@ -66,25 +57,3 @@ jobs:
           npm publish
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-
-      - name: Create GitHub Release (manual trigger only)
-        if: github.event_name == 'workflow_dispatch'
-        run: |
-          # Extract version from package.json
-          VERSION=$(cd adaptly-lib && node -p "require('./package.json').version")
-
-          # Create release notes
-          cat > release_notes.md << EOF
-          ## Changes in v$VERSION
-
-          - Updated adaptly library to version $VERSION
-          - See CHANGELOG.md for detailed changes
-          EOF
-
-          # Create release
-          gh release create "v$VERSION" \
-            --title "Release v$VERSION" \
-            --notes-file release_notes.md \
-            --draft=false
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
