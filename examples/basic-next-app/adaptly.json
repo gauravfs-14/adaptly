@@ -17,6 +17,48 @@
         },
         "useCases": ["revenue tracking", "user metrics", "performance indicators", "KPI display"],
         "space": { "min": [2, 1], "max": [3, 2], "preferred": [2, 1] }
+      },
+      "TaskList": {
+        "description": "Interactive task management component with add, complete, and delete functionality",
+        "props": {
+          "title": { "type": "string", "required": false, "default": "My Tasks" },
+          "maxTasks": { "type": "number", "required": false, "default": 10 }
+        },
+        "useCases": ["project management", "to-do lists", "task tracking", "productivity"],
+        "space": { "min": [2, 2], "max": [4, 3], "preferred": [3, 2] }
+      },
+      "WeatherWidget": {
+        "description": "Display weather information for different locations with temperature, humidity, and wind data",
+        "props": {
+          "location": { "type": "string", "required": false, "default": "New York" },
+          "unit": { 
+            "type": "string", 
+            "required": false, 
+            "default": "celsius",
+            "allowed": ["celsius", "fahrenheit"]
+          }
+        },
+        "useCases": ["weather monitoring", "location-based data", "environmental info", "travel planning"],
+        "space": { "min": [2, 2], "max": [3, 2], "preferred": [2, 2] }
+      },
+      "Timer": {
+        "description": "Pomodoro-style timer with start, pause, reset, and time adjustment functionality",
+        "props": {
+          "initialMinutes": { "type": "number", "required": false, "default": 25 },
+          "title": { "type": "string", "required": false, "default": "Pomodoro Timer" },
+          "onComplete": { "type": "function", "required": false }
+        },
+        "useCases": ["pomodoro technique", "time management", "focus sessions", "productivity"],
+        "space": { "min": [2, 2], "max": [3, 2], "preferred": [2, 2] }
+      },
+      "NoteCard": {
+        "description": "Quick note-taking component with color-coded notes, timestamps, and organization",
+        "props": {
+          "title": { "type": "string", "required": false, "default": "Quick Notes" },
+          "maxNotes": { "type": "number", "required": false, "default": 5 }
+        },
+        "useCases": ["note taking", "idea capture", "quick reminders", "information storage"],
+        "space": { "min": [2, 2], "max": [4, 3], "preferred": [3, 2] }
       }
     }
   }
