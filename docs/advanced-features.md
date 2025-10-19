@@ -201,7 +201,11 @@ function MultiProviderDashboard() {
         apiKey={getApiKey()}
         provider={provider}
         model={model}
-        components={{"{"} MetricCard, SalesChart, DataTable {"}"}}
+        components={{
+          MetricCard,
+          SalesChart,
+          DataTable,
+        }}
         adaptlyConfig={adaptlyConfig}
         enableStorage={true}
         storageKey={`dashboard-${provider}`}
@@ -745,7 +749,7 @@ function ResponsiveAdaptlyProvider() {
     components: [],
     layout: "grid",
     ...getResponsiveConfig()
-  {"}"}}
+  }}
       className="h-full"
     />
   );

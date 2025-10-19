@@ -63,7 +63,7 @@ function App() {
       apiKey="your-api-key"
       provider="google"
       model="gemini-2.0-flash-exp"
-      components={{"{"} MetricCard, SalesChart, DataTable {"}"}}
+      components={{ MetricCard, SalesChart, DataTable }}
       adaptlyConfig={adaptlyConfig}
       enableStorage={true}
       storageKey="my-app-ui"
@@ -81,7 +81,7 @@ function App() {
   apiKey={process.env.NEXT_PUBLIC_GOOGLE_GENERATIVE_AI_API_KEY!}
   provider="google"
   model="gemini-2.0-flash-exp"
-  components={{"{"} MetricCard, SalesChart, DataTable {"}"}}
+  components={{ MetricCard, SalesChart, DataTable }}
   icons={{ DollarSign, Users, BarChart3 }}
   adaptlyConfig={adaptlyConfig}
   enableStorage={true}
@@ -463,7 +463,7 @@ function Dashboard() {
       apiKey={process.env.NEXT_PUBLIC_GOOGLE_GENERATIVE_AI_API_KEY!}
       provider="google"
       model="gemini-2.0-flash-exp"
-      components={{"{"} MetricCard, SalesChart, DataTable {"}"}}
+      components={{ MetricCard, SalesChart, DataTable }}
       adaptlyConfig={adaptlyConfig}
       enableStorage={true}
       storageKey="dashboard-ui"

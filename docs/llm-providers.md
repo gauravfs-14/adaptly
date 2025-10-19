@@ -296,7 +296,7 @@ export default function Dashboard() {
         apiKey={getApiKey()}
         provider={provider}
         model={model}
-        components={{"{"} MetricCard, SalesChart, DataTable {"}"}}
+        components={{ MetricCard, SalesChart, DataTable }}
         adaptlyConfig={adaptlyConfig}
         enableStorage={true}
       />
@@ -350,7 +350,7 @@ const getProviderConfig = (provider: string) => {
         topP: 0.9,
         frequencyPenalty: 0.1,
         presencePenalty: 0.1,
-      {"}"}}
+      }}
   // ... other props
 />
 ```

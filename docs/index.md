@@ -165,7 +165,7 @@ function App() {
       apiKey="your-api-key"
       provider="google"
       model="gemini-2.0-flash-exp"
-      components={{"{"} MetricCard, SalesChart, DataTable {"}"}}
+      components={{ MetricCard, SalesChart, DataTable }}
       adaptlyConfig={adaptlyConfig}
       enableStorage={true}
     />

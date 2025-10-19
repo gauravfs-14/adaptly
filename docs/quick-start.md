@@ -200,7 +200,7 @@ export function MetricCard({
           <div className="w-full bg-gray-200 rounded-full h-2 mt-2">
             <div 
               className="bg-blue-600 h-2 rounded-full transition-all duration-300" 
-              style={{"{"} width: `${{"{"}progress{"}"}}%` {"}"}}
+              style={{ width: `${progress}%` }}
             />
           </div>
         )}
@@ -358,11 +358,11 @@ export default function Home() {
           apiKey={process.env.NEXT_PUBLIC_GOOGLE_GENERATIVE_AI_API_KEY!}
           provider="google"
           model="gemini-2.0-flash-exp"
-          components={{"{"}
+          components={{
             MetricCard,
             SalesChart,
             DataTable,
-          {"}"}}
+          }}
           adaptlyConfig={adaptlyConfig}
           enableStorage={true}
           storageKey="quick-start-dashboard"
@@ -487,7 +487,7 @@ Here are some specific commands that work well with the demo:
 3. **Register it in AdaptlyProvider**:
 
 ```tsx
-components={{"{"}
+components={{
   MetricCard,
   SalesChart,
   DataTable,
