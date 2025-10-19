@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Toaster } from "@/components/ui/sonner";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import {
@@ -29,7 +29,6 @@ import {
   ShoppingCart,
   Activity,
   Sparkles,
-  Settings,
 } from "lucide-react";
 import {
   Select,
@@ -38,112 +37,15 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 
 // Enhanced loader component with full-page overlay and cool animations
 const CustomLoader = EnhancedLoader;
 
 // Content that goes inside the AdaptlyProvider
 function AdaptiveContent() {
-  const {
-    saveToStorage,
-    loadFromStorage,
-    clearStorage,
-    hasStoredData,
-    currentLLMProvider,
-  } = useAdaptiveUI();
+  const { currentLLMProvider } = useAdaptiveUI();
 
-  return (
-    <div className="flex h-full">
-      {/* Left Panel - Adaptive Grid (handled by AdaptlyProvider) */}
-      <div className="flex-1" />
-
-      {/* Right Panel - Storage Demo and Instructions */}
-      <div className="w-80 border-l p-4 space-y-6 overflow-auto">
-        <div className="p-4 border rounded-lg bg-muted/30">
-          <h4 className="font-semibold mb-3 flex items-center gap-2">
-            <Settings className="h-4 w-4" />
-            Storage & LLM Status
-          </h4>
-          <div className="space-y-3">
-            <div className="flex items-center justify-between">
-              <span className="text-sm">Current LLM:</span>
-              <Badge variant="outline">
-                {currentLLMProvider || "Not connected"}
-              </Badge>
-            </div>
-            <div className="flex items-center justify-between">
-              <span className="text-sm">Has stored data:</span>
-              <Badge variant={hasStoredData() ? "default" : "secondary"}>
-                {hasStoredData() ? "Yes" : "No"}
-              </Badge>
-            </div>
-            <div className="flex gap-2">
-              <Button size="sm" onClick={saveToStorage} variant="outline">
-                Save State
-              </Button>
-              <Button size="sm" onClick={loadFromStorage} variant="outline">
-                Load State
-              </Button>
-              <Button size="sm" onClick={clearStorage} variant="destructive">
-                Clear
-              </Button>
-            </div>
-          </div>
-        </div>
-
-        <Alert>
-          <Activity className="h-4 w-4" />
-          <AlertDescription>
-            Your dashboard is performing well. All systems are operational and
-            running smoothly.
-          </AlertDescription>
-        </Alert>
-
-        <div className="p-4 border rounded-lg bg-muted/50">
-          <h3 className="font-semibold mb-2">AI-Powered Commands:</h3>
-          <ul className="text-sm text-muted-foreground space-y-1">
-            <li>• "Create a sales dashboard" - AI will suggest components</li>
-            <li>• "Add a revenue chart" - AI will add appropriate charts</li>
-            <li>• "Show team performance" - AI will add team metrics</li>
-            <li>• "Create a data table" - AI will add data tables</li>
-            <li>• "Make it more compact" - AI will optimize layout</li>
-            <li>• "Add more visual elements" - AI will enhance UI</li>
-            <li>• "Reset to default" - Start over</li>
-          </ul>
-          <div className="mt-3 p-2 bg-blue-50 dark:bg-blue-950 rounded text-xs">
-            <strong>
-              Powered by{" "}
-              {currentLLMProvider === "google"
-                ? "Gemini 2.0 Flash"
-                : currentLLMProvider === "openai"
-                ? "GPT-4"
-                : currentLLMProvider === "anthropic"
-                ? "Claude 3.5 Sonnet"
-                : "AI"}
-            </strong>{" "}
-            - The AI understands natural language and will suggest the best
-            components for your needs. Your UI state is automatically saved and
-            restored.
-          </div>
-          <div className="mt-2 p-2 bg-green-50 dark:bg-green-950 rounded text-xs">
-            <strong>✨ New Features:</strong> Switch between LLM providers and
-            enjoy persistent storage that saves your UI state across page
-            refreshes!
-          </div>
-          <div className="mt-2 p-2 bg-blue-50 dark:bg-blue-950 rounded text-xs">
-            <strong>Storage Info:</strong> Key: "adaptly-demo-ui", Version:
-            "2.0.0"
-            <br />
-            <span className="text-muted-foreground">
-              Your UI state is automatically saved and restored on page refresh.
-            </span>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
+  return null;
 }
 
 // Sample data
@@ -177,10 +79,16 @@ export default function Dashboard() {
   const [sliderValue, setSliderValue] = useState([50]);
   const [isLoading, setIsLoading] = useState(false);
 
-  // LLM Configuration - Test different providers
+  // LLM Configuration - Test different providers with persistence
   const [selectedProvider, setSelectedProvider] = useState<
     "google" | "openai" | "anthropic"
-  >("google");
+  >(() => {
+    if (typeof window !== "undefined") {
+      const saved = localStorage.getItem("adaptly-demo-provider");
+      return (saved as "google" | "openai" | "anthropic") || "google";
+    }
+    return "google";
+  });
 
   const apiKey = (() => {
     switch (selectedProvider) {
@@ -285,6 +193,13 @@ export default function Dashboard() {
     console.log("Filter orders");
   };
 
+  // Save provider selection to localStorage when it changes
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      localStorage.setItem("adaptly-demo-provider", selectedProvider);
+    }
+  }, [selectedProvider]);
+
   return (
     <SidebarProvider>
       <div className="flex h-screen w-full">
@@ -308,7 +223,6 @@ export default function Dashboard() {
                 <div className="flex items-center justify-between mb-2">
                   <h2 className="text-2xl font-bold">Adaptive Dashboard</h2>
                   <div className="flex items-center gap-2">
-                    <Settings className="h-4 w-4" />
                     <Select
                       value={selectedProvider}
                       onValueChange={(

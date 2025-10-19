@@ -88,6 +88,10 @@ export function AdaptiveUIProvider({
   // Initialize storage service if enabled
   useEffect(() => {
     if (config?.storage?.enabled) {
+      adaptlyLogger.debug(
+        "Initializing storage service with config:",
+        config.storage
+      );
       const storage = new StorageService({
         enabled: config.storage.enabled,
         key: config.storage.key || "adaptly-ui",
@@ -98,9 +102,13 @@ export function AdaptiveUIProvider({
       // Try to load saved adaptation on initialization
       const savedAdaptation = storage.loadAdaptation();
       if (savedAdaptation) {
-        setAdaptation(savedAdaptation);
         adaptlyLogger.info("Loaded saved UI adaptation from storage");
+        setAdaptation(savedAdaptation);
+      } else {
+        adaptlyLogger.debug("No saved adaptation found");
       }
+    } else {
+      adaptlyLogger.debug("Storage disabled in config");
     }
   }, [config?.storage]);
 
@@ -117,7 +125,10 @@ export function AdaptiveUIProvider({
         const newAdaptation = { ...prev, ...updates };
         // Auto-save to storage if enabled
         if (storageService && config?.storage?.enabled) {
+          adaptlyLogger.debug("Saving adaptation to storage:", newAdaptation);
           storageService.saveAdaptation(newAdaptation);
+        } else {
+          adaptlyLogger.debug("Storage not available or disabled");
         }
         return newAdaptation;
       });

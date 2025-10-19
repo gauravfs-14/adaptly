@@ -36,6 +36,7 @@ export class StorageService {
 
       localStorage.setItem(storageKey, JSON.stringify(dataToStore));
       adaptlyLogger.debug("UI adaptation saved to localStorage:", storageKey);
+      adaptlyLogger.debug("Saved data:", dataToStore);
       return true;
     } catch (error) {
       adaptlyLogger.error("Failed to save adaptation to localStorage:", error);
@@ -53,6 +54,7 @@ export class StorageService {
 
     try {
       const storageKey = `${this.config.key}_${this.config.version}`;
+      adaptlyLogger.debug("Loading from storage key:", storageKey);
       const storedData = localStorage.getItem(storageKey);
 
       if (!storedData) {

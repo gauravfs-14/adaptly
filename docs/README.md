@@ -15,6 +15,8 @@ Welcome to the comprehensive developer documentation for Adaptly, the AI-powered
 - [Architecture Overview](./architecture.md) - How Adaptly works under the hood
 - [Component Registry](./component-registry.md) - Registering and managing components
 - [AI Integration](./ai-integration.md) - LLM configuration and usage
+- [LLM Providers](./llm-providers.md) - Multiple AI provider support (NEW in v2.0)
+- [Storage Service](./storage-service.md) - Persistent storage with localStorage (NEW in v2.0)
 - [Layout System](./layout-system.md) - Understanding adaptive layouts
 
 ### API Reference
@@ -107,7 +109,7 @@ Before diving into the documentation, make sure you have:
 - **React 19+** - Core framework dependency
 - **TypeScript knowledge** - For type safety and better DX
 - **Basic React concepts** - Components, hooks, context
-- **Google Gemini API key** - For AI functionality (optional but recommended)
+- **LLM API key** - For AI functionality (OpenAI, Anthropic, or Google Gemini)
 
 ## 📖 Reading Order
 

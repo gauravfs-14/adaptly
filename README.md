@@ -31,9 +31,13 @@ import { AdaptlyProvider, AdaptiveLayout, AdaptiveCommand } from 'adaptly';
 function App() {
   return (
     <AdaptlyProvider
-      apiKey="your-gemini-api-key"
+      apiKey="your-api-key"
+      provider="openai" // or "anthropic" or "google"
+      model="gpt-4" // or "claude-3-5-sonnet-20241022" or "gemini-2.0-flash-exp"
       components={{ MetricCard, SalesChart, DataTable }}
       adaptlyConfig={adaptlyConfig}
+      enableStorage={true} // NEW: Persistent storage
+      storageKey="my-app-ui" // NEW: Custom storage key
     >
       <AdaptiveCommand />
       <AdaptiveLayout />
@@ -51,6 +55,8 @@ Press `⌘K` and describe what you want: "Create a sales dashboard" or "Add reve
 | Category                   | Feature                              | Description                                                                                                                                 |
 | -------------------------- | ------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------- |
 | **AI-Driven Planning**     | Natural-language → structured layout | Sends user goals and your component registry to an LLM that returns a JSON layout plan with selected components and accessibility settings. |
+| **Multi-LLM Support**      | OpenAI, Anthropic, Google providers  | Choose from GPT-4, Claude 3.5 Sonnet, or Gemini 2.0 Flash for different AI capabilities and cost optimization.                           |
+| **Persistent Storage**     | localStorage state management        | Automatically saves and restores your UI state across page refreshes with version control and manual controls.                            |
 | **Command Bar**            | Cmd + K interface                    | Built using shadcn's Command & Dialog components for smooth in-app natural-language input.                                                  |
 | **Adaptive Layout Engine** | Dynamic Tailwind grid                | Re-renders the UI based on the LLM's plan: which components to show, in what order, with what styling.                                      |
 | **Accessibility Layer**    | Color & text adaptation              | Applies color substitution (e.g., avoid blue hues) and font scaling through CSS variables and Tailwind utilities.                           |
@@ -81,9 +87,12 @@ Press `⌘K` and describe what you want: "Create a sales dashboard" or "Add reve
    Renders your registered React components in a dynamic, AI-driven layout.
 
 4. **LLM Service**
-   Handles communication with Google Gemini API for natural language processing.
+   Handles communication with multiple LLM providers (OpenAI, Anthropic, Google) for natural language processing.
 
-5. **Registry Service**
+5. **Storage Service**
+   Manages persistent storage with localStorage for saving and restoring UI state.
+
+6. **Registry Service**
    Manages component registry and metadata processing.
 
 ---
@@ -126,7 +135,13 @@ Each app using Adaptly defines a registry file describing components and their s
 
 ## ⚙️ AI Integration
 
-Adaptly uses Google Gemini 2.0 Flash for natural language processing. The AI service is built into the library and handles:
+Adaptly supports multiple LLM providers for natural language processing. Choose the best provider for your needs:
+
+- **OpenAI GPT-4**: Advanced reasoning and complex task handling
+- **Anthropic Claude 3.5 Sonnet**: Excellent for nuanced understanding and safety
+- **Google Gemini 2.0 Flash**: Fast responses and cost-effective processing
+
+The AI service handles:
 
 - **Natural Language Understanding**: Parsing user commands and intent
 - **Component Selection**: Choosing appropriate components based on user needs
@@ -138,7 +153,7 @@ Adaptly uses Google Gemini 2.0 Flash for natural language processing. The AI ser
 ## 🔧 Example Next.js Integration
 
 ```tsx
-import { AdaptlyProvider, AdaptiveLayout, AdaptiveCommand } from "adaptly";
+import { AdaptlyProvider, AdaptiveLayout, AdaptiveCommand, useAdaptiveUI } from "adaptly";
 import adaptlyConfig from "./adaptly.json";
 import { MetricCard } from "@/components/MetricCard";
 import { SalesChart } from "@/components/SalesChart";
@@ -151,13 +166,33 @@ const components = {
 export default function Dashboard() {
   return (
     <AdaptlyProvider
-      apiKey="your-gemini-api-key"
+      apiKey="your-api-key"
+      provider="openai" // or "anthropic" or "google"
+      model="gpt-4" // or "claude-3-5-sonnet-20241022" or "gemini-2.0-flash-exp"
       components={components}
       adaptlyConfig={adaptlyConfig}
+      enableStorage={true}
+      storageKey="my-dashboard"
+      storageVersion="1.0.0"
     >
       <AdaptiveCommand />
       <AdaptiveLayout />
+      <StorageControls />
     </AdaptlyProvider>
+  );
+}
+
+// Access storage methods
+function StorageControls() {
+  const { saveToStorage, loadFromStorage, clearStorage, hasStoredData } = useAdaptiveUI();
+  
+  return (
+    <div>
+      <button onClick={saveToStorage}>Save State</button>
+      <button onClick={loadFromStorage}>Load State</button>
+      <button onClick={clearStorage}>Clear State</button>
+      <span>Has data: {hasStoredData() ? 'Yes' : 'No'}</span>
+    </div>
   );
 }
 ```
@@ -178,8 +213,9 @@ export default function Dashboard() {
 | Framework         | React 19+ / Next.js 15        |
 | Language          | TypeScript 5.9+              |
 | Styling           | Tailwind CSS + shadcn UI      |
-| AI Engine         | Google Gemini 2.0 Flash      |
-| AI SDK            | @ai-sdk/google 2.0.23         |
+| AI Engine         | OpenAI GPT-4 / Anthropic Claude / Google Gemini |
+| AI SDK            | @ai-sdk/openai, @ai-sdk/anthropic, @ai-sdk/google |
+| Storage           | localStorage with version control |
 | Command Interface | cmdk 1.1.1                    |
 | Icons             | Lucide React 0.546.0          |
 | State Management  | React Context                 |
@@ -200,12 +236,22 @@ export default function Dashboard() {
 ## 🧭 Roadmap
 
 - **Custom CLI** for project scaffolding and adaptly.json validation
-- **Layout persistence** (per-user memory in localStorage)
-- **Multi-LLM support** with adapters for OpenAI, Anthropic, and Mistral APIs
 - **Enhanced customization** with more layout options
 - **Performance optimizations** for faster AI responses
+- **Advanced storage options** with cloud sync capabilities
+- **Component marketplace** for sharing and discovering components
+- **Real-time collaboration** features for team environments
 
 ---
+
+## 📚 Documentation
+
+- **[Full Documentation](./docs/README.md)** - Comprehensive developer guide
+- **[Migration Guide](./MIGRATION_GUIDE.md)** - v1.x to v2.0 migration
+- **[LLM Providers](./docs/llm-providers.md)** - Multiple AI provider setup
+- **[Storage Service](./docs/storage-service.md)** - Persistent storage guide
+- **[API Reference](./docs/api/)** - Complete API documentation
+- **[Examples](./examples/)** - Working examples and demos
 
 ## 📄 License
 
