@@ -119,6 +119,173 @@ export function AdaptiveUIProvider({
     }
   }, [config?.logging, config]);
 
+  // Validate and filter components to remove invalid ones
+  const validateComponents = useCallback(
+    (components: UIComponent[]): UIComponent[] => {
+      return components.filter((component) => {
+        // Check if component has required fields
+        if (!component.id || !component.type) {
+          adaptlyLogger.warn(
+            "Filtering out component with missing id or type:",
+            component
+          );
+          return false;
+        }
+
+        // Check if component type is valid (exists in registry)
+        if (
+          config?.adaptlyJson?.components &&
+          !config.adaptlyJson.components[component.type]
+        ) {
+          adaptlyLogger.warn(
+            "Filtering out component with invalid type:",
+            component.type
+          );
+          return false;
+        }
+
+        // Validate component props against adaptly.json schema
+        const componentSchema =
+          config?.adaptlyJson?.components?.[component.type];
+        if (componentSchema) {
+          const props = component.props || {};
+          const schemaProps = componentSchema.props || {};
+
+          // Check required props
+          for (const [propName, propConfig] of Object.entries(schemaProps)) {
+            const prop = propConfig as any;
+            if (prop.required && !props[propName]) {
+              adaptlyLogger.warn(
+                `Filtering out component missing required prop '${propName}':`,
+                component
+              );
+              return false;
+            }
+          }
+
+          // Validate prop types and allowed values
+          for (const [propName, propValue] of Object.entries(props)) {
+            const propConfig = schemaProps[propName] as any;
+            if (propConfig) {
+              // Type validation
+              if (
+                propConfig.type === "string" &&
+                typeof propValue !== "string"
+              ) {
+                adaptlyLogger.warn(
+                  `Filtering out component with invalid prop type for '${propName}':`,
+                  component
+                );
+                return false;
+              }
+              if (
+                propConfig.type === "number" &&
+                typeof propValue !== "number"
+              ) {
+                adaptlyLogger.warn(
+                  `Filtering out component with invalid prop type for '${propName}':`,
+                  component
+                );
+                return false;
+              }
+              if (
+                propConfig.type === "boolean" &&
+                typeof propValue !== "boolean"
+              ) {
+                adaptlyLogger.warn(
+                  `Filtering out component with invalid prop type for '${propName}':`,
+                  component
+                );
+                return false;
+              }
+              if (propConfig.type === "array" && !Array.isArray(propValue)) {
+                adaptlyLogger.warn(
+                  `Filtering out component with invalid prop type for '${propName}':`,
+                  component
+                );
+                return false;
+              }
+              if (
+                propConfig.type === "object" &&
+                (typeof propValue !== "object" || Array.isArray(propValue))
+              ) {
+                adaptlyLogger.warn(
+                  `Filtering out component with invalid prop type for '${propName}':`,
+                  component
+                );
+                return false;
+              }
+
+              // Allowed values validation
+              if (
+                propConfig.allowed &&
+                !propConfig.allowed.includes(propValue)
+              ) {
+                adaptlyLogger.warn(
+                  `Filtering out component with invalid prop value for '${propName}':`,
+                  component
+                );
+                return false;
+              }
+            }
+          }
+        }
+
+        // Check for empty or invalid props that would render empty cards
+        if (component.type === "EmptyCard" || component.type === "MetricCard") {
+          const props = component.props || {};
+
+          // Filter out components with empty or meaningless content
+          if (component.type === "EmptyCard") {
+            const title = (props.title as string) || "";
+            const description = (props.description as string) || "";
+
+            // Filter out empty cards with generic or empty content
+            if (
+              !title.trim() ||
+              title.toLowerCase().includes("key metrics") ||
+              title.toLowerCase().includes("summary") ||
+              title.toLowerCase().includes("overview") ||
+              description.toLowerCase().includes("summary of") ||
+              description.toLowerCase().includes("performance indicators")
+            ) {
+              adaptlyLogger.warn(
+                "Filtering out empty card with generic content:",
+                component
+              );
+              return false;
+            }
+          }
+
+          // Filter out MetricCard with empty or invalid data
+          if (component.type === "MetricCard") {
+            const value = (props.value as string) || "";
+            const title = (props.title as string) || "";
+
+            if (
+              !value.trim() ||
+              !title.trim() ||
+              value === "$0" ||
+              value === "0" ||
+              value === "N/A" ||
+              title.toLowerCase().includes("key metrics") ||
+              title.toLowerCase().includes("summary")
+            ) {
+              adaptlyLogger.warn(
+                "Filtering out metric card with empty or invalid data:",
+                component
+              );
+              return false;
+            }
+          }
+        }
+
+        return true;
+      });
+    },
+    [config?.adaptlyJson?.components]
+  );
+
   const updateAdaptation = useCallback(
     (updates: Partial<UIAdaptation>) => {
       setAdaptation((prev) => {
@@ -138,10 +305,20 @@ export function AdaptiveUIProvider({
 
   const addComponent = useCallback(
     (component: UIComponent) => {
+      // Validate component before adding
+      const validatedComponents = validateComponents([component]);
+      if (validatedComponents.length === 0) {
+        adaptlyLogger.warn(
+          "Component failed validation and was not added:",
+          component
+        );
+        return;
+      }
+
       setAdaptation((prev) => {
         const newAdaptation = {
           ...prev,
-          components: [...prev.components, component],
+          components: [...prev.components, ...validatedComponents],
         };
         // Auto-save to storage if enabled
         if (storageService && config?.storage?.enabled) {
@@ -154,7 +331,7 @@ export function AdaptiveUIProvider({
         return newAdaptation;
       });
     },
-    [storageService, config?.storage?.enabled]
+    [storageService, config?.storage?.enabled, validateComponents]
   );
 
   const removeComponent = useCallback(
@@ -181,11 +358,16 @@ export function AdaptiveUIProvider({
   const updateComponent = useCallback(
     (id: string, updates: Partial<UIComponent>) => {
       setAdaptation((prev) => {
+        const updatedComponents = prev.components.map((comp) =>
+          comp.id === id ? { ...comp, ...updates } : comp
+        );
+
+        // Validate all components after update
+        const validatedComponents = validateComponents(updatedComponents);
+
         const newAdaptation = {
           ...prev,
-          components: prev.components.map((comp) =>
-            comp.id === id ? { ...comp, ...updates } : comp
-          ),
+          components: validatedComponents,
         };
         // Auto-save to storage if enabled
         if (storageService && config?.storage?.enabled) {
@@ -198,7 +380,7 @@ export function AdaptiveUIProvider({
         return newAdaptation;
       });
     },
-    [storageService, config?.storage?.enabled]
+    [storageService, config?.storage?.enabled, validateComponents]
   );
 
   // Basic parsing without LLM (fallback)
@@ -272,11 +454,18 @@ export function AdaptiveUIProvider({
           );
           // Replace the entire adaptation with LLM-generated content
           setAdaptation((prev) => {
+            const rawComponents = result.newAdaptation?.components || [];
+            const validatedComponents = validateComponents(rawComponents);
+
+            adaptlyLogger.debug(
+              `LLM generated ${rawComponents.length} components, ${validatedComponents.length} passed validation`
+            );
+
             const newAdaptation = {
               ...prev,
               ...result.newAdaptation,
-              // Ensure components array is completely replaced, not merged
-              components: result.newAdaptation?.components || [],
+              // Use validated components instead of raw ones
+              components: validatedComponents,
             };
             // Auto-save to storage if enabled
             if (storageService && config?.storage?.enabled) {
