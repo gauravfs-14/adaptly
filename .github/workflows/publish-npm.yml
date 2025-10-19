@@ -38,7 +38,7 @@ jobs:
           git config --local user.name "GitHub Action"
           git add package.json
           git commit -m "Update version to $VERSION for release $RELEASE_TAG"
-          git push
+          git push origin HEAD:refs/heads/${GITHUB_REF_NAME}
 
       - name: Build package
         run: |
