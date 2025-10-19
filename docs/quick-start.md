@@ -82,6 +82,8 @@ Create `adaptly.json` in your project root:
 
 Create `src/components/MetricCard.tsx`:
 
+{% raw %}
+
 ```tsx
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
@@ -141,6 +143,8 @@ export function MetricCard({
   );
 }
 ```
+
+{% endraw %}
 
 Create `src/components/SalesChart.tsx`:
 

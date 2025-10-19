@@ -70,6 +70,8 @@ function App() {
 
 ### Advanced Usage
 
+{% raw %}
+
 ```tsx
 <AdaptlyProvider
   apiKey={process.env.NEXT_PUBLIC_GOOGLE_GENERATIVE_AI_API_KEY!}
@@ -100,6 +102,8 @@ function App() {
   <MyCustomContent />
 </AdaptlyProvider>
 ```
+
+{% endraw %}
 
 ## 🎣 useAdaptiveUI Hook
 

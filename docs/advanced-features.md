@@ -8,6 +8,8 @@ This guide covers advanced features and configurations for Adaptly, including cu
 
 Create a custom loading component for AI processing:
 
+{% raw %}
+
 ```tsx
 import { CustomLoaderProps } from 'adaptly';
 
@@ -42,7 +44,11 @@ function MyCustomLoader({ isVisible, message, subMessage }: CustomLoaderProps) {
 />
 ```
 
+{% endraw %}
+
 ### Advanced Loader with Progress
+
+{% raw %}
 
 ```tsx
 function ProgressLoader({ isVisible, message, subMessage }: CustomLoaderProps) {
@@ -87,6 +93,8 @@ function ProgressLoader({ isVisible, message, subMessage }: CustomLoaderProps) {
   );
 }
 ```
+
+{% endraw %}
 
 ## 🔄 Multi-Provider Setup
 
