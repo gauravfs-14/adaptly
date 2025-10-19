@@ -45,6 +45,14 @@ kramdown:
   parse_block_html: true
   parse_span_html: true
 
+# Disable Liquid processing for all markdown files
+defaults:
+  - scope:
+      path: ""
+      type: "pages"
+    values:
+      render_with_liquid: false
+
 # Plugins
 plugins:
   - jekyll-feed
