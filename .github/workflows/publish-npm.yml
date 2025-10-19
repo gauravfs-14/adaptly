@@ -38,7 +38,13 @@ jobs:
           git config --local user.name "GitHub Action"
           git add package.json
           git commit -m "Update version to $VERSION for release $RELEASE_TAG"
-          git push origin HEAD:refs/heads/${GITHUB_REF_NAME}
+
+          # Checkout the correct branch or create it if it doesn't exist
+          BRANCH_NAME="${GITHUB_REF##*/}"
+          git checkout "${BRANCH_NAME}" || git checkout -b "${BRANCH_NAME}"
+
+          # Push to the correct branch
+          git push origin HEAD:"${BRANCH_NAME}"
 
       - name: Build package
         run: |
