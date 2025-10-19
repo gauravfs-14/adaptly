@@ -119,6 +119,10 @@ const config: Config = {
           title: "More",
           items: [
             {
+              label: "Changelog",
+              to: "/docs/changelog",
+            },
+            {
               label: "GitHub",
               href: "https://github.com/gauravfs-14/adaptly",
             },

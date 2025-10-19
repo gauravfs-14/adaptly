@@ -32,6 +32,7 @@ const sidebars: SidebarsConfig = {
       label: "API Reference",
       items: ["api/core-components", "api/hooks", "api/services", "api/types"],
     },
+    "changelog",
   ],
 };
 
