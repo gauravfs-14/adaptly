@@ -1,9 +1,10 @@
 ---
-layout: default
-title: LLM Providers Guide
-description: Configure multiple AI providers
-render_with_liquid: false
+sidebar_position: 4
 ---
+
+# LLM Providers Guide
+
+Configure multiple AI providers
 
 Adaptly supports multiple AI providers, allowing you to choose the best model for your needs. This guide covers setting up and configuring different LLM providers.
 
@@ -531,10 +532,10 @@ const trackProviderPerformance = (provider: string, responseTime: number) => {
 
 Now that you understand LLM providers:
 
-1. **Read the [Storage Service Guide](./storage-service.md)** for persistent state management
-2. **Explore [Advanced Features](./advanced-features.md)** for custom configurations
-3. **Check out [Troubleshooting Guide](./troubleshooting.md)** for common issues
-4. **See the [Demo Application](../examples/adaptly-demo/)** for complete examples
+1. **Read the [Storage Service Guide](storage-service)** for persistent state management
+2. **Explore [Advanced Features](advanced-features)** for custom configurations
+3. **Check out [Troubleshooting Guide](troubleshooting)** for common issues
+4. **See the [Demo Application](https://github.com/gauravfs-14/adaptly/tree/main/examples/adaptly-demo/)** for complete examples
 
 ## 🆘 Support
 
@@ -545,4 +546,4 @@ Now that you understand LLM providers:
 
 ---
 
-Ready to learn about persistent storage? Check out the [Storage Service Guide](./storage-service.md)!
+Ready to learn about persistent storage? Check out the [Storage Service Guide](storage-service)!

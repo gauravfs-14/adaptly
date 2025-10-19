@@ -1,10 +1,8 @@
 ---
-layout: default
-title: Adaptly Documentation
-description: AI-Adaptive UI Library for React & Next.js
-nav_order: 1
-render_with_liquid: false
+sidebar_position: 1
 ---
+
+# Welcome to Adaptly
 
 Build intelligent, adaptive user interfaces with AI-powered component generation and natural language commands.
 
@@ -30,7 +28,7 @@ echo "NEXT_PUBLIC_GOOGLE_GENERATIVE_AI_API_KEY=your_api_key_here" > .env.local
 # 5. Follow the complete tutorial
 ```
 
-**[📖 Complete Quick Start Guide →](quick-start.html)**
+**[📖 Complete Quick Start Guide →](quick-start)**
 
 ## ✨ Key Features
 
@@ -78,11 +76,11 @@ Adaptly is a TypeScript-first library that brings AI intelligence to your React 
 
 ## 🎨 Component Registry
 
-The heart of Adaptly is the component registry defined in `adaptly.json`. This file tells the AI about your components. For detailed configuration, see the [Component Registry Guide](component-registry.html).
+The heart of Adaptly is the component registry defined in `adaptly.json`. This file tells the AI about your components. For detailed configuration, see the [Component Registry Guide](component-registry).
 
 ## 🔧 LLM Integration
 
-Adaptly supports multiple AI providers with model selection. For detailed setup instructions, see the [LLM Providers Guide](llm-providers.html).
+Adaptly supports multiple AI providers with model selection. For detailed setup instructions, see the [LLM Providers Guide](llm-providers).
 
 - **Google Gemini**: `gemini-2.0-flash-exp`, `gemini-1.5-pro`
 - **OpenAI GPT**: `gpt-4o`, `gpt-4-turbo`, `gpt-3.5-turbo`
@@ -90,7 +88,7 @@ Adaptly supports multiple AI providers with model selection. For detailed setup 
 
 ## 💾 Storage & Persistence
 
-Adaptly automatically saves and restores your UI state. For detailed configuration, see the [Storage Service Guide](storage-service.html).
+Adaptly automatically saves and restores your UI state. For detailed configuration, see the [Storage Service Guide](storage-service).
 
 - **localStorage Integration**: Automatic state persistence
 - **Version Control**: Handles configuration changes gracefully
@@ -106,11 +104,11 @@ Adaptly automatically saves and restores your UI state. For detailed configurati
 
 ## 🤝 Contributing
 
-We welcome contributions! Please see our [Contributing Guidelines](../CONTRIBUTING.md) for details.
+We welcome contributions! Please see our [Contributing Guidelines](https://github.com/gauravfs-14/adaptly/blob/main/CONTRIBUTING.md) for details.
 
 ## 📄 License
 
-This project is licensed under the MIT License - see the [LICENSE](../LICENSE) file for details.
+This project is licensed under the MIT License - see the [LICENSE](https://github.com/gauravfs-14/adaptly/blob/main/LICENSE) file for details.
 
 ## 🆘 Support
 
@@ -121,4 +119,4 @@ This project is licensed under the MIT License - see the [LICENSE](../LICENSE) f
 
 ---
 
-Ready to get started? Check out the [Quick Start Guide](quick-start.html) to install Adaptly and build your first adaptive UI!
+Ready to get started? Check out the [Quick Start Guide](quick-start) to install Adaptly and build your first adaptive UI!

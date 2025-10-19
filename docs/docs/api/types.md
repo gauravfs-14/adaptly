@@ -1,9 +1,10 @@
 ---
-layout: default
-title: Types API
-description: TypeScript interfaces and types
-render_with_liquid: false
+sidebar_position: 9
 ---
+
+# Types API
+
+TypeScript interfaces and types
 
 This document provides comprehensive type definitions for Adaptly's TypeScript interfaces and types.
 
@@ -688,12 +689,12 @@ function MyComponent() {
 
 ## 📚 Related Documentation
 
-- **[Core Components API](./core-components.md)** - Component documentation
-- **[Hooks API](./hooks.md)** - Hook documentation
-- **[Services API](./services.md)** - Service layer documentation
-- **[Component Registry Guide](../component-registry.md)** - Component configuration
-- **[Storage Service Guide](../storage-service.md)** - Storage configuration
+- **[Core Components API](core-components)** - Component documentation
+- **[Hooks API](hooks)** - Hook documentation
+- **[Services API](services)** - Service layer documentation
+- **[Component Registry Guide](../component-registry)** - Component configuration
+- **[Storage Service Guide](../storage-service)** - Storage configuration
 
 ---
 
-Ready to learn about services? Check out the [Services API](./services.md)!
+Ready to learn about services? Check out the [Services API](services)!

@@ -1,9 +1,8 @@
 ---
-layout: default
-title: Quick Start Guide
-description: Get up and running with Adaptly in just a few minutes
-render_with_liquid: false
+sidebar_position: 2
 ---
+
+# Quick Start Guide
 
 Get up and running with Adaptly in just a few minutes! This guide will walk you through installing Adaptly and creating your first AI-powered adaptive UI.
 
@@ -99,11 +98,11 @@ NEXT_PUBLIC_OPENAI_API_KEY=your_api_key_here
 NEXT_PUBLIC_ANTHROPIC_API_KEY=your_api_key_here
 ```
 
-> **Note**: For detailed API key setup and multiple provider configuration, see the [LLM Providers Guide](./llm-providers.md).
+> **Note**: For detailed API key setup and multiple provider configuration, see the [LLM Providers Guide](llm-providers).
 
 ### Step 4: Create adaptly.json
 
-Create `adaptly.json` in your project root. For detailed component registry configuration, see the [Component Registry Guide](./component-registry.md).
+Create `adaptly.json` in your project root. For detailed component registry configuration, see the [Component Registry Guide](component-registry).
 
 ```json
 {
@@ -530,10 +529,10 @@ import { DollarSign, Users, BarChart3 } from "lucide-react";
 
 Now that you have a working adaptive UI:
 
-1. **Explore the [Component Registry Guide](./component-registry.md)** to learn about advanced component configuration
-2. **Check out [LLM Providers](./llm-providers.md)** to set up multiple AI providers
-3. **Learn about [Storage Service](./storage-service.md)** for advanced state management
-4. **See the [Demo Application](../examples/adaptly-demo/)** for a complete example
+1. **Explore the [Component Registry Guide](component-registry)** to learn about advanced component configuration
+2. **Check out [LLM Providers](llm-providers)** to set up multiple AI providers
+3. **Learn about [Storage Service](storage-service)** for advanced state management
+4. **See the [Demo Application](https://github.com/gauravfs-14/adaptly/tree/main/examples/adaptly-demo/)** for a complete example
 
 ## 🎉 Congratulations
 
@@ -561,12 +560,12 @@ You've successfully created your first AI-powered adaptive UI! The AI can now un
 
 ## 📚 Learn More
 
-- **[Component Registry Guide](./component-registry.md)** - Advanced component configuration
-- **[LLM Providers Guide](./llm-providers.md)** - Multiple AI provider setup
-- **[Storage Service Guide](./storage-service.md)** - Persistent state management
-- **[API Reference](./api/)** - Complete API documentation
-- **[Troubleshooting Guide](./troubleshooting.md)** - Common issues and solutions
+- **[Component Registry Guide](component-registry)** - Advanced component configuration
+- **[LLM Providers Guide](llm-providers)** - Multiple AI provider setup
+- **[Storage Service Guide](storage-service)** - Persistent state management
+- **[API Reference](api/core-components)** - Complete API documentation
+- **[Troubleshooting Guide](troubleshooting)** - Common issues and solutions
 
 ---
 
-Ready to dive deeper? Check out the [Component Registry Guide](./component-registry.md) to learn about advanced component configuration!
+Ready to dive deeper? Check out the [Component Registry Guide](component-registry) to learn about advanced component configuration!

@@ -1,9 +1,10 @@
 ---
-layout: default
-title: Core Components API
-description: AdaptlyProvider, hooks, and utilities
-render_with_liquid: false
+sidebar_position: 8
 ---
+
+# Core Components API
+
+AdaptlyProvider, hooks, and utilities
 
 This document provides comprehensive API reference for Adaptly's core components and their usage.
 
@@ -75,8 +76,6 @@ function App() {
 
 ### Advanced Usage
 
-{% raw %}
-
 ```tsx
 <AdaptlyProvider
   apiKey={process.env.NEXT_PUBLIC_GOOGLE_GENERATIVE_AI_API_KEY!}
@@ -107,8 +106,6 @@ function App() {
   <MyCustomContent />
 </AdaptlyProvider>
 ```
-
-{% endraw %}
 
 ## 🎣 useAdaptiveUI Hook
 
@@ -586,12 +583,12 @@ function MyCustomLoader({ isVisible, message, subMessage }: CustomLoaderProps) {
 
 ## 📚 Related Documentation
 
-- **[Hooks API](./hooks.md)** - Detailed hook documentation
-- **[Types API](./types.md)** - Complete type definitions
-- **[Services API](./services.md)** - Service layer documentation
-- **[Component Registry Guide](../component-registry.md)** - Component configuration
-- **[Storage Service Guide](../storage-service.md)** - Storage configuration
+- **[Hooks API](hooks)** - Detailed hook documentation
+- **[Types API](types)** - Complete type definitions
+- **[Services API](services)** - Service layer documentation
+- **[Component Registry Guide](../component-registry)** - Component configuration
+- **[Storage Service Guide](../storage-service)** - Storage configuration
 
 ---
 
-Ready to learn about hooks? Check out the [Hooks API](./hooks.md)!
+Ready to learn about hooks? Check out the [Hooks API](hooks)!

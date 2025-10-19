@@ -1,9 +1,10 @@
 ---
-layout: default
-title: Advanced Features
-description: Custom loaders, advanced configurations
-render_with_liquid: false
+sidebar_position: 6
 ---
+
+# Advanced Features
+
+Custom loaders, advanced configurations
 
 This guide covers advanced features and configurations for Adaptly, including custom loaders, advanced storage, multi-provider setups, and performance optimizations.
 
@@ -12,8 +13,6 @@ This guide covers advanced features and configurations for Adaptly, including cu
 ### Creating Custom Loaders
 
 Create a custom loading component for AI processing:
-
-{% raw %}
 
 ```tsx
 import { CustomLoaderProps } from 'adaptly';
@@ -49,11 +48,7 @@ function MyCustomLoader({ isVisible, message, subMessage }: CustomLoaderProps) {
 />
 ```
 
-{% endraw %}
-
 ### Advanced Loader with Progress
-
-{% raw %}
 
 ```tsx
 function ProgressLoader({ isVisible, message, subMessage }: CustomLoaderProps) {
@@ -98,8 +93,6 @@ function ProgressLoader({ isVisible, message, subMessage }: CustomLoaderProps) {
   );
 }
 ```
-
-{% endraw %}
 
 ## 🔄 Multi-Provider Setup
 
@@ -761,10 +754,10 @@ function ResponsiveAdaptlyProvider() {
 
 Now that you understand advanced features:
 
-1. **Read the [Troubleshooting Guide](./troubleshooting.md)** for common issues
-2. **Check out [API Reference](./api/)** for complete API documentation
-3. **See the [Demo Application](../examples/adaptly-demo/)** for complete examples
-4. **Explore [Component Registry Guide](./component-registry.md)** for advanced component configuration
+1. **Read the [Troubleshooting Guide](troubleshooting)** for common issues
+2. **Check out [API Reference](api/core-components)** for complete API documentation
+3. **See the [Demo Application](https://github.com/gauravfs-14/adaptly/tree/main/examples/adaptly-demo/)** for complete examples
+4. **Explore [Component Registry Guide](component-registry)** for advanced component configuration
 
 ## 🆘 Support
 
@@ -775,4 +768,4 @@ Now that you understand advanced features:
 
 ---
 
-Ready to troubleshoot issues? Check out the [Troubleshooting Guide](./troubleshooting.md)!
+Ready to troubleshoot issues? Check out the [Troubleshooting Guide](troubleshooting)!

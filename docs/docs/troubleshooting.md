@@ -1,9 +1,10 @@
 ---
-layout: default
-title: Troubleshooting Guide
-description: Common issues and solutions
-render_with_liquid: false
+sidebar_position: 7
 ---
+
+# Troubleshooting Guide
+
+Common issues and solutions
 
 This guide helps you diagnose and resolve common issues with Adaptly. If you're experiencing problems, check this guide first before seeking additional help.
 
@@ -642,11 +643,11 @@ function ErrorRecovery() {
 
 ### 1. Check Documentation
 
-- **[Quick Start Guide](./quick-start.md)** - Setup and basic usage
-- **[Component Registry Guide](./component-registry.md)** - Component configuration
-- **[LLM Providers Guide](./llm-providers.md)** - AI provider issues
-- **[Storage Service Guide](./storage-service.md)** - Storage issues
-- **[Advanced Features Guide](./advanced-features.md)** - Advanced configurations
+- **[Quick Start Guide](quick-start)** - Setup and basic usage
+- **[Component Registry Guide](component-registry)** - Component configuration
+- **[LLM Providers Guide](llm-providers)** - AI provider issues
+- **[Storage Service Guide](storage-service)** - Storage issues
+- **[Advanced Features Guide](advanced-features)** - Advanced configurations
 
 ## ❓ Frequently Asked Questions
 

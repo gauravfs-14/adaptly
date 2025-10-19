@@ -1,9 +1,10 @@
 ---
-layout: default
-title: Component Registry Guide
-description: Configure your components for AI understanding
-render_with_liquid: false
+sidebar_position: 3
 ---
+
+# Component Registry Guide
+
+Configure your components for AI understanding
 
 The component registry is the heart of Adaptly. It tells the AI about your components, their capabilities, and how they should be used. This guide covers everything you need to know about configuring your components for AI understanding.
 
@@ -589,10 +590,10 @@ components={{
 
 Now that you understand the component registry:
 
-1. **Read the [LLM Providers Guide](./llm-providers.md)** to set up multiple AI providers
-2. **Explore [Storage Service Guide](./storage-service.md)** for persistent state management
-3. **Check out [Advanced Features](./advanced-features.md)** for custom configurations
-4. **See the [Demo Application](../examples/adaptly-demo/)** for complete examples
+1. **Read the [LLM Providers Guide](llm-providers)** to set up multiple AI providers
+2. **Explore [Storage Service Guide](storage-service)** for persistent state management
+3. **Check out [Advanced Features](advanced-features)** for custom configurations
+4. **See the [Demo Application](https://github.com/gauravfs-14/adaptly/tree/main/examples/adaptly-demo/)** for complete examples
 
 ## 🆘 Troubleshooting
 
@@ -632,4 +633,4 @@ Now that you understand the component registry:
 
 ---
 
-Ready to set up multiple AI providers? Check out the [LLM Providers Guide](./llm-providers.md)!
+Ready to set up multiple AI providers? Check out the [LLM Providers Guide](llm-providers)!

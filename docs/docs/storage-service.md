@@ -1,9 +1,10 @@
 ---
-layout: default
-title: Storage Service Guide
-description: Persistent UI state management
-render_with_liquid: false
+sidebar_position: 5
 ---
+
+# Storage Service Guide
+
+Persistent UI state management
 
 Adaptly's storage service provides automatic persistence of your UI state, ensuring that user customizations are saved and restored across sessions. This guide covers everything you need to know about storage configuration and management.
 
@@ -515,10 +516,10 @@ const validateStoredData = (data: any) => {
 
 Now that you understand storage service:
 
-1. **Read the [Advanced Features Guide](./advanced-features.md)** for custom configurations
-2. **Check out [Troubleshooting Guide](./troubleshooting.md)** for common issues
-3. **Explore [API Reference](./api/)** for complete API documentation
-4. **See the [Demo Application](../examples/adaptly-demo/)** for complete examples
+1. **Read the [Advanced Features Guide](advanced-features)** for custom configurations
+2. **Check out [Troubleshooting Guide](troubleshooting)** for common issues
+3. **Explore [API Reference](api/services)** for complete API documentation
+4. **See the [Demo Application](https://github.com/gauravfs-14/adaptly/tree/main/examples/adaptly-demo/)** for complete examples
 
 ## 🆘 Support
 
@@ -529,4 +530,4 @@ Now that you understand storage service:
 
 ---
 
-Ready to explore advanced features? Check out the [Advanced Features Guide](./advanced-features.md)!
+Ready to explore advanced features? Check out the [Advanced Features Guide](advanced-features)!
