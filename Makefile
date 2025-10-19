@@ -29,7 +29,7 @@ test-package: clean-package build-package link-package
 # Unlink the package
 unlink-package:
 	cd examples/adaptly-demo && npm unlink adaptly
-	cd adaptly-lib && npm unlink
+	cd adaptly-lib && npm unlink adaptly
 
 # Full rebuild and link
 rebuild-package: clean-package build-package
