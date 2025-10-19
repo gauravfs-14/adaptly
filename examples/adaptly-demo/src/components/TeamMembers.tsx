@@ -23,53 +23,122 @@ interface TeamMember {
 }
 
 interface TeamMembersProps {
-  members?: TeamMember[];
   title?: string;
   description?: string;
   showHoverCard?: boolean;
+  // Filtering parameters that LLM can pass
+  department?: string;
+  status?: "online" | "away" | "offline";
+  role?: string;
+  sortBy?: "name" | "role" | "status" | "tasks";
+  sortOrder?: "asc" | "desc";
+  limit?: number;
 }
 
-const defaultMembers: TeamMember[] = [
-  {
-    name: "Sarah Johnson",
-    role: "Product Manager",
-    avatar: "/avatars/sarah.jpg",
-    status: "online",
-    lastActive: "2 min ago",
-    tasks: 12,
-  },
-  {
-    name: "Mike Chen",
-    role: "Frontend Developer",
-    avatar: "/avatars/mike.jpg",
-    status: "away",
-    lastActive: "1 hour ago",
-    tasks: 8,
-  },
-  {
-    name: "Emily Davis",
-    role: "Backend Developer",
-    avatar: "/avatars/emily.jpg",
-    status: "online",
-    lastActive: "5 min ago",
-    tasks: 15,
-  },
-  {
-    name: "Alex Rodriguez",
-    role: "Designer",
-    avatar: "/avatars/alex.jpg",
-    status: "offline",
-    lastActive: "3 hours ago",
-    tasks: 6,
-  },
-];
-
 export function TeamMembers({
-  members = defaultMembers,
   title = "Team Members",
   description = "Active team members",
   showHoverCard = true,
+  department,
+  status,
+  role,
+  sortBy = "name",
+  sortOrder = "asc",
+  limit = 10,
 }: TeamMembersProps) {
+  // Simulate data fetching based on filtering parameters
+  const generateData = () => {
+    const baseData = [
+      {
+        name: "Sarah Johnson",
+        role: "Product Manager",
+        avatar: "/avatars/sarah.jpg",
+        status: "online" as const,
+        lastActive: "2 min ago",
+        tasks: 12,
+      },
+      {
+        name: "Mike Chen",
+        role: "Frontend Developer",
+        avatar: "/avatars/mike.jpg",
+        status: "away" as const,
+        lastActive: "1 hour ago",
+        tasks: 8,
+      },
+      {
+        name: "Emily Davis",
+        role: "Backend Developer",
+        avatar: "/avatars/emily.jpg",
+        status: "online" as const,
+        lastActive: "5 min ago",
+        tasks: 15,
+      },
+      {
+        name: "Alex Rodriguez",
+        role: "Designer",
+        avatar: "/avatars/alex.jpg",
+        status: "offline" as const,
+        lastActive: "3 hours ago",
+        tasks: 6,
+      },
+    ];
+
+    // Apply filtering
+    let filteredData = [...baseData];
+
+    // Filter by status
+    if (status) {
+      filteredData = filteredData.filter((member) => member.status === status);
+    }
+
+    // Filter by role
+    if (role) {
+      filteredData = filteredData.filter((member) =>
+        member.role.toLowerCase().includes(role.toLowerCase())
+      );
+    }
+
+    // Sort data
+    filteredData.sort((a, b) => {
+      let aVal, bVal;
+      switch (sortBy) {
+        case "name":
+          aVal = a.name;
+          bVal = b.name;
+          break;
+        case "role":
+          aVal = a.role;
+          bVal = b.role;
+          break;
+        case "status":
+          aVal = a.status;
+          bVal = b.status;
+          break;
+        case "tasks":
+          aVal = a.tasks;
+          bVal = b.tasks;
+          break;
+        default:
+          aVal = a.name;
+          bVal = b.name;
+      }
+
+      if (typeof aVal === "string" && typeof bVal === "string") {
+        return sortOrder === "asc"
+          ? aVal.localeCompare(bVal)
+          : bVal.localeCompare(aVal);
+      } else {
+        const aNum = typeof aVal === "number" ? aVal : 0;
+        const bNum = typeof bVal === "number" ? bVal : 0;
+        return sortOrder === "asc" ? aNum - bNum : bNum - aNum;
+      }
+    });
+
+    // Apply limit
+    return filteredData.slice(0, limit);
+  };
+
+  const teamMembers = generateData();
   const getStatusVariant = (status: string) => {
     switch (status) {
       case "online":
@@ -110,7 +179,7 @@ export function TeamMembers({
       </CardHeader>
       <CardContent>
         <div className="space-y-4">
-          {members.map((member, index) => (
+          {teamMembers.map((member, index) => (
             <div key={index}>
               {showHoverCard ? (
                 <HoverCard>

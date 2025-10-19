@@ -11,7 +11,7 @@ import {
   CommandItem,
   CommandList,
   CommandSeparator,
-} from "@/components/ui/command";
+} from "./ui/command";
 import { useAdaptiveUI } from "./adaptive-ui-provider";
 import { adaptlyLogger } from "./logger";
 
@@ -188,7 +188,7 @@ export function AdaptiveCommand({
   const safeCommands = Array.isArray(commands) ? commands : [];
 
   // Debug logging to help identify the source of objects
-  if (process.env.NODE_ENV === "development") {
+  if (typeof window !== "undefined" && (window as any).__DEV__ !== false) {
     if (!Array.isArray(suggestions)) {
       console.warn("Adaptly: suggestions is not an array:", suggestions);
     }

@@ -1,14 +1,17 @@
 // Dashboard Components
 export { MetricCard } from "./MetricCard";
-export { SystemMetrics } from "./SystemMetrics";
 export { SalesChart } from "./SalesChart";
-export { DeviceChart } from "./DeviceChart";
 export { OrdersTable } from "./OrdersTable";
 export { TeamMembers } from "./TeamMembers";
-export { QuickActions } from "./QuickActions";
-export { SystemControls } from "./SystemControls";
 export { DashboardHeader } from "./DashboardHeader";
 export { DashboardSidebar } from "./DashboardSidebar";
+export { EmptyCard } from "./EmptyCard";
+export { EnhancedLoader } from "./EnhancedLoader";
+export { ActivityFeed } from "./ActivityFeed";
+export { NotificationCenter } from "./NotificationCenter";
+export { WeatherWidget } from "./WeatherWidget";
+export { QuickStats } from "./QuickStats";
+export { ResourceMonitor } from "./ResourceMonitor";
 
 // Re-export UI components for convenience
 export {
