@@ -19,9 +19,9 @@ cd my-adaptly-demo
 # 2. Install Adaptly
 npm install adaptly
 
-# 3. Set up shadcn/ui (optional but recommended)
+# 3. Set up shadcn/ui
 npx shadcn@latest init
-npx shadcn@latest add card button
+npx shadcn@latest add card button command
 
 # 4. Set up your API key
 echo "NEXT_PUBLIC_GOOGLE_GENERATIVE_AI_API_KEY=your_api_key_here" > .env.local
