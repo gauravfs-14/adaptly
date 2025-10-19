@@ -1,12 +1,15 @@
 {
-  "name": "basic-next-app",
+  "name": "adaptly-basic-demo",
   "version": "0.1.0",
   "private": true,
+  "description": "Adaptly Basic Demo - AI-powered adaptive UI components",
+  "keywords": ["adaptly", "ai", "ui", "components", "demo", "nextjs"],
   "scripts": {
     "dev": "next dev --turbopack",
     "build": "next build --turbopack",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "setup": "cp env.example .env.local"
   },
   "dependencies": {
     "@radix-ui/react-dialog": "^1.1.15",

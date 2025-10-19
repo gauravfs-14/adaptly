@@ -1,0 +1,12 @@
+{
+  "installDependencies": true,
+  "startCommand": "npm run dev",
+  "env": {
+    "NEXT_PUBLIC_GOOGLE_GENERATIVE_AI_API_KEY": "YOUR_API_KEY_HERE"
+  },
+  "openFiles": [
+    "src/app/page.tsx",
+    "README.md"
+  ],
+  "showDevTools": true
+}
